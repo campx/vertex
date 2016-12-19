@@ -66,6 +66,30 @@ public:
     link_iterator erase(const link_type& link);
 
 private:
+    class Pin
+    {
+    public:
+        Pin(Forest* forest, key_type key)
+            : forest_(forest), link_(link_type(key, key))
+        {
+            if (forest_) forest_->insert(link_);
+        }
+        ~Pin()
+        {
+            if (forest_) forest_->erase(link_);
+        }
+        Pin(Pin&& other)
+            : forest_(other.forest_), link_(std::move(other.link_))
+        {
+            other.forest_ = nullptr;
+        }
+        const key_type& key() { return link_.first; }
+
+    private:
+        Forest* forest_;
+        link_type link_;
+    };
+
     /** Insert a link into the graph
      * Parent and child nodes must exist */
     std::pair<link_iterator, bool> insert(const link_type& link);
@@ -77,10 +101,6 @@ private:
     NodeStore nodes_;
     LinkStore links_;
 };
-
-/** @TODO Pin class which inserts a self-edge on construction and erases on
- * destruction. Insert a new pin whenever child doesn't equal most recently
- * inserted pin */
 
 template <typename N, typename L>
 Forest<N, L>::Forest(N nodes, L links)
@@ -107,11 +127,13 @@ typename std::tuple<typename Forest<N, L>::node_iterator,
 Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
                      typename Forest<N, L>::node_iterator parent,
                      typename Forest<N, L>::node_iterator child)
-{ /* Follow links up the tree and speculatively generate new branches. When
-    the path terminates, check if the endpoint is root, if not, unlink */
+{ /* Follow links up the tree and speculatively
+    generate new branches. When
+    the path terminates, check if the endpoint
+    is root, if not, unlink */
     using node_iterator = Forest<N, L>::node_iterator;
-    std::vector<link_type> pins; // pins prevent deletion of subtree
-    pins.push_back(link_type(child->first, child->first));
+    std::vector<Pin> pins; // pins prevent deletion of subtree
+    pins.emplace_back(Pin(this, child->first));
 
     // Map from node to updated version, with bool to indicate whether it's new
     auto compare = [](node_iterator a, node_iterator b) {
@@ -147,11 +169,9 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
         }
         if (target_parent != nodes().end())
         {
-            if (target_child->first != pins.back().first)
+            if (target_child->first != pins.back().key())
             {
-                pins.push_back(
-                    link_type(target_child->first, target_child->first));
-                insert(pins.back());
+                pins.emplace_back(Pin(this, target_child->first));
             }
             auto node = target_parent->second;
             node.erase(source_child->first);
@@ -212,10 +232,6 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
     auto range = links_.equal_range(child->first);
     auto child_link = std::find(range.first, range.second, link);
     assert(child_link != range.second); // link must exist
-    for (auto link_pin : pins)
-    {
-        erase(link_pin);
-    }
     return std::make_tuple(root, child_link, parent_was_updated);
 }
 
