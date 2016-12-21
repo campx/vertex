@@ -23,10 +23,7 @@ TEST(Merkle, Forest)
         EXPECT_NE(graph.nodes().end(), d_0);
         EXPECT_NE(graph.nodes().end(), e_0);
 
-        auto link = graph.links().end();
-        auto child = b_0->first;
-        auto parent = a_0->first;
-        auto inserted = false;
+        auto parent = a_0;
         auto root = graph.nodes().find(a_0->first);
         EXPECT_NE(root, graph.nodes().end());
 
@@ -36,13 +33,10 @@ TEST(Merkle, Forest)
          */
         { // Add b_0 as a child of a_0 in the graph rooted at a_0
             auto result = graph.insert(root, a_0, b_0);
-            std::tie(root, link, inserted) = result;
-            std::tie(child, parent) = *link;
-            EXPECT_EQ(b_0->first, child);
-            EXPECT_NE(a_0->first, parent);
+            std::tie(root, parent) = result;
+            EXPECT_NE(a_0, parent);
             ASSERT_NE(root, graph.nodes().end());
             ASSERT_NE(root, a_0);
-            EXPECT_EQ(true, inserted);
             EXPECT_EQ(std::size_t(1), graph.links().count(b_0->first));
             EXPECT_EQ(std::size_t(1), root->second.size());
             EXPECT_EQ(std::size_t(6), graph.nodes().size());
@@ -57,10 +51,8 @@ TEST(Merkle, Forest)
          */
         { // Add c_0 as a child of a_1 in the graph rooted at a_1
             auto result = graph.insert(root, a_1, c_0);
-            std::tie(root, link, inserted) = result;
-            std::tie(child, parent) = *link;
-            EXPECT_EQ(c_0->first, child);
-            EXPECT_NE(a_1->first, parent);
+            std::tie(root, parent) = result;
+            EXPECT_NE(a_1, parent);
             ASSERT_NE(root, a_1);
             EXPECT_EQ(std::size_t(2), graph.links().count(b_0->first));
             EXPECT_EQ(std::size_t(2), root->second.size());
@@ -80,10 +72,8 @@ TEST(Merkle, Forest)
          */
         { // Add d_0 as a child of c_0 in the graph rooted at a_2
             auto result = graph.insert(root, c_0, d_0);
-            std::tie(root, link, inserted) = result;
-            std::tie(child, parent) = *link;
-            EXPECT_EQ(d_0->first, child);
-            EXPECT_NE(c_0->first, parent);
+            std::tie(root, parent) = result;
+            EXPECT_NE(c_0, parent);
             ASSERT_NE(root, a_2);
             EXPECT_EQ(std::size_t(3), graph.links().count(b_0->first));
             EXPECT_EQ(std::size_t(2), root->second.size());
@@ -105,37 +95,39 @@ TEST(Merkle, Forest)
          */
         { // Add e_0 as a child of b_0 in the graph rooted at a_3
             auto result = graph.insert(root, b_0, e_0);
-            std::tie(root, link, inserted) = result;
-            std::tie(child, parent) = *link;
-            EXPECT_EQ(e_0->first, child);
-            EXPECT_NE(b_0->first, parent);
+            std::tie(root, parent) = result;
+            EXPECT_NE(b_0, parent);
             ASSERT_NE(root, a_3);
             EXPECT_EQ(std::size_t(3), graph.links().count(b_0->first));
             EXPECT_EQ(std::size_t(1), a_1->second.size());
             EXPECT_EQ(std::size_t(2), a_2->second.size());
             EXPECT_EQ(std::size_t(2), a_3->second.size());
             EXPECT_EQ(std::size_t(2), root->second.size());
-            EXPECT_EQ(std::size_t(1), graph.links().count(parent));
-            EXPECT_EQ(std::size_t(1), graph.links().count(child));
+            EXPECT_EQ(std::size_t(1), graph.links().count(parent->first));
+            EXPECT_EQ(std::size_t(1), graph.links().count(e_0->first));
             EXPECT_EQ(std::size_t(11), graph.nodes().size());
             EXPECT_EQ(std::size_t(9), graph.links().size());
         }
 
-        /* O a_0    O a_2           O d_0   O e_0
-         *         / \
-         *        /   \
-         *       O b_0 O c_0
-
-        { // Unlink the root a_1
-            auto link = TestForest::link_type(b_0->first, a_1->first);
-            auto result = graph.erase(link);
-            EXPECT_NE(graph.links().end(), result);
-            EXPECT_EQ(std::size_t(6), graph.nodes().size());
-            EXPECT_EQ(std::size_t(2), graph.links().size());
-            EXPECT_EQ(std::size_t(1), graph.links().count(b_0->first));
+        /* O a_0          O a_2
+         *               / \
+         *              /   \
+         *             O b_0 O c_0     O e_0
+         *            /               /
+         *       a_3 O         O a_4 /
+         *          /         / \   /
+         *         /_________/   \ /
+         *    c_1 O---O d_0       O b_1
+         *
+         */
+        { // erase the root a_1
+            auto result = graph.erase(a_1);
+            EXPECT_NE(graph.nodes().end(), result);
+            EXPECT_EQ(std::size_t(10), graph.nodes().size());
+            EXPECT_EQ(std::size_t(8), graph.links().size());
+            EXPECT_EQ(std::size_t(2), graph.links().count(b_0->first));
             EXPECT_EQ(graph.nodes().end(), graph.nodes().find(a_1->first));
         }
-        */
     }
 }
 
