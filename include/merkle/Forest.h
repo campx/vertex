@@ -76,6 +76,7 @@ private:
         {
             if (forest_) forest_->erase(link_);
         }
+        void detach() { forest_ = nullptr; }
         Pin(Pin&& other)
             : forest_(other.forest_), link_(std::move(other.link_))
         {
@@ -86,6 +87,28 @@ private:
     private:
         Forest* forest_;
         link_type link_;
+    };
+
+    class Mapping
+    {
+    public:
+        using key_type = node_iterator;
+        Mapping(NodeStore* store) : store_(store) {}
+        struct Compare
+        {
+            bool operator()(node_iterator a, node_iterator b)
+            {
+                return a->first < b->first;
+            }
+        };
+        /** Set the corresponding output for input */
+        void set(node_iterator input, node_iterator output);
+        /** Get the corresponding output for input */
+        node_iterator get(node_iterator input);
+
+    private:
+        NodeStore* const store_;
+        std::map<key_type, key_type, Compare> map_;
     };
 
     /** Insert a link into the graph
@@ -125,53 +148,30 @@ Forest<N, L>::insert(const typename N::value_type::second_type& node)
     return result;
 }
 
+/* Follow links up the tree and speculatively generate new branches. When
+    the path terminates, check if the endpoint is root, if not, unlink */
 template <typename N, typename L>
 typename std::pair<typename Forest<N, L>::node_iterator,
                    typename Forest<N, L>::node_iterator>
 Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
                      typename Forest<N, L>::node_iterator parent,
                      typename Forest<N, L>::node_iterator child)
-{ /* Follow links up the tree and speculatively
-    generate new branches. When
-    the path terminates, check if the endpoint
-    is root, if not, unlink */
+{
     using node_iterator = Forest<N, L>::node_iterator;
     std::vector<Pin> pins; // pins prevent deletion of subtree
     pins.emplace_back(Pin(this, child->first));
     auto result = std::make_pair(root, parent);
-
-    // Map from node to updated version, with bool to indicate whether it's new
-    auto compare = [](node_iterator a, node_iterator b) {
-        return a->first < b->first;
-    };
-    std::map<node_iterator, node_iterator, decltype(compare)> updated(compare);
-
-    // Queue of child-parent pairs to visit */
+    Mapping updated(&nodes_); // map from old tree to new tree
     std::queue<std::pair<node_iterator, node_iterator>> to_visit;
     to_visit.push(std::make_pair(child, parent));
-
     while (!to_visit.empty())
     {
         auto next_pair = to_visit.front();
         to_visit.pop();
         const auto source_child = next_pair.first;
         const auto source_parent = next_pair.second;
-        auto target_parent = source_parent;
-        auto target_child = source_child;
-        {
-            auto updated_parent = updated.find(source_parent);
-            auto updated_child = updated.find(source_child);
-            if (updated_child != updated.end())
-            {
-                target_child = updated_child->second;
-                target_child = nodes().find(updated_child->second->first);
-            }
-            if (updated_parent != updated.end())
-            {
-                target_parent = updated_parent->second;
-                target_parent = nodes().find(updated_parent->second->first);
-            }
-        }
+        auto target_parent = updated.get(source_parent);
+        auto target_child = updated.get(source_child);
         if (target_parent != nodes().end())
         {
             if (target_child->first != pins.back().key())
@@ -183,7 +183,7 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
             node.insert(target_child->first);
             auto inserted_parent = insert(node);
             if (source_child == child)
-            {
+            { // update parent iterator in result
                 result.second = inserted_parent.first;
             }
             auto range = links_.equal_range(source_parent->second.hash());
@@ -204,31 +204,12 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
                 { // remove entire node if new
                     erase(inserted_parent.first);
                 }
-                else
-                { // remove new link to node
-                    auto link = link_type(target_child->first,
-                                          inserted_parent.first->first);
-                    erase(link);
-                }
             }
             else
             {
                 target_parent = inserted_parent.first;
             }
-            auto existing_mapping = updated.find(source_parent);
-            if (existing_mapping != updated.end())
-            {
-                if (existing_mapping->second != target_parent)
-                { // remove existing mapping
-                    updated.erase(existing_mapping);
-                    existing_mapping = updated.end();
-                }
-            }
-            if (existing_mapping == updated.end() &&
-                source_parent != target_parent)
-            {
-                updated.insert(std::make_pair(source_parent, target_parent));
-            }
+            updated.set(source_parent, target_parent);
         }
     }
     return result;
@@ -321,6 +302,31 @@ Forest<N, L>::erase(const typename Forest<N, L>::link_type& link)
         result = erase(result);
     }
     return result;
+}
+
+template <typename N, typename L>
+void Forest<N, L>::Mapping::set(typename Forest<N, L>::node_iterator input,
+                                typename Forest<N, L>::node_iterator output)
+{
+    if (input != output)
+    {
+        map_[input] = output;
+    }
+}
+
+template <typename N, typename L>
+typename Forest<N, L>::node_iterator
+Forest<N, L>::Mapping::get(typename Forest<N, L>::node_iterator input)
+
+{
+    auto output = input;
+    auto output_it = map_.find(input);
+    if (output_it != map_.end())
+    {
+        output = output_it->second;
+        output = store_->find(output->first);
+    }
+    return output;
 }
 
 } // namespace merkle
