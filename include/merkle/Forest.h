@@ -175,41 +175,33 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
         if (target_parent != nodes().end())
         {
             if (target_child->first != pins.back().key())
-            {
                 pins.emplace_back(Pin(this, target_child->first));
-            }
             auto node = target_parent->second;
             node.erase(source_child->first);
             node.insert(target_child->first);
             auto inserted_parent = insert(node);
-            if (source_child == child)
-            { // update parent iterator in result
-                result.second = inserted_parent.first;
-            }
             auto range = links_.equal_range(source_parent->second.hash());
-            for (auto it = range.first; it != range.second; ++it)
-            { // enqueue grandparents
-                auto grandparent = nodes().find(it->second);
-                assert(grandparent != nodes().end());
-                to_visit.push(std::make_pair(source_parent, grandparent));
-            }
-            if (range.first == range.second)
-            { // no parents, so this is a source node
-                if (root == target_parent)
-                { // update root
-                    result.first = inserted_parent.first;
-                    target_parent = result.first;
-                }
-                else if (inserted_parent.second)
-                { // remove entire node if new
-                    erase(inserted_parent.first);
-                }
-            }
+            if (source_child == child) result.second = inserted_parent.first;
+            if (root == target_parent)
+                result.first = inserted_parent.first;
             else
             {
-                target_parent = inserted_parent.first;
+                for (auto it = range.first; it != range.second; ++it)
+                { // enqueue grandparents
+                    auto grandparent = nodes().find(it->second);
+                    assert(grandparent != nodes().end());
+                    to_visit.push(std::make_pair(source_parent, grandparent));
+                }
+                if (range.first == range.second && inserted_parent.second)
+                { // reached a source node without finding target root
+                    erase(inserted_parent.first);
+                }
+                else
+                {
+                    target_parent = inserted_parent.first;
+                }
+                updated.set(source_parent, target_parent);
             }
-            updated.set(source_parent, target_parent);
         }
     }
     return result;

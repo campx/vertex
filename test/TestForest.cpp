@@ -108,6 +108,7 @@ TEST(Merkle, Forest)
             EXPECT_EQ(std::size_t(11), graph.nodes().size());
             EXPECT_EQ(std::size_t(9), graph.links().size());
         }
+        auto b_1 = parent;
 
         /* O a_0          O a_2
          *               / \
@@ -127,6 +128,30 @@ TEST(Merkle, Forest)
             EXPECT_EQ(std::size_t(8), graph.links().size());
             EXPECT_EQ(std::size_t(2), graph.links().count(b_0->first));
             EXPECT_EQ(graph.nodes().end(), graph.nodes().find(a_1->first));
+        }
+        /* O a_0          O a_2
+         *               / \
+         *              /   \
+         *             O b_0 O c_0
+         *            /
+         *       a_3 O         O a_4
+         *          /         / \
+         *         /_________/   \
+         *    c_1 O               O b_1
+         *         \   O b_2     /
+         *          \ / \       /
+         *       d_0 O   \     /
+         *                \   /
+         *                 \ /
+         *                  O e_0
+         */
+        { // add d_0 as a child of b_1 in the subtree rooted at b_1
+            auto result = graph.insert(b_1, b_1, d_0);
+            std::tie(root, parent) = result;
+            EXPECT_NE(b_1, parent);
+            EXPECT_NE(root, b_1);
+            EXPECT_EQ(std::size_t(2), graph.links().count(d_0->first));
+            EXPECT_EQ(std::size_t(2), parent->second.children().size());
         }
     }
 }
