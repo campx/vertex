@@ -93,7 +93,7 @@ private:
     {
     public:
         using key_type = node_iterator;
-        Mapping(NodeStore* store) : store_(store) {}
+        Mapping(const NodeStore* const store) : store_(store) {}
         struct Compare
         {
             bool operator()(node_iterator a, node_iterator b)
@@ -107,7 +107,7 @@ private:
         node_iterator get(node_iterator input);
 
     private:
-        NodeStore* const store_;
+        const NodeStore* const store_;
         std::map<key_type, key_type, Compare> map_;
     };
 
@@ -161,7 +161,7 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
     std::vector<Pin> pins; // pins prevent deletion of subtree
     pins.emplace_back(Pin(this, child->first));
     auto result = std::make_pair(root, parent);
-    Mapping updated(&nodes_); // map from old tree to new tree
+    Mapping updated(&nodes()); // map from old tree to new tree
     std::queue<std::pair<node_iterator, node_iterator>> to_visit;
     to_visit.push(std::make_pair(child, parent));
     while (!to_visit.empty())
@@ -180,7 +180,7 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
             node.erase(source_child->first);
             node.insert(target_child->first);
             auto inserted_parent = insert(node);
-            auto range = links_.equal_range(source_parent->second.hash());
+            auto range = links().equal_range(source_parent->second.hash());
             if (source_child == child) result.second = inserted_parent.first;
             if (root == target_parent)
                 result.first = inserted_parent.first;
@@ -218,10 +218,10 @@ Forest<N, L>::erase(typename Forest<N, L>::link_iterator pos)
     {
         pos = to_visit.front();
         to_visit.pop();
-        assert(pos != links_.end());
+        assert(pos != links().end());
         auto child = pos->first;
         result = links_.erase(pos);
-        if (0 == links_.count(child))
+        if (0 == links().count(child))
         {
             auto node = nodes().find(child);
             if (nodes().end() != node)
@@ -236,17 +236,6 @@ Forest<N, L>::erase(typename Forest<N, L>::link_iterator pos)
         }
     }
     return result;
-}
-
-template <typename N, typename L>
-std::pair<typename Forest<N, L>::link_iterator, bool>
-Forest<N, L>::insert(const typename Forest<N, L>::link_type& link)
-{
-    assert(nodes().find(link.first) != nodes().end());  // Parent must exist
-    assert(nodes().find(link.second) != nodes().end()); // Child too
-    auto count = links_.count(link.first);
-    auto it = links_.insert(link);
-    return std::make_pair(it, links_.count(link.first) == count);
 }
 
 template <typename N, typename L>
@@ -274,14 +263,30 @@ template <typename N, typename L>
 typename Forest<N, L>::link_iterator
 Forest<N, L>::find(const typename Forest<N, L>::link_type& link)
 {
-    auto result = links_.cend();
-    auto range = links_.equal_range(link.first);
+    auto result = links().cend();
+    auto range = links().equal_range(link.first);
     auto it = std::find(range.first, range.second, link);
     if (it != range.second)
     {
         result = it;
     }
     return result;
+}
+
+template <typename N, typename L>
+std::pair<typename Forest<N, L>::link_iterator, bool>
+Forest<N, L>::insert(const typename Forest<N, L>::link_type& link)
+{
+    assert(nodes().find(link.first) != nodes().end());  // Parent must exist
+    assert(nodes().find(link.second) != nodes().end()); // Child too
+    auto it = find(link);
+    auto inserted = false;
+    if (it == links().end())
+    {
+        it = links_.insert(link);
+        inserted = true;
+    }
+    return std::make_pair(it, inserted);
 }
 
 template <typename N, typename L>
