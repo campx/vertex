@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <set>
 #include <type_traits>
 
 namespace merkle
@@ -176,9 +177,12 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
         {
             if (target_child->first != pins.back().key())
                 pins.emplace_back(Pin(this, target_child->first));
-            auto node = target_parent->second;
-            node.erase(source_child->first);
-            node.insert(target_child->first);
+            auto children = std::set<key_type>(target_parent->second.begin(),
+                                               target_parent->second.end());
+            children.erase(source_child->first);
+            children.insert(target_child->first);
+            auto node = node_type(children.begin(), children.end(),
+                                  target_parent->second.data());
             auto inserted_parent = insert(node);
             auto range = links().equal_range(source_parent->second.hash());
             if (source_child == child) result.second = inserted_parent.first;

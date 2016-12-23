@@ -151,7 +151,7 @@ TEST(Merkle, Forest)
             EXPECT_NE(b_1, parent);
             EXPECT_NE(root, b_1);
             EXPECT_EQ(std::size_t(2), graph.links().count(d_0->first));
-            EXPECT_EQ(std::size_t(2), parent->second.children().size());
+            EXPECT_EQ(std::size_t(2), parent->second.size());
             EXPECT_EQ(std::size_t(11), graph.nodes().size());
             EXPECT_EQ(std::size_t(10), graph.links().size());
         }
@@ -161,7 +161,7 @@ TEST(Merkle, Forest)
             EXPECT_NE(b_1, parent);
             EXPECT_NE(root, b_1);
             EXPECT_EQ(std::size_t(2), graph.links().count(d_0->first));
-            EXPECT_EQ(std::size_t(2), parent->second.children().size());
+            EXPECT_EQ(std::size_t(2), parent->second.size());
             EXPECT_EQ(std::size_t(11), graph.nodes().size());
             EXPECT_EQ(std::size_t(10), graph.links().size());
         }
