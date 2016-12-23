@@ -6,16 +6,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -Werror")
 include_directories(${merkle_SOURCE_DIR}/include)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 
-add_library(libmerkle 
+add_library(libmerkle
             src/Node.cpp
-            src/Tree.cpp
             src/Forest.cpp)
 set_target_properties(libmerkle PROPERTIES OUTPUT_NAME merkle)
 
 add_subdirectory(external/gtest)
 
 enable_testing()
-add_executable(TestMerkle test/TestNode.cpp test/TestTree.cpp test/TestForest.cpp test/main.cpp)
+add_executable(TestMerkle test/TestNode.cpp test/TestForest.cpp test/main.cpp)
 target_link_libraries(TestMerkle gtest libmerkle)
 set_target_properties(TestMerkle PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                       ${CMAKE_CURRENT_BINARY_DIR}/test)
