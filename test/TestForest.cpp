@@ -81,6 +81,7 @@ TEST(Merkle, Forest)
             EXPECT_EQ(std::size_t(6), graph.links().size());
         }
         auto a_3 = root;
+        auto c_1 = parent;
 
         /* O a_0    O a_1 O a_2
          *           \   / \
@@ -164,6 +165,54 @@ TEST(Merkle, Forest)
             EXPECT_EQ(std::size_t(2), parent->second.size());
             EXPECT_EQ(std::size_t(11), graph.nodes().size());
             EXPECT_EQ(std::size_t(10), graph.links().size());
+        }
+        /* O a_0          O a_2
+         *               / \
+         *              /   \
+         *             O b_0 O c_0
+         *            /
+         *       a_3 O         O a_4
+         *          /         / \
+         *         /_________/   \
+         *    c_1 O               O b_1
+         *         \   O b_2     /
+         *          \ / \       /
+         *       d_0 O   \     /
+         *                \   /
+         *                 \ /
+         *                  O e_0
+         */
+        { // remove d_0 from c_1 in the subtree rooted at a_3
+            // does nothing since the resulting subtree already exists
+            auto result = graph.erase(a_3, c_1, d_0);
+            std::tie(root, parent) = result;
+            EXPECT_EQ(a_2, root);
+            EXPECT_EQ(c_0, parent);
+            EXPECT_EQ(std::size_t(2), graph.links().count(d_0->first));
+            EXPECT_EQ(std::size_t(11), graph.nodes().size());
+            EXPECT_EQ(std::size_t(10), graph.links().size());
+        }
+        /* O a_0          O a_2
+         *               / \
+         *              /   \
+         *             O b_0 O c_0
+         *
+         *                     O a_4
+         *                    / \
+         *         __________/   \
+         *    c_1 O               O b_1
+         *         \   O b_2     /
+         *          \ / \       /
+         *       d_0 O   \     /
+         *                \   /
+         *                 \ /
+         *                  O e_0
+         */
+        { // remove a_3
+            graph.erase(a_3);
+            EXPECT_EQ(std::size_t(2), graph.links().count(d_0->first));
+            EXPECT_EQ(std::size_t(10), graph.nodes().size());
+            EXPECT_EQ(std::size_t(8), graph.links().size());
         }
     }
 }

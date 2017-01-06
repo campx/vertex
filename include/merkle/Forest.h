@@ -53,15 +53,27 @@ public:
      * Every child must exist */
     std::pair<node_iterator, bool> insert(const node_type& node);
 
-    /** Insert a link from a child node to a parent node in a tree
-     * The nodes referenced by the link and root must exist
+    /** Add child to parent and propograte changes up to root
+     * All iterators must be valid
      * @return Updated root node, updated parent node */
     std::pair<node_iterator, node_iterator>
     insert(node_iterator root, node_iterator parent, node_iterator child);
 
+    /** Remove child from parent and propogate changes up to root
+     * All iterators must be valid
+     * @return Updated root node, updated parent node */
+    std::pair<node_iterator, node_iterator>
+    erase(node_iterator root, node_iterator parent, node_iterator child);
+
+    /** Update a node and propogate changes to root
+     * All iterators must be valid
+     * @return Updated root node, updated node */
+    std::pair<node_iterator, node_iterator>
+    update(node_iterator root, node_iterator source, node_iterator target);
+
     /** Remove the node at the specified position
      * The position must be valid and the node must be an orphan **/
-    node_iterator erase(node_iterator pos);
+    node_iterator erase(node_iterator root);
 
 private:
     /** RAII class to prevent deletion of a node within an enclosing scope */
@@ -149,8 +161,6 @@ Forest<N, L>::insert(const typename N::value_type::second_type& node)
     return result;
 }
 
-/* Follow links up the tree and speculatively generate new branches. When
-    the path terminates, check if the endpoint is root, if not, unlink */
 template <typename N, typename L>
 typename std::pair<typename Forest<N, L>::node_iterator,
                    typename Forest<N, L>::node_iterator>
@@ -158,13 +168,46 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
                      typename Forest<N, L>::node_iterator parent,
                      typename Forest<N, L>::node_iterator child)
 {
+    auto children =
+        std::set<key_type>(parent->second.begin(), parent->second.end());
+    children.insert(child->first);
+    auto node =
+        node_type(children.begin(), children.end(), parent->second.data());
+    auto inserted_parent = insert(node);
+    auto result = update(root, parent, inserted_parent.first);
+    assert(result.second == inserted_parent.first);
+    assert(result.first != root);
+    return result;
+}
+
+/* Follow links up the tree and speculatively generate new branches. When
+    the path terminates, check if the endpoint is root, if not, unlink */
+template <typename N, typename L>
+typename std::pair<typename Forest<N, L>::node_iterator,
+                   typename Forest<N, L>::node_iterator>
+Forest<N, L>::update(typename Forest<N, L>::node_iterator root,
+                     typename Forest<N, L>::node_iterator source,
+                     typename Forest<N, L>::node_iterator target)
+{
     using node_iterator = Forest<N, L>::node_iterator;
-    std::vector<Pin> pins; // pins prevent deletion of subtree
-    pins.emplace_back(Pin(this, child->first));
-    auto result = std::make_pair(root, parent);
-    Mapping updated(&nodes()); // map from old tree to new tree
-    std::queue<std::pair<node_iterator, node_iterator>> to_visit;
-    to_visit.push(std::make_pair(child, parent));
+    auto pins = std::vector<Pin>{}; // pins prevent deletion of WIP subtree
+    auto updated = Mapping(&nodes());
+    updated.set(source, target);
+    auto result = std::make_pair(root, target);
+    auto to_visit = std::queue<std::pair<node_iterator, node_iterator>>{};
+    auto enqueue_parents = [&to_visit, &root,
+                            this](std::pair<key_type, key_type> link) {
+        auto child = nodes().find(link.first);
+        auto parent = nodes().find(link.second);
+        assert(parent != nodes().end());
+        assert(child != nodes().end());
+        auto grandparents = links().count(link.second);
+        if (grandparents != 0 || (grandparents == 0 && parent == root))
+            to_visit.push(std::make_pair(child, parent));
+    };
+    auto range = links().equal_range(source->first);
+    std::for_each(range.first, range.second, enqueue_parents);
+    if (source == root && to_visit.empty()) result.first = target;
     while (!to_visit.empty())
     {
         auto next_pair = to_visit.front();
@@ -175,7 +218,7 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
         auto target_child = updated.get(source_child);
         if (target_parent != nodes().end())
         {
-            if (target_child->first != pins.back().key())
+            if (pins.empty() || target_child->first != pins.back().key())
                 pins.emplace_back(Pin(this, target_child->first));
             auto children = std::set<key_type>(target_parent->second.begin(),
                                                target_parent->second.end());
@@ -185,17 +228,11 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
                                   target_parent->second.data());
             auto inserted_parent = insert(node);
             auto range = links().equal_range(source_parent->second.hash());
-            if (source_child == child) result.second = inserted_parent.first;
             if (root == target_parent)
                 result.first = inserted_parent.first;
             else
             {
-                for (auto it = range.first; it != range.second; ++it)
-                { // enqueue grandparents
-                    auto grandparent = nodes().find(it->second);
-                    assert(grandparent != nodes().end());
-                    to_visit.push(std::make_pair(source_parent, grandparent));
-                }
+                std::for_each(range.first, range.second, enqueue_parents);
                 if (range.first == range.second && inserted_parent.second)
                 { // reached a source node without finding target root
                     erase(inserted_parent.first);
@@ -209,6 +246,25 @@ Forest<N, L>::insert(typename Forest<N, L>::node_iterator root,
         }
     }
     return result;
+}
+
+/* Follow links up the tree and speculatively generate new branches. When
+    the path terminates, check if the endpoint is root, if not, unlink */
+template <typename N, typename L>
+typename std::pair<typename Forest<N, L>::node_iterator,
+                   typename Forest<N, L>::node_iterator>
+Forest<N, L>::erase(typename Forest<N, L>::node_iterator root,
+                    typename Forest<N, L>::node_iterator parent,
+                    typename Forest<N, L>::node_iterator child)
+{
+    auto children = std::vector<key_type>{};
+    std::copy_if(parent->second.begin(), parent->second.end(),
+                 std::back_inserter(children),
+                 [&child](const key_type& a) { return a != child->first; });
+    auto node =
+        node_type(children.begin(), children.end(), parent->second.data());
+    auto inserted_parent = insert(node);
+    return update(root, parent, inserted_parent.first);
 }
 
 template <typename N, typename L>
