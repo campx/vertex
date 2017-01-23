@@ -8,6 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 
 add_library(libmerkle
             src/Node.cpp
+            src/Tree.cpp
             src/Forest.cpp)
 set_target_properties(libmerkle PROPERTIES OUTPUT_NAME merkle)
 
