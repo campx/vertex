@@ -15,7 +15,8 @@ set_target_properties(libmerkle PROPERTIES OUTPUT_NAME merkle)
 add_subdirectory(external/gtest)
 
 enable_testing()
-add_executable(TestMerkle test/TestNode.cpp test/TestForest.cpp test/main.cpp)
+add_executable(TestMerkle test/TestNode.cpp test/TestTree.cpp 
+               test/TestForest.cpp test/main.cpp)
 target_link_libraries(TestMerkle gtest libmerkle)
 set_target_properties(TestMerkle PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                       ${CMAKE_CURRENT_BINARY_DIR}/test)

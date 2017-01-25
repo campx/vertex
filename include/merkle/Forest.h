@@ -75,6 +75,13 @@ public:
      * The position must be valid and the node must be an orphan **/
     node_iterator erase(node_iterator root);
 
+    /** Remove the given link */
+    link_iterator erase(const link_type& link);
+
+    /** Insert a link into the graph
+     * Parent and child nodes must exist */
+    std::pair<link_iterator, bool> insert(const link_type& link);
+
 private:
     /** RAII class to prevent deletion of a node within an enclosing scope */
     class Pin
@@ -124,15 +131,8 @@ private:
         std::map<key_type, key_type, Compare> map_;
     };
 
-    /** Insert a link into the graph
-     * Parent and child nodes must exist */
-    std::pair<link_iterator, bool> insert(const link_type& link);
-
     /** Get an iterator to the link matching the argument */
     link_iterator find(const link_type& link);
-
-    /** Remove the given link */
-    link_iterator erase(const link_type& link);
 
     /** Remove the node link at the given position.
      * The given position must be valid. */
