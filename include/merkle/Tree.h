@@ -24,6 +24,7 @@ public:
     const std::shared_ptr<Forest>& forest() const { return forest_; }
     node_iterator root() const { return root_; }
 
+    node_iterator insert(node_iterator parent, node_iterator child);
     node_iterator insert(node_iterator parent, const node_type& child);
     node_iterator erase(node_iterator parent, node_iterator child);
     node_iterator update(node_iterator source, const node_type& node);
@@ -31,6 +32,8 @@ public:
 private:
     std::shared_ptr<Forest> forest_;
     node_iterator root_;
+
+    void root(node_iterator value);
 
     class Pin
     {
@@ -95,6 +98,14 @@ operator()(node_iterator a, node_iterator b)
 }
 
 template <typename Forest>
+void Tree<Forest>::root(typename Tree<Forest>::node_iterator value)
+{
+    auto last_root(root());
+    root_ = value;
+    forest()->erase(last_root);
+}
+
+template <typename Forest>
 typename Tree<Forest>::node_iterator
 Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
                      const typename Tree<Forest>::node_type& node)
@@ -113,12 +124,13 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         assert(parent != forest()->nodes().end());
         assert(child != forest()->nodes().end());
         auto grandparents = forest()->links().count(link.second);
-        if (grandparents != 0 || (grandparents == 0 && parent == root_))
+        if (child != root() &&
+            (grandparents != 0 || (grandparents == 0 && parent == root())))
             to_visit.push(std::make_pair(child, parent));
     };
     auto range = forest()->links().equal_range(source->first);
     std::for_each(range.first, range.second, enqueue_parents);
-    if (source == root() && to_visit.empty()) root_ = target;
+    if (source == root()) root(target);
     while (!to_visit.empty())
     {
         auto next_pair = to_visit.front();
@@ -138,14 +150,14 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
             auto node = node_type(children.begin(), children.end(),
                                   target_parent->second.data());
             auto inserted_parent = forest()->insert(node);
-            auto range =
-                forest()->links().equal_range(source_parent->second.hash());
+            auto range = forest()->links().equal_range(source_parent->first);
             if (root() == target_parent)
-                root_ = inserted_parent.first;
+                root(inserted_parent.first);
             else
             {
+                auto remaining = to_visit.size();
                 std::for_each(range.first, range.second, enqueue_parents);
-                if (range.first == range.second && inserted_parent.second)
+                if (to_visit.size() == remaining)
                 { // reached a source node without finding target root
                     forest()->erase(inserted_parent.first);
                 }
@@ -163,16 +175,23 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
 template <typename Forest>
 typename Tree<Forest>::node_iterator
 Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
-                     const typename Tree<Forest>::node_type& child)
+                     typename Tree<Forest>::node_iterator child)
 {
     using key_type = typename Forest::key_type;
-    forest()->insert(child);
     auto children =
         std::set<key_type>(parent->second.begin(), parent->second.end());
-    children.insert(child.hash());
+    children.insert(child->first);
     auto node =
         node_type(children.begin(), children.end(), parent->second.data());
     return update(parent, node);
+}
+
+template <typename Forest>
+typename Tree<Forest>::node_iterator
+Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
+                     const typename Tree<Forest>::node_type& child)
+{
+    return insert(parent, forest()->insert(child).first);
 }
 
 /* Follow links up the tree and speculatively generate new branches. When
