@@ -43,11 +43,17 @@ public:
 
     /** Get a read-only handle to the data structure containing all nodes
      * for this graph */
-    const NodeStore& nodes() const { return nodes_; }
+    const NodeStore& nodes() const
+    {
+        return nodes_;
+    }
 
     /** Get a read-only handle to the data structure containing all links
      * for this graph */
-    const LinkStore& links() const { return links_; }
+    const LinkStore& links() const
+    {
+        return links_;
+    }
 
     /** Insert a node into the graph, creating links from all its children
      * Every child must exist */
@@ -55,7 +61,7 @@ public:
 
     /** Remove the node at the specified position
      * The position must be valid and the node must be an orphan **/
-    node_iterator erase(node_iterator root);
+    node_iterator erase(node_iterator pos);
 
     /** Remove the given link */
     link_iterator erase(const link_type& link);

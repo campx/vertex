@@ -130,12 +130,13 @@ TEST(Merkle, Tree)
      *
      */
     { // erase the root a_1
+        auto hash = pa_1->first;
         auto result = snapshots.erase(snapshots.root(), pa_1);
         EXPECT_NE(forest->nodes().end(), result);
         EXPECT_EQ(std::size_t(11), forest->nodes().size());
         EXPECT_EQ(std::size_t(12), forest->links().size());
         EXPECT_EQ(std::size_t(2), forest->links().count(b_0.hash()));
-        EXPECT_EQ(forest->nodes().end(), forest->nodes().find(pa_1->first));
+        EXPECT_EQ(forest->nodes().end(), forest->nodes().find(hash));
     }
     /* S a_0          S a_2
      *               / \

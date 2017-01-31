@@ -33,22 +33,37 @@ public:
     }
 
     /** Get the data associated with this node */
-    element_type data() const { return data_; }
+    element_type data() const
+    {
+        return data_;
+    }
 
     /** Get the hash of this node */
     value_type hash() const;
 
     /** Get an iterator to the first child link of the node */
-    const_iterator begin() const { return children_.cbegin(); }
+    const_iterator begin() const
+    {
+        return children_.cbegin();
+    }
 
     /** Get an iterator one position past the last child link of the node */
-    const_iterator end() const { return children_.cend(); }
+    const_iterator end() const
+    {
+        return children_.cend();
+    }
 
     const_iterator find(const value_type& value) const;
 
-    size_type size() const { return children_.size(); }
+    size_type size() const
+    {
+        return children_.size();
+    }
 
-    bool empty() const { return children_.empty(); }
+    bool empty() const
+    {
+        return children_.empty();
+    }
 
     bool operator==(const Node& rhs) const;
 

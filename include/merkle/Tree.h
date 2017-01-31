@@ -17,12 +17,18 @@ public:
     using node_type = typename Forest::node_type;
 
     Tree(std::shared_ptr<Forest> forest, node_iterator root)
-        : forest_(std::move(forest)), root_(root)
+        : forest_(std::move(forest)), root_(std::move(root))
     {
     }
 
-    const std::shared_ptr<Forest>& forest() const { return forest_; }
-    node_iterator root() const { return root_; }
+    const std::shared_ptr<Forest>& forest() const
+    {
+        return forest_;
+    }
+    node_iterator root() const
+    {
+        return root_;
+    }
 
     node_iterator insert(node_iterator parent, node_iterator child);
     node_iterator insert(node_iterator parent, const node_type& child);
@@ -42,9 +48,16 @@ private:
         using key_type = typename Forest::key_type;
         Pin(Forest* const forest, key_type key);
         ~Pin();
-        void detach() { forest_ = nullptr; }
-        Pin(Pin&& other);
-        const key_type& key() { return link_.first; }
+        void detach()
+        {
+            forest_ = nullptr;
+        }
+        Pin(Pin&& other) noexcept;
+        const key_type& key()
+        {
+            return link_.first;
+        }
+
     private:
         Forest* forest_;
         link_type link_;
@@ -54,7 +67,10 @@ private:
     {
     public:
         using key_type = node_iterator;
-        Mapping(std::shared_ptr<Forest> forest) : forest_(forest) {}
+        explicit Mapping(std::shared_ptr<Forest> forest)
+            : forest_(std::move(forest))
+        {
+        }
         struct Compare
         {
             bool operator()(node_iterator a, node_iterator b);
@@ -74,18 +90,24 @@ template <typename Forest>
 Tree<Forest>::Pin::Pin(Forest* const forest, key_type key)
     : forest_(forest), link_(link_type(key, key))
 {
-    if (forest_) forest_->insert(link_);
+    if (forest_)
+    {
+        forest_->insert(link_);
+    }
 }
 
 template <typename Forest>
 Tree<Forest>::Pin::~Pin()
 {
-    if (forest_) forest_->erase(link_);
+    if (forest_)
+    {
+        forest_->erase(link_);
+    }
 }
 
 template <typename Forest>
-Tree<Forest>::Pin::Pin(Pin&& other)
-    : forest_(other.forest_), link_(std::move(other.link_))
+Tree<Forest>::Pin::Pin(Pin&& other) noexcept : forest_(other.forest_),
+                                               link_(std::move(other.link_))
 {
     other.forest_ = nullptr;
 }
@@ -126,11 +148,16 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         auto grandparents = forest()->links().count(link.second);
         if (child != root() &&
             (grandparents != 0 || (grandparents == 0 && parent == root())))
+        {
             to_visit.push(std::make_pair(child, parent));
+        }
     };
     auto range = forest()->links().equal_range(source->first);
     std::for_each(range.first, range.second, enqueue_parents);
-    if (source == root()) root(target);
+    if (source == root())
+    {
+        root(target);
+    }
     while (!to_visit.empty())
     {
         auto next_pair = to_visit.front();
@@ -142,7 +169,9 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         if (target_parent != forest()->nodes().end())
         {
             if (pins.empty() || target_child->first != pins.back().key())
+            {
                 pins.emplace_back(Pin(forest().get(), target_child->first));
+            }
             auto children = std::set<key_type>(target_parent->second.begin(),
                                                target_parent->second.end());
             children.erase(source_child->first);
@@ -152,7 +181,9 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
             auto inserted_parent = forest()->insert(node);
             auto range = forest()->links().equal_range(source_parent->first);
             if (root() == target_parent)
+            {
                 root(inserted_parent.first);
+            }
             else
             {
                 auto remaining = to_visit.size();
