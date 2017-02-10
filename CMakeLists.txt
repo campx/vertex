@@ -13,6 +13,8 @@ add_library(libmerkle
 set_target_properties(libmerkle PROPERTIES OUTPUT_NAME merkle)
 
 add_subdirectory(external/gtest)
+target_include_directories(libmerkle INTERFACE
+    "${merkle_SOURCE_DIR}/include")
 
 enable_testing()
 add_executable(TestMerkle test/TestNode.cpp test/TestTree.cpp 
