@@ -20,15 +20,13 @@ public:
     using size_type = typename container_type::size_type;
 
     explicit Node(element_type data = element_type())
-        : data_(std::move(data)), children_(),
-          hash_(static_cast<const Impl*>(this)->computeHash())
+        : data_(std::move(data)), children_()
     {
     }
 
     template <typename Iter = typename container_type::const_iterator>
     Node(Iter first, Iter last, element_type data = element_type())
-        : data_(std::move(data)), children_(first, last),
-          hash_(static_cast<const Impl*>(this)->computeHash())
+        : data_(std::move(data)), children_(first, last)
     {
     }
 
@@ -76,13 +74,12 @@ public:
 private:
     element_type data_;
     container_type children_;
-    value_type hash_;
 };
 
 template <typename T, typename Link, typename Impl>
 typename Node<T, Link, Impl>::value_type Node<T, Link, Impl>::hash() const
 {
-    return hash_;
+    return static_cast<const Impl*>(this)->computeHash();
 }
 
 template <typename T, typename Link, typename Impl>
