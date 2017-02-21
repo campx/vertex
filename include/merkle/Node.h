@@ -17,6 +17,7 @@ public:
 
     using container_type = std::vector<value_type>;
     using const_iterator = typename container_type::const_iterator;
+    using iterator = typename container_type::iterator;
     using size_type = typename container_type::size_type;
 
     explicit Node(element_type data = element_type())

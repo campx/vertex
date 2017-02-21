@@ -9,7 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 add_library(libmerkle
             src/Node.cpp
             src/Tree.cpp
-            src/Forest.cpp)
+            src/Forest.cpp
+            src/Array.cpp)
 set_target_properties(libmerkle PROPERTIES OUTPUT_NAME merkle)
 
 add_subdirectory(external/gtest)
@@ -18,7 +19,7 @@ target_include_directories(libmerkle INTERFACE
 
 enable_testing()
 add_executable(TestMerkle test/TestNode.cpp test/TestTree.cpp 
-               test/TestForest.cpp test/main.cpp)
+               test/TestForest.cpp test/TestArray.cpp test/main.cpp)
 target_link_libraries(TestMerkle gtest libmerkle)
 set_target_properties(TestMerkle PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                       ${CMAKE_CURRENT_BINARY_DIR}/test)

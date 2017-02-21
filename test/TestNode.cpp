@@ -4,6 +4,12 @@
 namespace merkle
 {
 
+std::ostream& operator<<(std::ostream& output, const TestNode& node)
+{
+    output << node.data();
+    return output;
+}
+
 TestNode::value_type TestNode::computeHash() const
 {
     auto input = data();

@@ -6,7 +6,7 @@ namespace merkle
 
 TEST(Merkle, Tree)
 {
-    auto forest = std::shared_ptr<TestForest>(new TestForest);
+    auto forest = std::make_shared<TestForest>();
 
     /*
      * O a_0

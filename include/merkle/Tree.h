@@ -13,6 +13,7 @@ template <typename Forest>
 class Tree
 {
 public:
+    using forest_pointer = typename std::shared_ptr<Forest>;
     using node_iterator = typename Forest::node_iterator;
     using node_type = typename Forest::node_type;
 
@@ -29,6 +30,8 @@ public:
     {
         return root_;
     }
+
+    bool operator==(const Tree<Forest>& rhs) const;
 
     node_iterator insert(node_iterator parent, node_iterator child);
     node_iterator insert(node_iterator parent, const node_type& child);
@@ -201,6 +204,12 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         }
     }
     return target;
+}
+
+template <typename Forest>
+bool Tree<Forest>::operator==(const Tree<Forest>& rhs) const
+{
+    return forest_ == rhs.forest_ && root_ == rhs.root_;
 }
 
 template <typename Forest>
