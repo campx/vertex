@@ -9,10 +9,12 @@ template <typename Tree>
 class SequentialIterator
 {
 public:
+    using key_type = typename Tree::forest_type::key_type;
+    using mapped_type = typename Tree::node_type;
     using self_type = SequentialIterator<Tree>;
     using node_iterator = typename Tree::node_iterator;
-    using value_type = typename Tree::node_type;
-    using key_iterator = typename value_type::const_iterator;
+    using value_type = typename std::pair<const key_type, mapped_type>;
+    using key_iterator = typename mapped_type::const_iterator;
     using reference = const value_type&;
     using pointer = const value_type*;
 
@@ -127,14 +129,14 @@ typename SequentialIterator<Tree>::reference SequentialIterator<Tree>::
 operator*()
 {
     node_ = tree_.forest()->nodes().find(*key_);
-    return node_->second;
+    return *node_;
 }
 
 template <typename Tree>
 typename SequentialIterator<Tree>::pointer SequentialIterator<Tree>::
 operator->()
 {
-    return &(node_->second);
+    return &(*node_);
 }
 
 template <typename Tree>

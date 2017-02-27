@@ -19,7 +19,7 @@ TEST(Merkle, Array)
     std::vector<TestNode> results{};
     for (const auto& node : array)
     {
-        results.push_back(node);
+        results.push_back(node.second);
     }
 
     std::vector<TestNode> expected{TestNode("a"), TestNode("b")};

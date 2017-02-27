@@ -13,6 +13,7 @@ template <typename Forest>
 class Tree
 {
 public:
+    using forest_type = Forest;
     using forest_pointer = typename std::shared_ptr<Forest>;
     using node_iterator = typename Forest::node_iterator;
     using node_type = typename Forest::node_type;
