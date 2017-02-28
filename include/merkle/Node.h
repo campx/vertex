@@ -20,14 +20,9 @@ public:
     using iterator = typename container_type::iterator;
     using size_type = typename container_type::size_type;
 
-    explicit Node(element_type data = element_type())
-        : data_(std::move(data)), children_()
-    {
-    }
-
-    template <typename Iter = typename container_type::const_iterator>
-    Node(Iter first, Iter last, element_type data = element_type())
-        : data_(std::move(data)), children_(first, last)
+    explicit Node(element_type data = element_type(),
+                  container_type children = container_type())
+        : data_(std::move(data)), children_(std::move(children))
     {
     }
 

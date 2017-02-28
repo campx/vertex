@@ -180,8 +180,9 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
                                                target_parent->second.end());
             children.erase(source_child->first);
             children.insert(target_child->first);
-            auto node = node_type(children.begin(), children.end(),
-                                  target_parent->second.data());
+            auto node = node_type(target_parent->second.data(),
+                                  std::vector<key_type>(children.begin(),
+                                                        children.end()));
             auto inserted_parent = forest()->insert(node);
             auto range = forest()->links().equal_range(source_parent->first);
             if (root() == target_parent)
@@ -223,7 +224,8 @@ Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
         std::set<key_type>(parent->second.begin(), parent->second.end());
     children.insert(child->first);
     auto node =
-        node_type(children.begin(), children.end(), parent->second.data());
+        node_type(parent->second.data(),
+                  std::vector<key_type>(children.begin(), children.end()));
     return update(parent, node);
 }
 
@@ -247,8 +249,7 @@ Tree<Forest>::erase(typename Tree<Forest>::node_iterator parent,
     std::copy_if(parent->second.begin(), parent->second.end(),
                  std::back_inserter(children),
                  [&child](const key_type& a) { return a != child->first; });
-    auto node =
-        node_type(children.begin(), children.end(), parent->second.data());
+    auto node = node_type(parent->second.data(), children);
     return update(parent, node);
 }
 

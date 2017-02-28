@@ -48,7 +48,7 @@ TEST(Merkle, Node)
         auto hash = TestNode::value_type(2762169579135187400);
         std::vector<TestNode::value_type> children;
         children.push_back(child.hash());
-        auto node = TestNode(children.begin(), children.end(), "hello");
+        auto node = TestNode("hello", children);
         EXPECT_NE(hash, node.hash());
         EXPECT_FALSE(node.empty());
         EXPECT_EQ(TestNode::size_type(1), node.size());
