@@ -27,7 +27,7 @@ public:
     }
 
     /** Get the data associated with this node */
-    element_type data() const
+    const element_type& data() const
     {
         return data_;
     }
