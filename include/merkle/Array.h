@@ -22,6 +22,8 @@ public:
     SequentialIterator(const SequentialIterator&) = default;
     SequentialIterator& operator=(const SequentialIterator&) = default;
 
+    void increment();
+    void decrement();
     self_type operator++();
     self_type operator++(int dummy);
     self_type operator--();
@@ -84,15 +86,28 @@ Array<Tree>::insert(const typename Array<Tree>::node_type& node)
 template <typename Tree>
 SequentialIterator<Tree>::SequentialIterator(
     Tree tree, typename SequentialIterator<Tree>::key_iterator node)
-    : tree_(std::move(tree)), key_(node), node_(tree_.root())
+    : tree_(std::move(tree)), key_(node),
+      node_(tree_.forest()->nodes().find(*key_))
 {
+}
+
+template <typename Tree>
+void SequentialIterator<Tree>::increment()
+{
+    node_ = tree_.forest()->nodes().find(*(++key_));
+}
+
+template <typename Tree>
+void SequentialIterator<Tree>::decrement()
+{
+    node_ = tree_.forest()->nodes().find(*(--key_));
 }
 
 template <typename Tree>
 typename SequentialIterator<Tree>::self_type SequentialIterator<Tree>::
 operator++()
 {
-    key_++;
+    increment();
     return *this;
 }
 
@@ -102,7 +117,7 @@ operator++(int dummy)
 {
     dummy++;
     auto tmp = *this;
-    key_++;
+    increment();
     return tmp;
 }
 
@@ -110,7 +125,7 @@ template <typename Tree>
 typename SequentialIterator<Tree>::self_type SequentialIterator<Tree>::
 operator--()
 {
-    key_--;
+    decrement();
     return *this;
 }
 
@@ -120,7 +135,7 @@ operator--(int dummy)
 {
     dummy--;
     auto tmp = *this;
-    key_--;
+    decrement();
     return tmp;
 }
 
@@ -128,15 +143,14 @@ template <typename Tree>
 typename SequentialIterator<Tree>::reference SequentialIterator<Tree>::
 operator*()
 {
-    node_ = tree_.forest()->nodes().find(*key_);
-    return *node_;
+    return node_.operator*();
 }
 
 template <typename Tree>
 typename SequentialIterator<Tree>::pointer SequentialIterator<Tree>::
 operator->()
 {
-    return &(*node_);
+    return node_.operator->();
 }
 
 template <typename Tree>
