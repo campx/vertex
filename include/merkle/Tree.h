@@ -136,7 +136,8 @@ typename Tree<Forest>::node_iterator
 Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
                      const typename Tree<Forest>::node_type& node)
 {
-    auto target = forest()->insert(node).first;
+    auto inserted_node = forest()->insert(node);
+    auto target = inserted_node.first;
     using node_iterator = typename Forest::node_iterator;
     using key_type = typename Forest::key_type;
     auto pins = std::vector<Pin>{}; // pins prevent deletion of WIP subtree
@@ -221,11 +222,9 @@ Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
 {
     using key_type = typename Forest::key_type;
     auto children =
-        std::set<key_type>(parent->second.begin(), parent->second.end());
-    children.insert(child->first);
-    auto node =
-        node_type(parent->second.data(),
-                  std::vector<key_type>(children.begin(), children.end()));
+        std::vector<key_type>(parent->second.begin(), parent->second.end());
+    children.push_back(child->first);
+    auto node = node_type(parent->second.data(), children);
     return update(parent, node);
 }
 
@@ -234,7 +233,8 @@ typename Tree<Forest>::node_iterator
 Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
                      const typename Tree<Forest>::node_type& child)
 {
-    return insert(parent, forest()->insert(child).first);
+    auto inserted_node = forest()->insert(child);
+    return insert(parent, inserted_node.first);
 }
 
 /* Follow links up the tree and speculatively generate new branches. When
