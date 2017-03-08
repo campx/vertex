@@ -14,7 +14,8 @@ public:
     using self_type = SequentialIterator<Tree>;
     using node_iterator = typename Tree::node_iterator;
     using value_type = typename std::pair<const key_type, mapped_type>;
-    using key_iterator = typename mapped_type::const_iterator;
+    using key_container = typename mapped_type::container_type;
+    using key_iterator = typename key_container::const_iterator;
     using reference = const value_type&;
     using pointer = const value_type*;
 
@@ -69,13 +70,13 @@ typename Array<Tree>::node_iterator Array<Tree>::root() const
 template <typename Tree>
 typename Array<Tree>::iterator Array<Tree>::begin()
 {
-    return iterator(tree_, tree_.root()->second.begin());
+    return iterator(tree_, tree_.root()->second.links().begin());
 }
 
 template <typename Tree>
 typename Array<Tree>::iterator Array<Tree>::end()
 {
-    return iterator(tree_, tree_.root()->second.end());
+    return iterator(tree_, tree_.root()->second.links().end());
 }
 
 template <typename Tree>
@@ -84,7 +85,7 @@ Array<Tree>::insert(const typename Array<Tree>::node_type& node)
 {
     node.hash();
     auto inserted = tree_.insert(tree_.root(), node);
-    auto element = inserted->second.begin();
+    auto element = inserted->second.links().begin();
     return iterator(tree_, element);
 }
 
@@ -93,7 +94,7 @@ SequentialIterator<Tree>::SequentialIterator(
     Tree tree, typename SequentialIterator<Tree>::key_iterator node)
     : tree_(std::move(tree)), key_(node)
 {
-    if (key_ != tree_.root()->second.end())
+    if (key_ != tree_.root()->second.links().end())
     {
         node_ = tree_.forest()->nodes().find(*key_);
     }

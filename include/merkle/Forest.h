@@ -94,9 +94,9 @@ Forest<N, L>::insert(const typename N::value_type::second_type& node)
 {
     auto hash_node = std::make_pair(node.hash(), node);
     auto result = nodes_.insert(hash_node); /** store the node */
-    for (const auto& child : node)
+    for (const auto& link : node.links())
     { // add a link from node to each of its children
-        insert(link_type(child, node.hash()));
+        insert(link_type(link, node.hash()));
     }
     return result;
 }
@@ -120,7 +120,7 @@ Forest<N, L>::erase(typename Forest<N, L>::link_iterator pos)
             auto node = nodes().find(child);
             if (nodes().end() != node)
             {
-                for (const auto& grandchild : node->second)
+                for (const auto& grandchild : node->second.links())
                 {
                     auto it = find(link_type(grandchild, node->first));
                     to_visit.push(it);
@@ -143,7 +143,7 @@ Forest<N, L>::erase(typename Forest<N, L>::node_iterator pos)
 
     if (links().count(hash) == 0)
     { // Erase node iff no references to it
-        for (const auto& child : node)
+        for (const auto& child : node.links())
         { // remove links from node to its children
             auto child_link = link_type(child, hash);
             erase(child_link);

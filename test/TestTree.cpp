@@ -40,7 +40,7 @@ TEST(Merkle, Tree)
         ASSERT_NE(tree.root(), forest->nodes().end());
         ASSERT_NE(tree.root(), parent);
         EXPECT_EQ(std::size_t(1), forest->links().count(b_0.hash()));
-        EXPECT_EQ(std::size_t(1), tree.root()->second.size());
+        EXPECT_EQ(std::size_t(1), tree.root()->second.links().size());
         EXPECT_EQ(std::size_t(4), forest->nodes().size());
         EXPECT_EQ(std::size_t(2), forest->links().size());
         snapshots.insert(snapshots.root(), tree.root());
@@ -58,7 +58,7 @@ TEST(Merkle, Tree)
         EXPECT_NE(parent, result);
         ASSERT_NE(tree.root(), parent);
         EXPECT_EQ(std::size_t(2), forest->links().count(b_0.hash()));
-        EXPECT_EQ(std::size_t(2), tree.root()->second.size());
+        EXPECT_EQ(std::size_t(2), tree.root()->second.links().size());
         EXPECT_EQ(std::size_t(6), forest->nodes().size());
         EXPECT_EQ(std::size_t(5), forest->links().size());
         snapshots.insert(snapshots.root(), tree.root());
@@ -81,7 +81,7 @@ TEST(Merkle, Tree)
         EXPECT_NE(parent, result);
         ASSERT_NE(tree.root(), root);
         EXPECT_EQ(std::size_t(3), forest->links().count(b_0.hash()));
-        EXPECT_EQ(std::size_t(2), root->second.size());
+        EXPECT_EQ(std::size_t(2), root->second.links().size());
         EXPECT_EQ(std::size_t(9), forest->nodes().size());
         EXPECT_EQ(std::size_t(9), forest->links().size());
         parent = result;
@@ -108,7 +108,7 @@ TEST(Merkle, Tree)
         EXPECT_NE(result, parent);
         ASSERT_NE(root, tree.root());
         EXPECT_EQ(std::size_t(3), forest->links().count(b_0.hash()));
-        EXPECT_EQ(std::size_t(2), tree.root()->second.size());
+        EXPECT_EQ(std::size_t(2), tree.root()->second.links().size());
         EXPECT_EQ(std::size_t(1), forest->links().count(result->first));
         EXPECT_EQ(std::size_t(1), forest->links().count(e_0.hash()));
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
@@ -162,8 +162,8 @@ TEST(Merkle, Tree)
         EXPECT_NE(root, result);
         EXPECT_NE(root, tree.root());
         EXPECT_EQ(std::size_t(2), forest->links().count(d_0.hash()));
-        EXPECT_EQ(std::size_t(1), root->second.size());
-        EXPECT_EQ(std::size_t(2), result->second.size());
+        EXPECT_EQ(std::size_t(1), root->second.links().size());
+        EXPECT_EQ(std::size_t(2), result->second.links().size());
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
         EXPECT_EQ(std::size_t(14), forest->links().size());
     }
@@ -174,7 +174,7 @@ TEST(Merkle, Tree)
         EXPECT_NE(root, result);
         EXPECT_NE(tree.root(), root);
         EXPECT_EQ(std::size_t(2), forest->links().count(d_0.hash()));
-        EXPECT_EQ(std::size_t(2), result->second.size());
+        EXPECT_EQ(std::size_t(2), result->second.links().size());
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
         EXPECT_EQ(std::size_t(14), forest->links().size());
     }

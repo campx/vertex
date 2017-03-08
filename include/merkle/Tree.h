@@ -177,13 +177,10 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
             {
                 pins.emplace_back(Pin(forest().get(), target_child->first));
             }
-            auto children = std::set<key_type>(target_parent->second.begin(),
-                                               target_parent->second.end());
-            children.erase(source_child->first);
-            children.insert(target_child->first);
-            auto node = node_type(target_parent->second.data(),
-                                  std::vector<key_type>(children.begin(),
-                                                        children.end()));
+            auto children = target_parent->second.links();
+            std::remove(children.begin(), children.end(), source_child->first);
+            children.push_back(target_child->first);
+            auto node = node_type(target_parent->second.data(), children);
             auto inserted_parent = forest()->insert(node);
             auto range = forest()->links().equal_range(source_parent->first);
             if (root() == target_parent)
@@ -221,8 +218,7 @@ Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
                      typename Tree<Forest>::node_iterator child)
 {
     using key_type = typename Forest::key_type;
-    auto children =
-        std::vector<key_type>(parent->second.begin(), parent->second.end());
+    auto children = std::vector<key_type>(parent->second.links());
     children.push_back(child->first);
     auto node = node_type(parent->second.data(), children);
     return update(parent, node);
@@ -246,7 +242,7 @@ Tree<Forest>::erase(typename Tree<Forest>::node_iterator parent,
 {
     using key_type = typename Forest::key_type;
     auto children = std::vector<key_type>{};
-    std::copy_if(parent->second.begin(), parent->second.end(),
+    std::copy_if(parent->second.links().begin(), parent->second.links().end(),
                  std::back_inserter(children),
                  [&child](const key_type& a) { return a != child->first; });
     auto node = node_type(parent->second.data(), children);

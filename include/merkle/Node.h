@@ -5,7 +5,6 @@
 namespace merkle
 {
 
-/** Node contains links to children, which can be iterated through */
 template <typename T, typename Link, typename Impl>
 class Node
 {
@@ -16,13 +15,10 @@ public:
     using value_type = Link;
 
     using container_type = std::vector<value_type>;
-    using const_iterator = typename container_type::const_iterator;
-    using iterator = typename container_type::iterator;
-    using size_type = typename container_type::size_type;
 
     explicit Node(element_type data = element_type(),
-                  container_type children = container_type())
-        : data_(std::move(data)), children_(std::move(children))
+                  container_type links = container_type())
+        : data_(std::move(data)), links_(std::move(links))
     {
     }
 
@@ -35,28 +31,9 @@ public:
     /** Get the hash of this node */
     value_type hash() const;
 
-    /** Get an iterator to the first child link of the node */
-    const_iterator begin() const
+    const container_type& links() const
     {
-        return children_.cbegin();
-    }
-
-    /** Get an iterator one position past the last child link of the node */
-    const_iterator end() const
-    {
-        return children_.cend();
-    }
-
-    const_iterator find(const value_type& value) const;
-
-    size_type size() const
-    {
-        return children_.size();
-    }
-
-    bool empty() const
-    {
-        return children_.empty();
+        return links_;
     }
 
     bool operator==(const Node& rhs) const;
@@ -69,20 +46,13 @@ public:
 
 private:
     element_type data_;
-    container_type children_;
+    container_type links_;
 };
 
 template <typename T, typename Link, typename Impl>
 typename Node<T, Link, Impl>::value_type Node<T, Link, Impl>::hash() const
 {
     return static_cast<const Impl*>(this)->computeHash();
-}
-
-template <typename T, typename Link, typename Impl>
-typename Node<T, Link, Impl>::const_iterator Node<T, Link, Impl>::find(
-    const typename Node<T, Link, Impl>::value_type& value) const
-{
-    return std::find(begin(), end(), value);
 }
 
 template <typename T, typename Link, typename Impl>
