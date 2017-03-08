@@ -9,6 +9,48 @@
 namespace merkle
 {
 
+template <typename Container>
+bool is_in(const typename Container::value_type& value,
+           const Container& container)
+{
+    return std::find(container.begin(), container.end(), value) ==
+           container.end();
+}
+
+template <typename Container>
+void insert_unique(const typename Container::value_type& value,
+                   Container& container)
+{
+    if (container.end() ==
+        std::find(container.begin(), container.end(), value))
+    {
+        container.push_back(value);
+    }
+}
+
+template <typename Container>
+Container unique_copy(const Container& input)
+{
+    Container output{};
+    output.reserve(input.size());
+    std::copy_if(input.begin(), input.end(), std::back_inserter(output),
+                 [&output](const auto& value) {
+                     return is_in(value, output);
+                 });
+    return output;
+}
+
+template <typename Container>
+Container exclude_copy(const typename Container::value_type& exclude,
+                       const Container& input)
+{
+    Container output{};
+    output.reserve(input.size());
+    std::copy_if(input.begin(), input.end(), std::back_inserter(output),
+                 [&exclude](const auto& value) { return value != exclude; });
+    return output;
+}
+
 template <typename Forest>
 class Tree
 {
@@ -177,9 +219,9 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
             {
                 pins.emplace_back(Pin(forest().get(), target_child->first));
             }
-            auto children = target_parent->second.links();
-            std::remove(children.begin(), children.end(), source_child->first);
-            children.push_back(target_child->first);
+            auto children = exclude_copy(source_child->first,
+                                         target_parent->second.links());
+            insert_unique(target_child->first, children);
             auto node = node_type(target_parent->second.data(), children);
             auto inserted_parent = forest()->insert(node);
             auto range = forest()->links().equal_range(source_parent->first);
@@ -217,9 +259,8 @@ typename Tree<Forest>::node_iterator
 Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
                      typename Tree<Forest>::node_iterator child)
 {
-    using key_type = typename Forest::key_type;
-    auto children = std::vector<key_type>(parent->second.links());
-    children.push_back(child->first);
+    auto children = unique_copy(parent->second.links());
+    insert_unique(child->first, children);
     auto node = node_type(parent->second.data(), children);
     return update(parent, node);
 }
@@ -240,11 +281,7 @@ typename Tree<Forest>::node_iterator
 Tree<Forest>::erase(typename Tree<Forest>::node_iterator parent,
                     typename Tree<Forest>::node_iterator child)
 {
-    using key_type = typename Forest::key_type;
-    auto children = std::vector<key_type>{};
-    std::copy_if(parent->second.links().begin(), parent->second.links().end(),
-                 std::back_inserter(children),
-                 [&child](const key_type& a) { return a != child->first; });
+    auto children = exclude_copy(child->first, parent->second.links());
     auto node = node_type(parent->second.data(), children);
     return update(parent, node);
 }
