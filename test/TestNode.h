@@ -9,7 +9,7 @@ namespace merkle
 struct TestNode : public Node<std::string, std::size_t, TestNode>
 {
     using Node<std::string, std::size_t, TestNode>::Node;
-    value_type computeHash() const;
+    value_type self_link() const;
 };
 
 std::ostream& operator<<(std::ostream& output, const TestNode& node);

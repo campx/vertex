@@ -10,7 +10,7 @@ std::ostream& operator<<(std::ostream& output, const TestNode& node)
     return output;
 }
 
-TestNode::value_type TestNode::computeHash() const
+TestNode::value_type TestNode::self_link() const
 {
     auto input = data();
     for (const auto& link : links())

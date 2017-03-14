@@ -52,7 +52,7 @@ private:
 template <typename T, typename Link, typename Impl>
 typename Node<T, Link, Impl>::value_type Node<T, Link, Impl>::hash() const
 {
-    return static_cast<const Impl*>(this)->computeHash();
+    return static_cast<const Impl*>(this)->self_link();
 }
 
 template <typename T, typename Link, typename Impl>
