@@ -29,7 +29,7 @@ public:
     }
 
     /** Get the hash of this node */
-    value_type hash() const;
+    value_type self_link() const;
 
     const container_type& links() const
     {
@@ -50,7 +50,7 @@ private:
 };
 
 template <typename T, typename Link, typename Impl>
-typename Node<T, Link, Impl>::value_type Node<T, Link, Impl>::hash() const
+typename Node<T, Link, Impl>::value_type Node<T, Link, Impl>::self_link() const
 {
     return static_cast<const Impl*>(this)->self_link();
 }
@@ -58,25 +58,25 @@ typename Node<T, Link, Impl>::value_type Node<T, Link, Impl>::hash() const
 template <typename T, typename Link, typename Impl>
 bool Node<T, Link, Impl>::operator==(const Node<T, Link, Impl>& rhs) const
 {
-    return hash() == rhs.hash();
+    return self_link() == rhs.self_link();
 }
 
 template <typename T, typename Link, typename Impl>
 bool Node<T, Link, Impl>::operator!=(const Node<T, Link, Impl>& rhs) const
 {
-    return hash() != rhs.hash();
+    return self_link() != rhs.self_link();
 }
 
 template <typename T, typename Link, typename Impl>
 bool Node<T, Link, Impl>::operator<(const Node<T, Link, Impl>& rhs) const
 {
-    return hash() < rhs.hash();
+    return self_link() < rhs.self_link();
 }
 
 template <typename T, typename Link, typename Impl>
 bool Node<T, Link, Impl>::operator>(const Node<T, Link, Impl>& rhs) const
 {
-    return hash() > rhs.hash();
+    return self_link() > rhs.self_link();
 }
 
 } // namespace merkle

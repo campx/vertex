@@ -39,7 +39,7 @@ TEST(Merkle, Tree)
         EXPECT_NE(parent, result);
         ASSERT_NE(tree.root(), forest->nodes().end());
         ASSERT_NE(tree.root(), parent);
-        EXPECT_EQ(std::size_t(1), forest->links().count(b_0.hash()));
+        EXPECT_EQ(std::size_t(1), forest->links().count(b_0.self_link()));
         EXPECT_EQ(std::size_t(1), tree.root()->second.links().size());
         EXPECT_EQ(std::size_t(4), forest->nodes().size());
         EXPECT_EQ(std::size_t(2), forest->links().size());
@@ -57,7 +57,7 @@ TEST(Merkle, Tree)
         auto result = tree.insert(parent, c_0);
         EXPECT_NE(parent, result);
         ASSERT_NE(tree.root(), parent);
-        EXPECT_EQ(std::size_t(2), forest->links().count(b_0.hash()));
+        EXPECT_EQ(std::size_t(2), forest->links().count(b_0.self_link()));
         EXPECT_EQ(std::size_t(2), tree.root()->second.links().size());
         EXPECT_EQ(std::size_t(6), forest->nodes().size());
         EXPECT_EQ(std::size_t(5), forest->links().size());
@@ -76,11 +76,11 @@ TEST(Merkle, Tree)
      */
     { // Add d_0 as a child of c_0 in the graph rooted at a_2
         root = tree.root();
-        parent = forest->nodes().find(c_0.hash());
+        parent = forest->nodes().find(c_0.self_link());
         auto result = tree.insert(parent, d_0);
         EXPECT_NE(parent, result);
         ASSERT_NE(tree.root(), root);
-        EXPECT_EQ(std::size_t(3), forest->links().count(b_0.hash()));
+        EXPECT_EQ(std::size_t(3), forest->links().count(b_0.self_link()));
         EXPECT_EQ(std::size_t(2), root->second.links().size());
         EXPECT_EQ(std::size_t(9), forest->nodes().size());
         EXPECT_EQ(std::size_t(9), forest->links().size());
@@ -103,14 +103,14 @@ TEST(Merkle, Tree)
      */
     { // Add e_0 as a child of b_0 in the graph rooted at a_3
         root = tree.root();
-        parent = forest->nodes().find(b_0.hash());
+        parent = forest->nodes().find(b_0.self_link());
         auto result = tree.insert(parent, e_0);
         EXPECT_NE(result, parent);
         ASSERT_NE(root, tree.root());
-        EXPECT_EQ(std::size_t(3), forest->links().count(b_0.hash()));
+        EXPECT_EQ(std::size_t(3), forest->links().count(b_0.self_link()));
         EXPECT_EQ(std::size_t(2), tree.root()->second.links().size());
         EXPECT_EQ(std::size_t(1), forest->links().count(result->first));
-        EXPECT_EQ(std::size_t(1), forest->links().count(e_0.hash()));
+        EXPECT_EQ(std::size_t(1), forest->links().count(e_0.self_link()));
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
         EXPECT_EQ(std::size_t(13), forest->links().size());
         parent = result;
@@ -130,13 +130,13 @@ TEST(Merkle, Tree)
      *
      */
     { // erase the root a_1
-        auto hash = pa_1->first;
+        auto link = pa_1->first;
         auto result = snapshots.erase(snapshots.root(), pa_1);
         EXPECT_NE(forest->nodes().end(), result);
         EXPECT_EQ(std::size_t(11), forest->nodes().size());
         EXPECT_EQ(std::size_t(12), forest->links().size());
-        EXPECT_EQ(std::size_t(2), forest->links().count(b_0.hash()));
-        EXPECT_EQ(forest->nodes().end(), forest->nodes().find(hash));
+        EXPECT_EQ(std::size_t(2), forest->links().count(b_0.self_link()));
+        EXPECT_EQ(forest->nodes().end(), forest->nodes().find(link));
     }
     /* S a_0          S a_2
      *               / \
@@ -161,7 +161,7 @@ TEST(Merkle, Tree)
         auto result = tree.insert(root, d_0);
         EXPECT_NE(root, result);
         EXPECT_NE(root, tree.root());
-        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.hash()));
+        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.self_link()));
         EXPECT_EQ(std::size_t(1), root->second.links().size());
         EXPECT_EQ(std::size_t(2), result->second.links().size());
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
@@ -173,7 +173,7 @@ TEST(Merkle, Tree)
         auto result = tree.insert(pb_1, d_0);
         EXPECT_NE(root, result);
         EXPECT_NE(tree.root(), root);
-        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.hash()));
+        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.self_link()));
         EXPECT_EQ(std::size_t(2), result->second.links().size());
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
         EXPECT_EQ(std::size_t(14), forest->links().size());
@@ -197,11 +197,11 @@ TEST(Merkle, Tree)
     { // remove d_0 from c_1 in the subtree rooted at a_3
         // does nothing since the resulting subtree already exists
         tree = TestTree(forest, pa_3);
-        auto result = tree.erase(pc_1, forest->nodes().find(d_0.hash()));
-        auto pc_0 = forest->nodes().find(c_0.hash());
+        auto result = tree.erase(pc_1, forest->nodes().find(d_0.self_link()));
+        auto pc_0 = forest->nodes().find(c_0.self_link());
         EXPECT_EQ(pa_2, tree.root());
         EXPECT_EQ(pc_0, result);
-        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.hash()));
+        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.self_link()));
         EXPECT_EQ(std::size_t(12), forest->nodes().size());
         EXPECT_EQ(std::size_t(14), forest->links().size());
     }
@@ -223,7 +223,7 @@ TEST(Merkle, Tree)
      */
     { // remove a_3
         snapshots.erase(snapshots.root(), pa_3);
-        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.hash()));
+        EXPECT_EQ(std::size_t(2), forest->links().count(d_0.self_link()));
         EXPECT_EQ(std::size_t(11), forest->nodes().size());
         EXPECT_EQ(std::size_t(11), forest->links().size());
     }

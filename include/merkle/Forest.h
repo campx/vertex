@@ -10,10 +10,10 @@
 namespace merkle
 {
 
-/** NodeStore is an AssociativeContainer whose keys are hashes and whose
- * values are hash,node pairs
- * LinkStore is an AssociativeContainer whose keys are hashes and whose values
- * are hash,Containers-of-hashes pairs
+/** NodeStore is an AssociativeContainer whose keys are links and whose
+ * values are link,node pairs
+ * LinkStore is an AssociativeContainer whose keys are links and whose values
+ * are link,Containers-of-links pairs
  * NodeStore must not invalidate iterators on insertion or deletion */
 template <typename NodeStore, typename LinkStore>
 class Forest
@@ -23,7 +23,7 @@ public:
     using link_container = LinkStore;
     using node_container = NodeStore;
     using value_type = typename NodeStore::value_type;
-    /** Hash which identifies nodes */
+    /** link which identifies nodes */
     using key_type = typename NodeStore::key_type;
     using node_iterator = typename NodeStore::const_iterator;
     using link_iterator = typename LinkStore::const_iterator;
@@ -92,11 +92,11 @@ template <typename N, typename L>
 std::pair<typename Forest<N, L>::node_iterator, bool>
 Forest<N, L>::insert(const typename N::value_type::second_type& node)
 {
-    auto hash_node = std::make_pair(node.hash(), node);
-    auto result = nodes_.insert(hash_node); /** store the node */
+    auto node_link = std::make_pair(node.self_link(), node);
+    auto result = nodes_.insert(node_link); /** store the node */
     for (const auto& link : node.links())
     { // add a link from node to each of its children
-        insert(link_type(link, node.hash()));
+        insert(link_type(link, node.self_link()));
     }
     return result;
 }
@@ -137,15 +137,15 @@ typename Forest<N, L>::node_iterator
 Forest<N, L>::erase(typename Forest<N, L>::node_iterator pos)
 {
     auto result = pos;
-    const auto& hash = pos->first;
+    const auto& link = pos->first;
     const auto& node = pos->second;
-    assert(node.hash() == hash);
+    assert(node.self_link() == link);
 
-    if (links().count(hash) == 0)
+    if (links().count(link) == 0)
     { // Erase node iff no references to it
         for (const auto& child : node.links())
         { // remove links from node to its children
-            auto child_link = link_type(child, hash);
+            auto child_link = link_type(child, link);
             erase(child_link);
         }
         result = nodes_.erase(pos);

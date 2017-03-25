@@ -83,7 +83,7 @@ template <typename Tree>
 typename Array<Tree>::iterator
 Array<Tree>::insert(const typename Array<Tree>::node_type& node)
 {
-    node.hash();
+    node.self_link();
     auto inserted = tree_.insert(tree_.root(), node);
     auto element = inserted->second.links().begin();
     return iterator(tree_, element);
