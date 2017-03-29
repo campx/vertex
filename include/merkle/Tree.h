@@ -59,16 +59,24 @@ public:
     using forest_pointer = typename std::shared_ptr<Forest>;
     using node_iterator = typename Forest::node_iterator;
     using node_type = typename Forest::node_type;
+    using node_container = typename Forest::node_container;
+    using link_container = typename Forest::link_container;
 
     Tree(std::shared_ptr<Forest> forest, node_iterator root)
         : forest_(std::move(forest)), root_(std::move(root))
     {
     }
 
-    const std::shared_ptr<Forest>& forest() const
+    const link_container& links() const
     {
-        return forest_;
+        return forest_->links();
     }
+
+    const node_container& nodes() const
+    {
+        return forest_->nodes();
+    }
+
     node_iterator root() const
     {
         return root_;
@@ -170,7 +178,7 @@ void Tree<Forest>::root(typename Tree<Forest>::node_iterator value)
 {
     auto last_root(root());
     root_ = value;
-    forest()->erase(last_root);
+    forest_->erase(last_root);
 }
 
 template <typename Forest>
@@ -178,28 +186,28 @@ typename Tree<Forest>::node_iterator
 Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
                      const typename Tree<Forest>::node_type& node)
 {
-    auto inserted_node = forest()->insert(node);
+    auto inserted_node = forest_->insert(node);
     auto target = inserted_node.first;
     using node_iterator = typename Forest::node_iterator;
     using key_type = typename Forest::key_type;
     auto pins = std::vector<Pin>{}; // pins prevent deletion of WIP subtree
-    auto updated = Mapping(forest());
+    auto updated = Mapping(forest_);
     updated.set(source, target);
     auto to_visit = std::queue<std::pair<node_iterator, node_iterator>>{};
     auto enqueue_parents = [&to_visit,
                             this](std::pair<key_type, key_type> link) {
-        auto child = forest()->nodes().find(link.first);
-        auto parent = forest()->nodes().find(link.second);
-        assert(parent != forest()->nodes().end());
-        assert(child != forest()->nodes().end());
-        auto grandparents = forest()->links().count(link.second);
+        auto child = nodes().find(link.first);
+        auto parent = nodes().find(link.second);
+        assert(parent != nodes().end());
+        assert(child != nodes().end());
+        auto grandparents = links().count(link.second);
         if (child != root() &&
             (grandparents != 0 || (grandparents == 0 && parent == root())))
         {
             to_visit.push(std::make_pair(child, parent));
         }
     };
-    auto range = forest()->links().equal_range(source->first);
+    auto range = links().equal_range(source->first);
     std::for_each(range.first, range.second, enqueue_parents);
     if (source == root())
     {
@@ -213,18 +221,18 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         const auto source_parent = next_pair.second;
         auto target_parent = updated.get(source_parent);
         auto target_child = updated.get(source_child);
-        if (target_parent != forest()->nodes().end())
+        if (target_parent != nodes().end())
         {
             if (pins.empty() || target_child->first != pins.back().key())
             {
-                pins.emplace_back(Pin(forest().get(), target_child->first));
+                pins.emplace_back(Pin(forest_.get(), target_child->first));
             }
             auto children = exclude_copy(source_child->first,
                                          target_parent->second.links());
             insert_unique(target_child->first, children);
             auto node = node_type(target_parent->second.data(), children);
-            auto inserted_parent = forest()->insert(node);
-            auto range = forest()->links().equal_range(source_parent->first);
+            auto inserted_parent = forest_->insert(node);
+            auto range = links().equal_range(source_parent->first);
             if (root() == target_parent)
             {
                 root(inserted_parent.first);
@@ -235,7 +243,7 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
                 std::for_each(range.first, range.second, enqueue_parents);
                 if (to_visit.size() == remaining)
                 { // reached a source node without finding target root
-                    forest()->erase(inserted_parent.first);
+                    forest_->erase(inserted_parent.first);
                 }
                 else
                 {
@@ -270,7 +278,7 @@ typename Tree<Forest>::node_iterator
 Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
                      const typename Tree<Forest>::node_type& child)
 {
-    auto inserted_node = forest()->insert(child);
+    auto inserted_node = forest_->insert(child);
     return insert(parent, inserted_node.first);
 }
 
@@ -310,4 +318,5 @@ Tree<Forest>::Mapping::get(typename Tree<Forest>::node_iterator input)
     }
     return output;
 }
+
 } // namespace merkle

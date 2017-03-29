@@ -10,6 +10,7 @@ add_library(libmerkle
             src/Node.cpp
             src/Tree.cpp
             src/Forest.cpp
+            src/Iterator.cpp
             src/Array.cpp)
 set_target_properties(libmerkle PROPERTIES OUTPUT_NAME merkle)
 

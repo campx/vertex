@@ -27,7 +27,6 @@ TEST(Merkle, Tree)
     EXPECT_NE(root, forest->nodes().end());
     EXPECT_EQ(std::size_t(2), forest->nodes().size());
     EXPECT_EQ(std::size_t(1), forest->links().size());
-    ASSERT_EQ(forest, tree.forest());
 
     /* S a_0    O a_1
      *          |
