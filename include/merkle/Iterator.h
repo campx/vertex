@@ -1,28 +1,29 @@
 #pragma once
 #include <memory>
-#include <merkle/Tree.h>
 
 namespace merkle
 {
 
-/** Iterates through all children of a node */
-template <typename Tree>
-class SequentialIterator
+/** Iterates through all links of a node, dereferencing to a link-node pair */
+template <typename NodeStore>
+class NodeLinkIterator
 {
 public:
-    using key_type = typename Tree::forest_type::key_type;
-    using mapped_type = typename Tree::node_type;
-    using self_type = SequentialIterator<Tree>;
-    using node_iterator = typename Tree::node_iterator;
-    using value_type = typename std::pair<const key_type, mapped_type>;
-    using key_container = typename mapped_type::container_type;
-    using key_iterator = typename key_container::const_iterator;
+    using self_type = NodeLinkIterator<NodeStore>;
+
+    using link_type = typename NodeStore::key_type;
+    using mapped_type = typename NodeStore::mapped_type;
+    using value_type = typename NodeStore::value_type;
     using reference = const value_type&;
     using pointer = const value_type*;
 
-    SequentialIterator(Tree tree, key_iterator node);
-    SequentialIterator(const SequentialIterator&) = default;
-    SequentialIterator& operator=(const SequentialIterator&) = default;
+    using node_iterator = typename NodeStore::iterator;
+    using link_container = typename mapped_type::container_type;
+    using link_iterator = typename link_container::const_iterator;
+
+    NodeLinkIterator(NodeStore nodes, link_iterator link_it);
+    NodeLinkIterator(const NodeLinkIterator&) = default;
+    NodeLinkIterator& operator=(const NodeLinkIterator&) = default;
 
     self_type operator++();
     self_type operator++(int dummy);
@@ -35,82 +36,79 @@ public:
     bool operator!=(const self_type& rhs) const;
 
 private:
-    Tree tree_;
-    key_iterator key_;
-    node_iterator node_;
+    NodeStore nodes_;
+    link_iterator link_it_;
+    node_iterator node_it_;
 };
 
-template <typename Tree>
-SequentialIterator<Tree>::SequentialIterator(
-    Tree tree, typename SequentialIterator<Tree>::key_iterator node)
-    : tree_(std::move(tree)), key_(node)
+template <typename NodeStore>
+NodeLinkIterator<NodeStore>::NodeLinkIterator(
+    NodeStore nodes,
+    typename NodeLinkIterator<NodeStore>::link_iterator link_it)
+    : nodes_(std::move(nodes)), link_it_(std::move(link_it))
 {
-    if (key_ != tree_.root()->second.links().end())
-    {
-        node_ = tree_.nodes().find(*key_);
-    }
 }
 
-template <typename Tree>
-typename SequentialIterator<Tree>::self_type SequentialIterator<Tree>::
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::self_type NodeLinkIterator<NodeStore>::
 operator++()
 {
-    ++key_;
+    ++link_it_;
     return *this;
 }
 
-template <typename Tree>
-typename SequentialIterator<Tree>::self_type SequentialIterator<Tree>::
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::self_type NodeLinkIterator<NodeStore>::
 operator++(int dummy)
 {
     dummy++;
     auto tmp = *this;
-    ++key_;
+    ++link_it_;
     return tmp;
 }
 
-template <typename Tree>
-typename SequentialIterator<Tree>::self_type SequentialIterator<Tree>::
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::self_type NodeLinkIterator<NodeStore>::
 operator--()
 {
-    --key_;
+    --link_it_;
     return *this;
 }
 
-template <typename Tree>
-typename SequentialIterator<Tree>::self_type SequentialIterator<Tree>::
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::self_type NodeLinkIterator<NodeStore>::
 operator--(int dummy)
 {
     dummy--;
     auto tmp = *this;
-    --key_;
+    --link_it_;
     return tmp;
 }
 
-template <typename Tree>
-typename SequentialIterator<Tree>::reference SequentialIterator<Tree>::
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::reference NodeLinkIterator<NodeStore>::
 operator*()
 {
-    node_ = tree_.nodes().find(*(key_));
-    return node_.operator*();
+    node_it_ = nodes_.find(*(link_it_));
+    return node_it_.operator*();
 }
 
-template <typename Tree>
-typename SequentialIterator<Tree>::pointer SequentialIterator<Tree>::
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::pointer NodeLinkIterator<NodeStore>::
 operator->()
 {
-    node_ = tree_.nodes().find(*(key_));
-    return node_.operator->();
+    node_it_ = nodes_.find(*(link_it_));
+    return node_it_.operator->();
 }
 
-template <typename Tree>
-bool SequentialIterator<Tree>::operator==(const SequentialIterator& rhs) const
+template <typename NodeStore>
+bool NodeLinkIterator<NodeStore>::operator==(const NodeLinkIterator& rhs) const
 {
-    return tree_ == rhs.tree_ && key_ == rhs.key_;
+    return nodes_ == rhs.nodes_ && link_it_ == rhs.link_it_;
 }
 
-template <typename Tree>
-bool SequentialIterator<Tree>::operator!=(const SequentialIterator& rhs) const
+template <typename NodeStore>
+bool NodeLinkIterator<NodeStore>::operator!=(const NodeLinkIterator& rhs) const
 {
     return !(*this == rhs);
 }
