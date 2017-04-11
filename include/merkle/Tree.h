@@ -9,48 +9,6 @@
 namespace merkle
 {
 
-template <typename Container>
-bool is_in(const typename Container::value_type& value,
-           const Container& container)
-{
-    return std::find(container.begin(), container.end(), value) ==
-           container.end();
-}
-
-template <typename Container>
-void insert_unique(const typename Container::value_type& value,
-                   Container& container)
-{
-    if (container.end() ==
-        std::find(container.begin(), container.end(), value))
-    {
-        container.push_back(value);
-    }
-}
-
-template <typename Container>
-Container unique_copy(const Container& input)
-{
-    Container output{};
-    output.reserve(input.size());
-    std::copy_if(input.begin(), input.end(), std::back_inserter(output),
-                 [&output](const auto& value) {
-                     return is_in(value, output);
-                 });
-    return output;
-}
-
-template <typename Container>
-Container exclude_copy(const typename Container::value_type& exclude,
-                       const Container& input)
-{
-    Container output{};
-    output.reserve(input.size());
-    std::copy_if(input.begin(), input.end(), std::back_inserter(output),
-                 [&exclude](const auto& value) { return value != exclude; });
-    return output;
-}
-
 template <typename Forest>
 class Tree
 {
@@ -139,6 +97,48 @@ private:
         std::map<key_type, key_type, Compare> map_;
     };
 };
+
+template <typename Container>
+bool is_in(const typename Container::value_type& value,
+           const Container& container)
+{
+    return std::find(container.begin(), container.end(), value) ==
+           container.end();
+}
+
+template <typename Container>
+void insert_unique(const typename Container::value_type& value,
+                   Container& container)
+{
+    if (container.end() ==
+        std::find(container.begin(), container.end(), value))
+    {
+        container.push_back(value);
+    }
+}
+
+template <typename Container>
+Container unique_copy(const Container& input)
+{
+    Container output{};
+    output.reserve(input.size());
+    std::copy_if(input.begin(), input.end(), std::back_inserter(output),
+                 [&output](const auto& value) {
+                     return is_in(value, output);
+                 });
+    return output;
+}
+
+template <typename Container>
+Container exclude_copy(const typename Container::value_type& exclude,
+                       const Container& input)
+{
+    Container output{};
+    output.reserve(input.size());
+    std::copy_if(input.begin(), input.end(), std::back_inserter(output),
+                 [&exclude](const auto& value) { return value != exclude; });
+    return output;
+}
 
 template <typename Forest>
 Tree<Forest>::Pin::Pin(Forest* const forest, key_type key)
