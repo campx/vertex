@@ -21,7 +21,7 @@ public:
     using link_container = typename mapped_type::container_type;
     using link_iterator = typename link_container::const_iterator;
 
-    NodeLinkIterator(NodeStore nodes, link_iterator link_it);
+    NodeLinkIterator(NodeStore nodes, link_iterator link_it = link_iterator{});
     NodeLinkIterator(const NodeLinkIterator&) = default;
     NodeLinkIterator& operator=(const NodeLinkIterator&) = default;
 
