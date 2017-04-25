@@ -6,7 +6,8 @@ namespace merkle
 
 /** Iterates through all links of a node, dereferencing to a link-node pair */
 template <typename NodeStore>
-class NodeLinkIterator
+class NodeLinkIterator : public std::iterator<std::input_iterator_tag,
+                                              typename NodeStore::value_type>
 {
 public:
     using self_type = NodeLinkIterator<NodeStore>;
@@ -16,6 +17,7 @@ public:
     using value_type = typename NodeStore::value_type;
     using reference = const value_type&;
     using pointer = const value_type*;
+    using iterator_category = std::input_iterator_tag;
 
     using node_iterator = typename NodeStore::iterator;
     using link_container = typename mapped_type::container_type;
