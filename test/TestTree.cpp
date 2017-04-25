@@ -226,6 +226,64 @@ TEST(Merkle, Tree)
         EXPECT_EQ(std::size_t(11), forest->nodes().size());
         EXPECT_EQ(std::size_t(11), forest->links().size());
     }
+    {
+        forest->clear();
+        EXPECT_EQ(std::size_t(0), forest->nodes().size());
+    }
+    {
+        root = forest->insert(a_0).first;
+        tree = TestTree(forest, root);
+        parent = root;
+        EXPECT_NE(root, forest->nodes().end());
+        EXPECT_EQ(std::size_t(1), forest->nodes().size());
+        EXPECT_EQ(std::size_t(0), forest->links().size());
+    }
+    /*   O a_1
+     *   |
+     *   O b_0
+     */
+    { // Add b_0 as a child of a_0 in the forest->rooted at a_0
+        parent = root;
+        auto result = tree.insert(parent, b_0);
+        EXPECT_NE(parent, result);
+        ASSERT_NE(tree.root(), forest->nodes().end());
+        ASSERT_NE(tree.root(), parent);
+        EXPECT_EQ(std::size_t(1), forest->links().count(b_0.self_link()));
+        EXPECT_EQ(std::size_t(1), tree.root()->second.links().size());
+        EXPECT_EQ(std::size_t(2), forest->nodes().size());
+        EXPECT_EQ(std::size_t(1), forest->links().size());
+    }
+    /*  c O O a_1
+     *     \|
+     *      O b_0
+     */
+    { // Add c_0 which has b_0 as a child
+        auto links = std::vector<std::size_t>{b_0.self_link()};
+        auto c = TestNode("c", links);
+        auto result = forest->insert(c);
+        EXPECT_EQ(std::size_t(2), forest->links().count(b_0.self_link()));
+        EXPECT_EQ(std::size_t(3), forest->nodes().size());
+        EXPECT_EQ(std::size_t(2), forest->links().size());
+        parent = result.first;
+    }
+    auto c = parent;
+    /*  O a_2
+     *  |
+     *  O b_1
+     *  |
+     *  O c
+     *  |
+     *  O b_0
+     */
+    { // Add c as a child of b_0
+        auto bit = forest->nodes().find(b_0.self_link());
+        EXPECT_NE(forest->nodes().end(), bit);
+        auto result = tree.insert(bit, c);
+        EXPECT_NE(forest->nodes().end(), result);
+        EXPECT_EQ(std::size_t(1), forest->links().count(b_0.self_link()));
+        EXPECT_EQ(std::size_t(4), forest->nodes().size());
+        EXPECT_EQ(std::size_t(3), forest->links().size());
+    }
 }
 
 } // namespace merkle
