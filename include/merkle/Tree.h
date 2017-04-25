@@ -20,6 +20,8 @@ public:
     using node_container = typename Forest::node_container;
     using link_container = typename Forest::link_container;
 
+    Tree(std::shared_ptr<Forest> forest);
+
     Tree(std::shared_ptr<Forest> forest, node_iterator root)
         : forest_(std::move(forest)), root_(std::move(root))
     {
@@ -42,10 +44,17 @@ public:
 
     bool operator==(const Tree<Forest>& rhs) const;
 
+    /** Insert a node  iterator insert(const node_type& node);  */
+    /** Insert a link  iterator insert(std::pair<Link, Link>);  */
+    /** Insert a link  iterator insert(Link, Link); */
+    /** Find a node    iterator find(Link); */
+    /** Erase a link   iterator erase(std::pair<Link, Link>); */
+    /** Erase a node   iterator erase(Link); */
+
     node_iterator insert(node_iterator parent, node_iterator child);
     node_iterator insert(node_iterator parent, const node_type& child);
     node_iterator erase(node_iterator parent, node_iterator child);
-    node_iterator update(node_iterator source, const node_type& node);
+    node_iterator update(node_iterator source, const node_type& value);
 
 private:
     std::shared_ptr<Forest> forest_;
@@ -55,6 +64,7 @@ private:
 
     class Pin
     {
+
     public:
         using link_type = typename Forest::link_type;
         using key_type = typename Forest::key_type;
@@ -77,6 +87,7 @@ private:
 
     class Mapping
     {
+
     public:
         using key_type = node_iterator;
         explicit Mapping(std::shared_ptr<Forest> forest)
@@ -174,6 +185,13 @@ operator()(node_iterator a, node_iterator b)
 }
 
 template <typename Forest>
+Tree<Forest>::Tree(std::shared_ptr<Forest> forest)
+    : forest_(std::move(forest)),
+      root_(forest_->insert(typename Forest::node_type{}).first)
+{
+}
+
+template <typename Forest>
 void Tree<Forest>::root(typename Tree<Forest>::node_iterator value)
 {
     auto last_root(root());
@@ -184,9 +202,9 @@ void Tree<Forest>::root(typename Tree<Forest>::node_iterator value)
 template <typename Forest>
 typename Tree<Forest>::node_iterator
 Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
-                     const typename Tree<Forest>::node_type& node)
+                     const typename Tree<Forest>::node_type& value)
 {
-    auto inserted_node = forest_->insert(node);
+    auto inserted_node = forest_->insert(value);
     auto target = inserted_node.first;
     using node_iterator = typename Forest::node_iterator;
     using key_type = typename Forest::key_type;
@@ -194,14 +212,14 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
     auto updated = Mapping(forest_);
     updated.set(source, target);
     auto to_visit = std::queue<std::pair<node_iterator, node_iterator>>{};
-    auto enqueue_parents = [&to_visit,
+    auto enqueue_parents = [&to_visit, &value,
                             this](std::pair<key_type, key_type> link) {
         auto child = nodes().find(link.first);
         auto parent = nodes().find(link.second);
         assert(parent != nodes().end());
         assert(child != nodes().end());
         auto grandparents = links().count(link.second);
-        if (child != root() &&
+        if (child != root() && parent->first != value.self_link() &&
             (grandparents != 0 || (grandparents == 0 && parent == root())))
         {
             to_visit.push(std::make_pair(child, parent));
