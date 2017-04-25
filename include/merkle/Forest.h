@@ -70,6 +70,9 @@ public:
      * Parent and child nodes must exist */
     std::pair<link_iterator, bool> insert(const link_type& link);
 
+    /** Erase the whole forest */
+    void clear();
+
 private:
     /** Get an iterator to the link matching the argument */
     link_iterator find(const link_type& link);
@@ -193,6 +196,13 @@ Forest<N, L>::erase(const typename Forest<N, L>::link_type& link)
         result = erase(result);
     }
     return result;
+}
+
+template <typename N, typename L>
+void Forest<N, L>::clear()
+{
+    links_.clear();
+    nodes_.clear();
 }
 
 } // namespace merkle
