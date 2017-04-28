@@ -37,13 +37,13 @@ typename Array<Tree>::node_iterator Array<Tree>::root() const
 template <typename Tree>
 typename Array<Tree>::iterator Array<Tree>::begin()
 {
-    return iterator(tree_.nodes(), tree_.root()->second.links().begin());
+    return iterator(&tree_.nodes(), tree_.root()->second.links().begin());
 }
 
 template <typename Tree>
 typename Array<Tree>::iterator Array<Tree>::end()
 {
-    return iterator(tree_.nodes(), tree_.root()->second.links().end());
+    return iterator(&tree_.nodes(), tree_.root()->second.links().end());
 }
 
 template <typename Tree>
@@ -53,7 +53,7 @@ Array<Tree>::insert(const typename Array<Tree>::node_type& node)
     node.self_link();
     auto inserted = tree_.insert(tree_.root(), node);
     auto element = inserted->second.links().begin();
-    return iterator(tree_.nodes(), element);
+    return iterator(&tree_.nodes(), element);
 }
 
 } // namespace merkle

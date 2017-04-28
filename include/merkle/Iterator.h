@@ -19,11 +19,12 @@ public:
     using pointer = const value_type*;
     using iterator_category = std::input_iterator_tag;
 
-    using node_iterator = typename NodeStore::iterator;
+    using node_iterator = typename NodeStore::const_iterator;
     using link_container = typename mapped_type::container_type;
     using link_iterator = typename link_container::const_iterator;
 
-    NodeLinkIterator(NodeStore nodes, link_iterator link_it = link_iterator{});
+    NodeLinkIterator(const NodeStore* nodes,
+                     link_iterator link_it = link_iterator{});
     NodeLinkIterator(const NodeLinkIterator&) = default;
     NodeLinkIterator& operator=(const NodeLinkIterator&) = default;
 
@@ -38,16 +39,16 @@ public:
     bool operator!=(const self_type& rhs) const;
 
 private:
-    NodeStore nodes_;
+    const NodeStore* nodes_;
     link_iterator link_it_;
     node_iterator node_it_;
 };
 
 template <typename NodeStore>
 NodeLinkIterator<NodeStore>::NodeLinkIterator(
-    NodeStore nodes,
+    const NodeStore* nodes,
     typename NodeLinkIterator<NodeStore>::link_iterator link_it)
-    : nodes_(std::move(nodes)), link_it_(std::move(link_it))
+    : nodes_(nodes), link_it_(std::move(link_it))
 {
 }
 
@@ -91,7 +92,7 @@ template <typename NodeStore>
 typename NodeLinkIterator<NodeStore>::reference NodeLinkIterator<NodeStore>::
 operator*()
 {
-    node_it_ = nodes_.find(*(link_it_));
+    node_it_ = nodes_->find(*(link_it_));
     return node_it_.operator*();
 }
 
@@ -99,7 +100,7 @@ template <typename NodeStore>
 typename NodeLinkIterator<NodeStore>::pointer NodeLinkIterator<NodeStore>::
 operator->()
 {
-    node_it_ = nodes_.find(*(link_it_));
+    node_it_ = nodes_->find(*(link_it_));
     return node_it_.operator->();
 }
 
