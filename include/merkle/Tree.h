@@ -218,8 +218,11 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         auto parent = nodes().find(link.second);
         assert(parent != nodes().end());
         assert(child != nodes().end());
+        auto it =
+            std::find(value.links().begin(), value.links().end(), link.second);
         auto grandparents = links().count(link.second);
         if (child != root() && parent->first != value.self_link() &&
+            it == value.links().end() &&
             (grandparents != 0 || (grandparents == 0 && parent == root())))
         {
             to_visit.push(std::make_pair(child, parent));
@@ -239,7 +242,7 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         const auto source_parent = next_pair.second;
         auto target_parent = updated.get(source_parent);
         auto target_child = updated.get(source_child);
-        if (target_parent != nodes().end())
+        if (target_parent != nodes().end() && target_child != nodes().end())
         {
             if (pins.empty() || target_child->first != pins.back().key())
             {
@@ -248,7 +251,8 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
             auto children = exclude_copy(source_child->first,
                                          target_parent->second.links());
             insert_unique(target_child->first, children);
-            auto node = node_type(target_parent->second.data(), children);
+            auto node = target_parent->second;
+            node.links(children);
             auto inserted_parent = forest_->insert(node);
             auto range = links().equal_range(source_parent->first);
             if (root() == target_parent)
@@ -287,7 +291,8 @@ Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
 {
     auto children = unique_copy(parent->second.links());
     insert_unique(child->first, children);
-    auto node = node_type(parent->second.data(), children);
+    auto node = node_type(parent->second);
+    node.links(children);
     return update(parent, node);
 }
 
@@ -308,7 +313,8 @@ Tree<Forest>::erase(typename Tree<Forest>::node_iterator parent,
                     typename Tree<Forest>::node_iterator child)
 {
     auto children = exclude_copy(child->first, parent->second.links());
-    auto node = node_type(parent->second.data(), children);
+    auto node = node_type(parent->second);
+    node.links(children);
     return update(parent, node);
 }
 
