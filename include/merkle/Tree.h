@@ -17,41 +17,27 @@ public:
     using forest_pointer = typename std::shared_ptr<Forest>;
     using node_iterator = typename Forest::node_iterator;
     using node_type = typename Forest::node_type;
+    using link_type = typename Forest::link_type;
     using node_container = typename Forest::node_container;
     using link_container = typename Forest::link_container;
 
     Tree(std::shared_ptr<Forest> forest);
-
-    Tree(std::shared_ptr<Forest> forest, node_iterator root)
-        : forest_(std::move(forest)), root_(std::move(root))
-    {
-    }
-
-    const link_container& links() const
-    {
-        return forest_->links();
-    }
-
-    const node_container& nodes() const
-    {
-        return forest_->nodes();
-    }
-
-    node_iterator root() const
-    {
-        return root_;
-    }
+    Tree(std::shared_ptr<Forest> forest, node_iterator root);
+    const link_container& links() const;
+    const node_container& nodes() const;
+    node_iterator root() const;
+    bool empty() const;
 
     bool operator==(const Tree<Forest>& rhs) const;
 
     /** Insert a node  iterator insert(const node_type& node);  */
     /** Insert a link  iterator insert(std::pair<Link, Link>);  */
-    /** Insert a link  iterator insert(Link, Link); */
     /** Find a node    iterator find(Link); */
     /** Erase a link   iterator erase(std::pair<Link, Link>); */
     /** Erase a node   iterator erase(Link); */
 
     node_iterator insert(node_iterator parent, node_iterator child);
+    node_iterator insert(node_iterator parent, link_type link);
     node_iterator insert(node_iterator parent, const node_type& child);
     node_iterator erase(node_iterator parent, node_iterator child);
     node_iterator update(node_iterator source, const node_type& value);
@@ -66,7 +52,7 @@ private:
     {
 
     public:
-        using link_type = typename Forest::link_type;
+        using value_type = typename Forest::link_value_type;
         using key_type = typename Forest::key_type;
         Pin(Forest* const forest, key_type key);
         ~Pin();
@@ -82,7 +68,7 @@ private:
 
     private:
         Forest* forest_;
-        link_type link_;
+        value_type link_;
     };
 
     class Mapping
@@ -153,7 +139,7 @@ Container exclude_copy(const typename Container::value_type& exclude,
 
 template <typename Forest>
 Tree<Forest>::Pin::Pin(Forest* const forest, key_type key)
-    : forest_(forest), link_(link_type(key, key))
+    : forest_(forest), link_(value_type(key, key))
 {
     if (forest_)
     {
@@ -189,6 +175,36 @@ Tree<Forest>::Tree(std::shared_ptr<Forest> forest)
     : forest_(std::move(forest)),
       root_(forest_->insert(typename Forest::node_type{}).first)
 {
+}
+
+template <typename Forest>
+Tree<Forest>::Tree(std::shared_ptr<Forest> forest, node_iterator root)
+    : forest_(std::move(forest)), root_(std::move(root))
+{
+}
+
+template <typename Forest>
+const typename Tree<Forest>::link_container& Tree<Forest>::links() const
+{
+    return forest_->links();
+}
+
+template <typename Forest>
+const typename Tree<Forest>::node_container& Tree<Forest>::nodes() const
+{
+    return forest_->nodes();
+}
+
+template <typename Forest>
+typename Tree<Forest>::node_iterator Tree<Forest>::root() const
+{
+    return root_;
+}
+
+template <typename Forest>
+bool Tree<Forest>::empty() const
+{
+    return root()->second.links().empty();
 }
 
 template <typename Forest>
@@ -299,10 +315,22 @@ Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
 template <typename Forest>
 typename Tree<Forest>::node_iterator
 Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
+                     typename Tree<Forest>::link_type link)
+{
+    auto children = unique_copy(parent->second.links());
+    insert_unique(link, children);
+    auto node = node_type(parent->second);
+    node.links(children);
+    return update(parent, node);
+}
+
+template <typename Forest>
+typename Tree<Forest>::node_iterator
+Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
                      const typename Tree<Forest>::node_type& child)
 {
-    auto inserted_node = forest_->insert(child);
-    return insert(parent, inserted_node.first);
+    forest_->insert(child);
+    return insert(parent, child.self_link());
 }
 
 /* Follow links up the tree and speculatively generate new branches. When
