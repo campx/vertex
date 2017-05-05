@@ -28,7 +28,8 @@ public:
     using node_iterator = typename NodeStore::const_iterator;
     using link_iterator = typename LinkStore::const_iterator;
     using node_type = typename NodeStore::value_type::second_type;
-    using link_type = typename LinkStore::value_type;
+    using link_value_type = typename LinkStore::value_type;
+    using link_type = typename LinkStore::value_type::second_type;
 
     static_assert(std::is_same<typename NodeStore::key_type,
                                typename LinkStore::key_type>::value,
@@ -64,18 +65,18 @@ public:
     node_iterator erase(node_iterator pos);
 
     /** Remove the given link */
-    link_iterator erase(const link_type& link);
+    link_iterator erase(const link_value_type& link);
 
     /** Insert a link into the graph
      * Parent and child nodes must exist */
-    std::pair<link_iterator, bool> insert(const link_type& link);
+    std::pair<link_iterator, bool> insert(const link_value_type& link);
 
     /** Erase the whole forest */
     void clear();
 
 private:
     /** Get an iterator to the link matching the argument */
-    link_iterator find(const link_type& link);
+    link_iterator find(const link_value_type& link);
 
     /** Remove the node link at the given position.
      * The given position must be valid. */
@@ -99,7 +100,7 @@ Forest<N, L>::insert(const typename N::value_type::second_type& node)
     auto result = nodes_.insert(node_link); /** store the node */
     for (const auto& link : node.links())
     { // add a link from node to each of its children
-        insert(link_type(link, node.self_link()));
+        links_.insert(std::make_pair(link, node.self_link()));
     }
     return result;
 }
@@ -125,7 +126,7 @@ Forest<N, L>::erase(typename Forest<N, L>::link_iterator pos)
             {
                 for (const auto& grandchild : node->second.links())
                 {
-                    auto it = find(link_type(grandchild, node->first));
+                    auto it = find(link_value_type(grandchild, node->first));
                     to_visit.push(it);
                 }
                 nodes_.erase(node);
@@ -148,7 +149,7 @@ Forest<N, L>::erase(typename Forest<N, L>::node_iterator pos)
     { // Erase node iff no references to it
         for (const auto& child : node.links())
         { // remove links from node to its children
-            auto child_link = link_type(child, link);
+            auto child_link = link_value_type(child, link);
             erase(child_link);
         }
         result = nodes_.erase(pos);
@@ -158,7 +159,7 @@ Forest<N, L>::erase(typename Forest<N, L>::node_iterator pos)
 
 template <typename N, typename L>
 typename Forest<N, L>::link_iterator
-Forest<N, L>::find(const typename Forest<N, L>::link_type& link)
+Forest<N, L>::find(const typename Forest<N, L>::link_value_type& link)
 {
     auto result = links().cend();
     auto range = links().equal_range(link.first);
@@ -172,7 +173,7 @@ Forest<N, L>::find(const typename Forest<N, L>::link_type& link)
 
 template <typename N, typename L>
 std::pair<typename Forest<N, L>::link_iterator, bool>
-Forest<N, L>::insert(const typename Forest<N, L>::link_type& link)
+Forest<N, L>::insert(const typename Forest<N, L>::link_value_type& link)
 {
     assert(nodes().find(link.first) != nodes().end());  // Parent must exist
     assert(nodes().find(link.second) != nodes().end()); // Child too
@@ -188,7 +189,7 @@ Forest<N, L>::insert(const typename Forest<N, L>::link_type& link)
 
 template <typename N, typename L>
 typename Forest<N, L>::link_iterator
-Forest<N, L>::erase(const typename Forest<N, L>::link_type& link)
+Forest<N, L>::erase(const typename Forest<N, L>::link_value_type& link)
 {
     auto result = find(link);
     if (result != links().end())
