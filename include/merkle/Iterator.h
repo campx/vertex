@@ -4,6 +4,10 @@
 namespace merkle
 {
 
+/**
+ * @todo Write a breadth-first iterator, which takes a predicate for
+ * traversal, by default a function which always returns true */
+
 /** Iterates through all links of a node, dereferencing to a link-node pair */
 template <typename NodeStore>
 class NodeLinkIterator : public std::iterator<std::input_iterator_tag,
@@ -28,6 +32,8 @@ public:
     NodeLinkIterator(const NodeLinkIterator&) = default;
     NodeLinkIterator& operator=(const NodeLinkIterator&) = default;
 
+    node_iterator node();
+
     self_type operator++();
     self_type operator++(int dummy);
     self_type operator--();
@@ -41,7 +47,6 @@ public:
 private:
     const NodeStore* nodes_;
     link_iterator link_it_;
-    node_iterator node_it_;
 };
 
 template <typename NodeStore>
@@ -50,6 +55,16 @@ NodeLinkIterator<NodeStore>::NodeLinkIterator(
     typename NodeLinkIterator<NodeStore>::link_iterator link_it)
     : nodes_(nodes), link_it_(std::move(link_it))
 {
+}
+
+template <typename NodeStore>
+typename NodeLinkIterator<NodeStore>::node_iterator
+NodeLinkIterator<NodeStore>::node()
+{
+    // need to add an iterator to forest which will contain a pair of link,node
+    // from find with the given link
+    auto result = nodes_->find(*(link_it_));
+    return result;
 }
 
 template <typename NodeStore>
@@ -92,16 +107,14 @@ template <typename NodeStore>
 typename NodeLinkIterator<NodeStore>::reference NodeLinkIterator<NodeStore>::
 operator*()
 {
-    node_it_ = nodes_->find(*(link_it_));
-    return node_it_.operator*();
+    return node().operator*();
 }
 
 template <typename NodeStore>
 typename NodeLinkIterator<NodeStore>::pointer NodeLinkIterator<NodeStore>::
 operator->()
 {
-    node_it_ = nodes_->find(*(link_it_));
-    return node_it_.operator->();
+    return node().operator->();
 }
 
 template <typename NodeStore>
