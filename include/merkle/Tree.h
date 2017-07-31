@@ -21,12 +21,14 @@ public:
     using node_container = typename Forest::node_container;
     using link_container = typename Forest::link_container;
 
-    Tree(std::shared_ptr<Forest> forest);
+    explicit Tree(std::shared_ptr<Forest> forest = nullptr);
     Tree(std::shared_ptr<Forest> forest, node_iterator root);
     const link_container& links() const;
     const node_container& nodes() const;
+    void root(node_iterator value);
     node_iterator root() const;
     bool empty() const;
+    const std::shared_ptr<Forest>& forest() const;
 
     bool operator==(const Tree<Forest>& rhs) const;
 
@@ -45,8 +47,6 @@ public:
 private:
     std::shared_ptr<Forest> forest_;
     node_iterator root_;
-
-    void root(node_iterator value);
 
     class Pin
     {
@@ -171,10 +171,13 @@ operator()(node_iterator a, node_iterator b)
 }
 
 template <typename Forest>
-Tree<Forest>::Tree(std::shared_ptr<Forest> forest)
-    : forest_(std::move(forest)),
-      root_(forest_->insert(typename Forest::node_type{}).first)
+Tree<Forest>::Tree(std::shared_ptr<Forest> forest) : forest_(std::move(forest))
 {
+    if (forest_ == nullptr)
+    {
+        forest_ = std::make_shared<Forest>();
+    }
+    root_ = forest_->insert(typename Forest::node_type{}).first;
 }
 
 template <typename Forest>
@@ -213,6 +216,12 @@ void Tree<Forest>::root(typename Tree<Forest>::node_iterator value)
     auto last_root(root());
     root_ = value;
     forest_->erase(last_root);
+}
+
+template <typename Forest>
+const std::shared_ptr<Forest>& Tree<Forest>::forest() const
+{
+    return forest_;
 }
 
 template <typename Forest>
