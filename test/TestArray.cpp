@@ -1,28 +1,28 @@
 #include "TestTree.h"
 #include "gtest/gtest.h"
-#include <merkle/Array.h>
+#include <vertex/Array.h>
 
-namespace merkle
+namespace vertex
 {
 
 TEST(Merkle, Array)
 {
     auto forest = std::make_shared<TestForest>();
-    auto root = forest->insert(TestNode("root")).first;
+    auto root = forest->insert(TestVertex("root")).first;
 
     auto tree = TestTree(forest, root);
     auto array = Array<TestTree>(tree);
-    auto a = TestNode("a");
-    array.insert(TestNode("a"));
-    array.insert(TestNode("b"));
+    auto a = TestVertex("a");
+    array.insert(TestVertex("a"));
+    array.insert(TestVertex("b"));
 
-    std::vector<TestNode> results{};
-    for (const auto& node : array)
+    std::vector<TestVertex> results{};
+    for (const auto& vertex : array)
     {
-        results.push_back(node.second);
+        results.push_back(vertex.second);
     }
 
-    std::vector<TestNode> expected{TestNode("a"), TestNode("b")};
+    std::vector<TestVertex> expected{TestVertex("a"), TestVertex("b")};
     EXPECT_EQ(expected.size(), results.size());
     EXPECT_EQ(expected, results);
 }

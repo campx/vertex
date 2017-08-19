@@ -1,9 +1,9 @@
 #include "TestForest.h"
-#include <merkle/Tree.h>
+#include <vertex/Tree.h>
 
-namespace merkle
+namespace vertex
 {
 
 using TestTree = Tree<TestForest>;
 
-} // namespace merkle
+} // namespace vertex

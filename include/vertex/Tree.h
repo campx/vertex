@@ -6,7 +6,7 @@
 #include <set>
 #include <vector>
 
-namespace merkle
+namespace vertex
 {
 
 template <typename Forest>
@@ -15,44 +15,44 @@ class Tree
 public:
     using forest_type = Forest;
     using forest_pointer = typename std::shared_ptr<Forest>;
-    using node_iterator = typename Forest::node_iterator;
-    using node_type = typename Forest::node_type;
-    using link_type = typename Forest::link_type;
-    using node_container = typename Forest::node_container;
-    using link_container = typename Forest::link_container;
+    using vertex_iterator = typename Forest::vertex_iterator;
+    using vertex_type = typename Forest::vertex_type;
+    using edge_type = typename Forest::edge_type;
+    using vertex_container = typename Forest::vertex_container;
+    using edge_container = typename Forest::edge_container;
 
     explicit Tree(std::shared_ptr<Forest> forest = nullptr);
-    Tree(std::shared_ptr<Forest> forest, node_iterator root);
-    const link_container& links() const;
-    const node_container& nodes() const;
-    void root(node_iterator value);
-    node_iterator root() const;
+    Tree(std::shared_ptr<Forest> forest, vertex_iterator root);
+    const edge_container& edges() const;
+    const vertex_container& vertices() const;
+    void root(vertex_iterator value);
+    vertex_iterator root() const;
     bool empty() const;
     const std::shared_ptr<Forest>& forest() const;
 
     bool operator==(const Tree<Forest>& rhs) const;
 
-    /** Insert a node  iterator insert(const node_type& node);  */
-    /** Insert a link  iterator insert(std::pair<Link, Link>);  */
-    /** Find a node    iterator find(Link); */
-    /** Erase a link   iterator erase(std::pair<Link, Link>); */
-    /** Erase a node   iterator erase(Link); */
+    /** Insert a vertex  iterator insert(const vertex_type& vertex);  */
+    /** Insert a edge  iterator insert(std::pair<Edge, Edge>);  */
+    /** Find a vertex    iterator find(Edge); */
+    /** Erase a edge   iterator erase(std::pair<Edge, Edge>); */
+    /** Erase a vertex   iterator erase(Edge); */
 
-    node_iterator insert(node_iterator parent, node_iterator child);
-    node_iterator insert(node_iterator parent, link_type link);
-    node_iterator insert(node_iterator parent, const node_type& child);
-    node_iterator erase(node_iterator parent, node_iterator child);
-    node_iterator update(node_iterator source, const node_type& value);
+    vertex_iterator insert(vertex_iterator parent, vertex_iterator child);
+    vertex_iterator insert(vertex_iterator parent, edge_type edge);
+    vertex_iterator insert(vertex_iterator parent, const vertex_type& child);
+    vertex_iterator erase(vertex_iterator parent, vertex_iterator child);
+    vertex_iterator update(vertex_iterator source, const vertex_type& value);
 
 private:
     std::shared_ptr<Forest> forest_;
-    node_iterator root_;
+    vertex_iterator root_;
 
     class Pin
     {
 
     public:
-        using value_type = typename Forest::link_value_type;
+        using value_type = typename Forest::edge_value_type;
         using key_type = typename Forest::key_type;
         Pin(Forest* const forest, key_type key);
         ~Pin();
@@ -63,31 +63,31 @@ private:
         Pin(Pin&& other) noexcept;
         const key_type& key()
         {
-            return link_.first;
+            return edge_.first;
         }
 
     private:
         Forest* forest_;
-        value_type link_;
+        value_type edge_;
     };
 
     class Mapping
     {
 
     public:
-        using key_type = node_iterator;
+        using key_type = vertex_iterator;
         explicit Mapping(std::shared_ptr<Forest> forest)
             : forest_(std::move(forest))
         {
         }
         struct Compare
         {
-            bool operator()(node_iterator a, node_iterator b);
+            bool operator()(vertex_iterator a, vertex_iterator b);
         };
         /** Set the corresponding output for input */
-        void set(node_iterator input, node_iterator output);
+        void set(vertex_iterator input, vertex_iterator output);
         /** Get the corresponding output for input */
-        node_iterator get(node_iterator input);
+        vertex_iterator get(vertex_iterator input);
 
     private:
         const std::shared_ptr<Forest> forest_;
@@ -139,11 +139,11 @@ Container exclude_copy(const typename Container::value_type& exclude,
 
 template <typename Forest>
 Tree<Forest>::Pin::Pin(Forest* const forest, key_type key)
-    : forest_(forest), link_(value_type(key, key))
+    : forest_(forest), edge_(value_type(key, key))
 {
     if (forest_)
     {
-        forest_->insert(link_);
+        forest_->insert(edge_);
     }
 }
 
@@ -152,20 +152,20 @@ Tree<Forest>::Pin::~Pin()
 {
     if (forest_)
     {
-        forest_->erase(link_);
+        forest_->erase(edge_);
     }
 }
 
 template <typename Forest>
 Tree<Forest>::Pin::Pin(Pin&& other) noexcept : forest_(other.forest_),
-                                               link_(std::move(other.link_))
+                                               edge_(std::move(other.edge_))
 {
     other.forest_ = nullptr;
 }
 
 template <typename Forest>
 bool Tree<Forest>::Mapping::Compare::
-operator()(node_iterator a, node_iterator b)
+operator()(vertex_iterator a, vertex_iterator b)
 {
     return a->first < b->first;
 }
@@ -177,29 +177,29 @@ Tree<Forest>::Tree(std::shared_ptr<Forest> forest) : forest_(std::move(forest))
     {
         forest_ = std::make_shared<Forest>();
     }
-    root_ = forest_->insert(typename Forest::node_type{}).first;
+    root_ = forest_->insert(typename Forest::vertex_type{}).first;
 }
 
 template <typename Forest>
-Tree<Forest>::Tree(std::shared_ptr<Forest> forest, node_iterator root)
+Tree<Forest>::Tree(std::shared_ptr<Forest> forest, vertex_iterator root)
     : forest_(std::move(forest)), root_(std::move(root))
 {
 }
 
 template <typename Forest>
-const typename Tree<Forest>::link_container& Tree<Forest>::links() const
+const typename Tree<Forest>::edge_container& Tree<Forest>::edges() const
 {
-    return forest_->links();
+    return forest_->edges();
 }
 
 template <typename Forest>
-const typename Tree<Forest>::node_container& Tree<Forest>::nodes() const
+const typename Tree<Forest>::vertex_container& Tree<Forest>::vertices() const
 {
-    return forest_->nodes();
+    return forest_->vertices();
 }
 
 template <typename Forest>
-typename Tree<Forest>::node_iterator Tree<Forest>::root() const
+typename Tree<Forest>::vertex_iterator Tree<Forest>::root() const
 {
     return root_;
 }
@@ -207,11 +207,11 @@ typename Tree<Forest>::node_iterator Tree<Forest>::root() const
 template <typename Forest>
 bool Tree<Forest>::empty() const
 {
-    return root()->second.links().empty();
+    return root()->second.edges().empty();
 }
 
 template <typename Forest>
-void Tree<Forest>::root(typename Tree<Forest>::node_iterator value)
+void Tree<Forest>::root(typename Tree<Forest>::vertex_iterator value)
 {
     auto last_root(root());
     root_ = value;
@@ -225,35 +225,35 @@ const std::shared_ptr<Forest>& Tree<Forest>::forest() const
 }
 
 template <typename Forest>
-typename Tree<Forest>::node_iterator
-Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
-                     const typename Tree<Forest>::node_type& value)
+typename Tree<Forest>::vertex_iterator
+Tree<Forest>::update(typename Tree<Forest>::vertex_iterator source,
+                     const typename Tree<Forest>::vertex_type& value)
 {
-    auto inserted_node = forest_->insert(value);
-    auto target = inserted_node.first;
-    using node_iterator = typename Forest::node_iterator;
+    auto inserted_vertex = forest_->insert(value);
+    auto target = inserted_vertex.first;
+    using vertex_iterator = typename Forest::vertex_iterator;
     using key_type = typename Forest::key_type;
     auto pins = std::vector<Pin>{}; // pins prevent deletion of WIP subtree
     auto updated = Mapping(forest_);
     updated.set(source, target);
-    auto to_visit = std::queue<std::pair<node_iterator, node_iterator>>{};
+    auto to_visit = std::queue<std::pair<vertex_iterator, vertex_iterator>>{};
     auto enqueue_parents = [&to_visit, &value,
-                            this](std::pair<key_type, key_type> link) {
-        auto child = nodes().find(link.first);
-        auto parent = nodes().find(link.second);
-        assert(parent != nodes().end());
-        assert(child != nodes().end());
+                            this](std::pair<key_type, key_type> edge) {
+        auto child = vertices().find(edge.first);
+        auto parent = vertices().find(edge.second);
+        assert(parent != vertices().end());
+        assert(child != vertices().end());
         auto it =
-            std::find(value.links().begin(), value.links().end(), link.second);
-        auto grandparents = links().count(link.second);
-        if (child != root() && parent->first != value.self_link() &&
-            it == value.links().end() &&
+            std::find(value.edges().begin(), value.edges().end(), edge.second);
+        auto grandparents = edges().count(edge.second);
+        if (child != root() && parent->first != value.self_edge() &&
+            it == value.edges().end() &&
             (grandparents != 0 || (grandparents == 0 && parent == root())))
         {
             to_visit.push(std::make_pair(child, parent));
         }
     };
-    auto range = links().equal_range(source->first);
+    auto range = edges().equal_range(source->first);
     std::for_each(range.first, range.second, enqueue_parents);
     if (source == root())
     {
@@ -267,19 +267,20 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
         const auto source_parent = next_pair.second;
         auto target_parent = updated.get(source_parent);
         auto target_child = updated.get(source_child);
-        if (target_parent != nodes().end() && target_child != nodes().end())
+        if (target_parent != vertices().end() &&
+            target_child != vertices().end())
         {
             if (pins.empty() || target_child->first != pins.back().key())
             {
                 pins.emplace_back(Pin(forest_.get(), target_child->first));
             }
             auto children = exclude_copy(source_child->first,
-                                         target_parent->second.links());
+                                         target_parent->second.edges());
             insert_unique(target_child->first, children);
-            auto node = target_parent->second;
-            node.links(children);
-            auto inserted_parent = forest_->insert(node);
-            auto range = links().equal_range(source_parent->first);
+            auto vertex = target_parent->second;
+            vertex.edges(children);
+            auto inserted_parent = forest_->insert(vertex);
+            auto range = edges().equal_range(source_parent->first);
             if (root() == target_parent)
             {
                 root(inserted_parent.first);
@@ -289,7 +290,7 @@ Tree<Forest>::update(typename Tree<Forest>::node_iterator source,
                 auto remaining = to_visit.size();
                 std::for_each(range.first, range.second, enqueue_parents);
                 if (to_visit.size() == remaining)
-                { // reached a source node without finding target root
+                { // reached a source vertex without finding target root
                     forest_->erase(inserted_parent.first);
                 }
                 else
@@ -310,54 +311,54 @@ bool Tree<Forest>::operator==(const Tree<Forest>& rhs) const
 }
 
 template <typename Forest>
-typename Tree<Forest>::node_iterator
-Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
-                     typename Tree<Forest>::node_iterator child)
+typename Tree<Forest>::vertex_iterator
+Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
+                     typename Tree<Forest>::vertex_iterator child)
 {
-    auto children = unique_copy(parent->second.links());
+    auto children = unique_copy(parent->second.edges());
     insert_unique(child->first, children);
-    auto node = node_type(parent->second);
-    node.links(children);
-    return update(parent, node);
+    auto vertex = vertex_type(parent->second);
+    vertex.edges(children);
+    return update(parent, vertex);
 }
 
 template <typename Forest>
-typename Tree<Forest>::node_iterator
-Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
-                     typename Tree<Forest>::link_type link)
+typename Tree<Forest>::vertex_iterator
+Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
+                     typename Tree<Forest>::edge_type edge)
 {
-    auto children = unique_copy(parent->second.links());
-    insert_unique(link, children);
-    auto node = node_type(parent->second);
-    node.links(children);
-    return update(parent, node);
+    auto children = unique_copy(parent->second.edges());
+    insert_unique(edge, children);
+    auto vertex = vertex_type(parent->second);
+    vertex.edges(children);
+    return update(parent, vertex);
 }
 
 template <typename Forest>
-typename Tree<Forest>::node_iterator
-Tree<Forest>::insert(typename Tree<Forest>::node_iterator parent,
-                     const typename Tree<Forest>::node_type& child)
+typename Tree<Forest>::vertex_iterator
+Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
+                     const typename Tree<Forest>::vertex_type& child)
 {
     forest_->insert(child);
-    return insert(parent, child.self_link());
+    return insert(parent, child.self_edge());
 }
 
-/* Follow links up the tree and speculatively generate new branches. When
-    the path terminates, check if the endpoint is root, if not, unlink */
+/* Follow edges up the tree and speculatively generate new branches. When
+    the path terminates, check if the endpoint is root, if not, unedge */
 template <typename Forest>
-typename Tree<Forest>::node_iterator
-Tree<Forest>::erase(typename Tree<Forest>::node_iterator parent,
-                    typename Tree<Forest>::node_iterator child)
+typename Tree<Forest>::vertex_iterator
+Tree<Forest>::erase(typename Tree<Forest>::vertex_iterator parent,
+                    typename Tree<Forest>::vertex_iterator child)
 {
-    auto children = exclude_copy(child->first, parent->second.links());
-    auto node = node_type(parent->second);
-    node.links(children);
-    return update(parent, node);
+    auto children = exclude_copy(child->first, parent->second.edges());
+    auto vertex = vertex_type(parent->second);
+    vertex.edges(children);
+    return update(parent, vertex);
 }
 
 template <typename Forest>
-void Tree<Forest>::Mapping::set(typename Tree<Forest>::node_iterator input,
-                                typename Tree<Forest>::node_iterator output)
+void Tree<Forest>::Mapping::set(typename Tree<Forest>::vertex_iterator input,
+                                typename Tree<Forest>::vertex_iterator output)
 {
     if (input != output)
     {
@@ -366,8 +367,8 @@ void Tree<Forest>::Mapping::set(typename Tree<Forest>::node_iterator input,
 }
 
 template <typename Forest>
-typename Tree<Forest>::node_iterator
-Tree<Forest>::Mapping::get(typename Tree<Forest>::node_iterator input)
+typename Tree<Forest>::vertex_iterator
+Tree<Forest>::Mapping::get(typename Tree<Forest>::vertex_iterator input)
 
 {
     auto output = input;
@@ -375,9 +376,9 @@ Tree<Forest>::Mapping::get(typename Tree<Forest>::node_iterator input)
     if (output_it != map_.end())
     {
         output = output_it->second;
-        output = forest_->nodes().find(output->first);
+        output = forest_->vertices().find(output->first);
     }
     return output;
 }
 
-} // namespace merkle
+} // namespace vertex

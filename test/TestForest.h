@@ -1,14 +1,14 @@
 #pragma once
-#include "TestNode.h"
+#include "TestVertex.h"
 #include <map>
-#include <merkle/Forest.h>
+#include <vertex/Forest.h>
 
-namespace merkle
+namespace vertex
 {
 
-using NodeMap = std::map<TestNode::value_type, TestNode>;
-using LinkMap = std::multimap<TestNode::value_type, TestNode::value_type>;
+using VertexMap = std::map<TestVertex::value_type, TestVertex>;
+using EdgeMap = std::multimap<TestVertex::value_type, TestVertex::value_type>;
 
-using TestForest = Forest<NodeMap, LinkMap>;
+using TestForest = Forest<VertexMap, EdgeMap>;
 
-} // namespace merkle
+} // namespace vertex
