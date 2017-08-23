@@ -9,6 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 add_library(libvertex
             src/Vertex.cpp
             src/VertexStore.cpp
+            src/BfsEdgeIterator.cpp
+            src/EdgeTargetIterator.cpp
            #src/Tree.cpp
            #src/Forest.cpp
            #src/Iterator.cpp
@@ -23,7 +25,8 @@ target_include_directories(libvertex INTERFACE "${vertex_SOURCE_DIR}/include")
 enable_testing()
 add_executable(TestVertex
                test/TestVertex.cpp 
-               test/TestIterator.cpp
+               test/TestBfsEdgeIterator.cpp
+               test/TestEdgeTargetIterator.cpp
               #test/TestTree.cpp 
               #test/TestForest.cpp
               #test/TestArray.cpp 

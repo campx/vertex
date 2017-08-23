@@ -18,46 +18,7 @@ struct NullUnary
     }
 };
 
-/** An Edge Iterator which traverses a VertexStore in bredth-first order */
-template <typename VertexStore>
-class BredthFirstTraversal
-{
-public:
-    BredthFirstTraversal(VertexStore* vertices,
-                         typename VertexStore::iterator vertex);
-    BredthFirstTraversal(const BredthFirstTraversal&) = default;
-    BredthFirstTraversal(BredthFirstTraversal&&) = default;
-    BredthFirstTraversal& operator=(const BredthFirstTraversal&) = default;
-    BredthFirstTraversal& operator=(BredthFirstTraversal&&) = default;
-
-    using self_type = BredthFirstTraversal<VertexStore>;
-    using value_type = typename VertexStore::mapped_type;
-    using reference = value_type&;
-    using pointer = value_type*;
-
-    self_type begin() const;
-    self_type end() const;
-    self_type operator++();
-    self_type operator++(int dummy);
-    reference operator*();
-    pointer operator->();
-
-    bool operator!=(const self_type& rhs) const;
-    bool operator==(const self_type& rhs) const;
-
-private:
-    void enqueue_children();
-    using vertex_iterator = typename VertexStore::iterator;
-    using vertex_type = typename VertexStore::mapped_type;
-    using child_iterator = typename vertex_type::iterator;
-    using key_type = typename VertexStore::key_type;
-    std::queue<std::pair<key_type, key_type>> to_visit_;
-    VertexStore* vertices_;
-    vertex_iterator root_;
-    vertex_iterator vertex_;
-};
-
-/************************************************************************************/
+/********************************************************************************/
 
 /**@todo Create PredicatedIterator which skips items for which a predicate is
  * false
@@ -114,96 +75,6 @@ private:
 };
 
 /************************************************************************************/
-
-template <typename VertexStore>
-BredthFirstTraversal<VertexStore>::BredthFirstTraversal(
-    VertexStore* vertices, typename VertexStore::iterator vertex)
-    : vertices_(vertices), root_(std::move(vertex)), vertex_(root_)
-{
-    if (!vertices_->empty() && vertex_ != vertices_->end())
-    {
-        enqueue_children();
-    }
-}
-
-template <typename VertexStore>
-void BredthFirstTraversal<VertexStore>::enqueue_children()
-{
-    for (const auto& child : vertex_->second)
-    {
-        to_visit_.push(std::make_pair(vertex_->first, child));
-    }
-}
-
-template <typename VertexStore>
-typename BredthFirstTraversal<VertexStore>::self_type
-BredthFirstTraversal<VertexStore>::begin() const
-{
-    return BredthFirstTraversal(vertices_, root_);
-}
-
-template <typename VertexStore>
-typename BredthFirstTraversal<VertexStore>::self_type
-BredthFirstTraversal<VertexStore>::end() const
-{
-    return BredthFirstTraversal(vertices_, vertices_->end());
-}
-
-template <typename VertexStore>
-typename BredthFirstTraversal<VertexStore>::self_type
-    BredthFirstTraversal<VertexStore>::operator++()
-{
-    if (to_visit_.empty())
-    {
-        *this = end();
-    }
-    else
-    {
-        auto edge = to_visit_.front();
-        to_visit_.pop();
-        vertex_ = vertices_->find(edge.second);
-        enqueue_children();
-    }
-    return *this;
-}
-
-template <typename VertexStore>
-typename BredthFirstTraversal<VertexStore>::self_type
-    BredthFirstTraversal<VertexStore>::operator++(int dummy)
-{
-    (void)dummy;
-    auto copy = *this;
-    ++*this;
-    return copy;
-}
-
-template <typename VertexStore>
-typename BredthFirstTraversal<VertexStore>::reference
-    BredthFirstTraversal<VertexStore>::operator*()
-{
-    return vertex_->second;
-}
-
-template <typename VertexStore>
-typename BredthFirstTraversal<VertexStore>::pointer
-    BredthFirstTraversal<VertexStore>::operator->()
-{
-    return &(vertex_->second);
-}
-
-template <typename VertexStore>
-bool BredthFirstTraversal<VertexStore>::
-operator==(const BredthFirstTraversal<VertexStore>& rhs) const
-{
-    return vertex_ == rhs.vertex_ && root_ == rhs.root_;
-}
-
-template <typename VertexStore>
-bool BredthFirstTraversal<VertexStore>::
-operator!=(const BredthFirstTraversal<VertexStore>& rhs) const
-{
-    return !(*this == rhs);
-}
 
 template <typename VertexStore>
 VertexEdgeIterator<VertexStore>::VertexEdgeIterator(
