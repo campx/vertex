@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
 #include <vertex/BredthFirstTraversal.h>
 #include <vertex/EdgeIterator.h>
-#include <vertex/EdgeTargetIterator.h>
 #include <vertex/Vertex.h>
+#include <vertex/VertexIterator.h>
 
-namespace vertex
+namespace
 {
 
-using TestVertex = Vertex<std::string, std::string>;
+using TestVertex = vertex::Vertex<std::string, std::string>;
 using VertexMap = std::map<std::string, TestVertex>;
 
 std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
@@ -16,7 +16,12 @@ std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
     return output;
 }
 
-TEST(Vertex, EdgeTargetIterator)
+} // namespace
+
+namespace vertex
+{
+
+TEST(Vertex, VertexIterator)
 {
 
     /************************
@@ -51,12 +56,8 @@ TEST(Vertex, EdgeTargetIterator)
     }
     EXPECT_FALSE(vertices.empty());
     {
-        auto bfs =
-            EdgeIterator<BredthFirstTraversal<VertexMap>>(&vertices,
-                                                          vertices.begin());
-        auto it =
-            EdgeTargetIterator<EdgeIterator<BredthFirstTraversal<VertexMap>>>(
-                bfs);
+        using Bfs = BredthFirstTraversal<VertexMap>;
+        auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_NE(begin(it), end(it));
         auto os = std::ostringstream{};
         for (const auto& vertex : it)
@@ -68,12 +69,9 @@ TEST(Vertex, EdgeTargetIterator)
 
     vertices.clear();
     { // traverse empty graph
-        auto bfs =
-            EdgeIterator<BredthFirstTraversal<VertexMap>>(&vertices,
-                                                          vertices.begin());
-        auto it =
-            EdgeTargetIterator<EdgeIterator<BredthFirstTraversal<VertexMap>>>(
-                bfs);
+
+        using Bfs = BredthFirstTraversal<VertexMap>;
+        auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_EQ(begin(it), end(it));
         auto os = std::ostringstream{};
         for (const auto& vertex : it)
