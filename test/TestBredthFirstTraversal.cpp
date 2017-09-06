@@ -86,7 +86,8 @@ TEST(Vertex, BredthFirstTraversal)
 
         // Create an accessor which pulls out edges from a traversal
         using EdgeAccess = std::function<const Bfs::edge_type&(const Bfs&)>;
-        auto accessor = EdgeAccess([](auto& t) -> auto { return t.edge(); });
+        auto accessor =
+            EdgeAccess([](const auto& t) -> auto { return t.edge(); });
 
         auto it = make_iterator(traversal, accessor);
         EXPECT_EQ(begin(it), end(it));

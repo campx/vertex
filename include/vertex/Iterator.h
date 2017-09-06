@@ -87,7 +87,7 @@ Iterator<Traversal, Accessor> Iterator<Traversal, Accessor>::end() const
 template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor>& Iterator<Traversal, Accessor>::operator++()
 {
-    if (!traversal_->step())
+    if (!traversal_->advance())
     {
         *this = end();
     }

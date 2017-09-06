@@ -13,18 +13,19 @@ Iterator<Traversal, VertexAccessor<Traversal>>
 VertexIterator(typename Traversal::vertex_store_type* vertices,
                typename Traversal::vertex_store_type::iterator vertex)
 {
-    auto vertex_accessor = std::mem_fn(&Traversal::vertex);
-    using iterator_type = Iterator<Traversal, VertexAccessor<Traversal>>;
-    return iterator_type(vertices, vertex, vertex_accessor);
+    auto traversal = std::make_shared<Traversal>(vertices, vertex);
+    return VertexIterator<Traversal>(traversal);
 }
 
 template <typename Traversal>
 Iterator<Traversal, VertexAccessor<Traversal>>
 VertexIterator(const typename std::shared_ptr<Traversal>& traversal)
 {
-    auto vertex_accessor = std::mem_fn(&Traversal::vertex);
-    using iterator_type = Iterator<Traversal, VertexAccessor<Traversal>>;
-    return iterator_type(traversal, vertex_accessor);
+    using Accessor = VertexAccessor<Traversal>;
+    using vertex_type = typename Traversal::vertex_type;
+    auto accessor = Accessor(
+        [](const Traversal& t) -> const vertex_type& { return t.vertex(); });
+    return make_iterator(traversal, accessor);
 }
 
 } // namespace vertex
