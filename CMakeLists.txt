@@ -11,6 +11,7 @@ add_library(libvertex
             src/VertexStore.cpp
             src/EdgeIterator.cpp
             src/BredthFirstTraversal.cpp
+            src/InOrderTraversal.cpp
             src/VertexIterator.cpp
            #src/Tree.cpp
            #src/Forest.cpp
@@ -27,6 +28,7 @@ enable_testing()
 add_executable(TestVertex
                test/TestVertex.cpp 
                test/TestBredthFirstTraversal.cpp
+               test/TestInOrderTraversal.cpp
                test/TestIterator.cpp
               #test/TestTree.cpp 
               #test/TestForest.cpp
