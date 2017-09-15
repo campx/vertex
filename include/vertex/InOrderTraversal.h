@@ -22,7 +22,6 @@ public:
 
 private:
     std::stack<typename base_type::edge_type> to_visit_;
-    typename base_type::edge_type prev_edge_;
 };
 
 template <typename VertexStore>
@@ -40,33 +39,40 @@ InOrderTraversal<VertexStore>::InOrderTraversal(
 template <typename VertexStore>
 bool InOrderTraversal<VertexStore>::advance()
 {
-    auto result = true;
+    if (to_visit_.empty())
+    {
+        return false;
+    }
     auto child = position();
     while (child != vertices()->end() && child->second.size() == 2)
     { // traversal to bottom of left branch
+        auto next_child = vertices()->find(*child->second.begin());
         auto e = std::make_pair(child->first, *child->second.begin());
-        to_visit_.push(e);
-        child = vertices()->find(*child->second.begin());
+        if (next_child != vertices()->end())
+        {
+            to_visit_.push(e);
+        }
+        child = next_child;
     }
-    if (!to_visit_.empty())
-    {
-        prev_edge_ = edge();
-        base_type::edge(to_visit_.top());
-        base_type::position(vertices()->find(edge().second));
-        base_type::vertex(position()->second);
-        to_visit_.pop();
-        if (position()->second.size() == 2)
-        { // traverse right branch
-            auto child = *(++position()->second.begin());
-            to_visit_.push(std::make_pair(position()->first, child));
-            base_type::position(vertices()->find(child));
+    base_type::edge(to_visit_.top());
+    to_visit_.pop();
+    child = vertices()->find(edge().second);
+    if (child != vertices()->end())
+    { // next child on stack is not null
+        base_type::position(child);
+    }
+    base_type::vertex(position()->second);
+    if (position()->second.size() == 2)
+    { // traverse right branch
+        auto link = *(++position()->second.begin());
+        child = vertices()->find(link);
+        if (child != vertices()->end())
+        { // don't move to right child if null
+            to_visit_.push(std::make_pair(position()->first, link));
+            base_type::position(child);
         }
     }
-    else
-    {
-        result = false;
-    }
-    return result;
+    return true;
 }
 
 } // namespace vertex

@@ -15,8 +15,6 @@ public:
 
     Traversal(VertexStore* vertices, typename VertexStore::iterator root);
 
-    bool advance();
-
     VertexStore* vertices() const;
     const vertex_iterator& root() const;
     const vertex_iterator& position() const;
@@ -46,12 +44,6 @@ Traversal<VertexStore, Impl>::Traversal(VertexStore* vertices,
                            position_ == vertices_->end() ? key_type{} :
                                                            position_->first))
 {
-}
-
-template <typename VertexStore, typename Impl>
-bool Traversal<VertexStore, Impl>::advance()
-{
-    return static_cast<Impl*>(this)->advance();
 }
 
 template <typename VertexStore, typename Impl>
