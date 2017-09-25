@@ -98,6 +98,25 @@ TEST(Vertex, BredthFirstTraversal)
         }
         EXPECT_EQ("", os.str());
     }
+
+    vertices.insert(std::make_pair("B", TestVertex("B")));
+    vertices.insert(std::make_pair("C", TestVertex("C")));
+    vertices.insert(std::make_pair("D", TestVertex("D")));
+    auto root = TestVertex("A");
+    root.insert("B");
+    root.insert("C");
+    root.insert("D");
+    vertices.insert(std::make_pair("A", root));
+    { // traverse graph of depth 1
+        using Bfs = BredthFirstTraversal<VertexMap>;
+        auto it = VertexIterator<Bfs>(&vertices, vertices.find("A"));
+        auto os = std::ostringstream{};
+        for (const auto& vertex : it)
+        {
+            os << vertex;
+        }
+        EXPECT_EQ("ABCD", os.str());
+    }
 }
 
 } // namespace vertex

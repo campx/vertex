@@ -18,6 +18,8 @@ public:
              Accessor accessor = Accessor());
     Iterator(vertex_store_type* vertices,
              vertex_iterator vertex,
+             typename Traversal::predicate_type predicate =
+                 typename Traversal::predicate_type{},
              Accessor accessor = Accessor());
     Iterator(const Iterator&) = default;
     Iterator(Iterator&&) = default;
@@ -56,8 +58,10 @@ template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor>::Iterator(
     vertex_store_type* vertices,
     typename vertex_store_type::iterator vertex,
+    typename Traversal::predicate_type predicate,
     Accessor accessor)
-    : Iterator(std::make_shared<Traversal>(vertices, std::move(vertex)),
+    : Iterator(std::make_shared<Traversal>(
+                   vertices, std::move(vertex), std::move(predicate)),
                std::move(accessor))
 {
 }
@@ -73,7 +77,8 @@ template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor> Iterator<Traversal, Accessor>::begin() const
 {
     return Iterator<Traversal, Accessor>(traversal_->vertices(),
-                                         traversal_->root(), accessor_);
+                                         traversal_->root(),
+                                         traversal_->predicate(), accessor_);
 }
 
 template <typename Traversal, typename Accessor>
@@ -81,7 +86,7 @@ Iterator<Traversal, Accessor> Iterator<Traversal, Accessor>::end() const
 {
     return Iterator<Traversal, Accessor>(traversal_->vertices(),
                                          traversal_->vertices()->end(),
-                                         accessor_);
+                                         traversal_->predicate(), accessor_);
 }
 
 template <typename Traversal, typename Accessor>

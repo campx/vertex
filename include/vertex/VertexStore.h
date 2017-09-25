@@ -64,6 +64,9 @@ public:
      *  The reference count of all child vertices will be decremented */
     iterator erase(iterator pos);
 
+    /** Get reference count for vertex with given key */
+    size_type count(const key_type& key);
+
     /** Erase the whole forest */
     void clear();
 
@@ -190,6 +193,13 @@ ManagedVertexStore<V, E>::erase(
         result = erase(result);
     }
     return result;
+}
+
+template <typename V, typename E>
+typename ManagedVertexStore<V, E>::size_type ManagedVertexStore<V, E>::count(
+    const typename ManagedVertexStore::key_type& key)
+{
+    return edges_.count(key);
 }
 
 template <typename V, typename E>

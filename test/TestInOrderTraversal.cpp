@@ -96,4 +96,25 @@ TEST_F(Tree, InOrderTraversal)
     }
 }
 
+TEST_F(Tree, PredicatedInOrderTraversal)
+{
+    using Predicate = std::function<bool(
+        const std::pair<VertexMap::key_type, VertexMap::key_type>&)>;
+    auto predicate = Predicate([](const auto& e) -> auto {
+        return e.second == "G" || e.second == "F" || e.second == "I";
+    });
+
+    using Iot = InOrderTraversal<VertexMap, Predicate>;
+    {
+        auto vertex_it =
+            VertexIterator<Iot>(&vertices, vertices.find("F"), predicate);
+        auto vertex_order = std::ostringstream{};
+        for (const auto& v : vertex_it)
+        {
+            vertex_order << v;
+        }
+        EXPECT_EQ("FGI", vertex_order.str());
+    }
+}
+
 } // namespace vertex

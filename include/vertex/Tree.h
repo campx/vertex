@@ -9,28 +9,23 @@
 namespace vertex
 {
 
-template <typename Forest>
+template <typename VertexStore>
 class Tree
 {
 public:
-    using forest_type = Forest;
-    using forest_pointer = typename std::shared_ptr<Forest>;
-    using vertex_iterator = typename Forest::vertex_iterator;
-    using vertex_type = typename Forest::vertex_type;
-    using edge_type = typename Forest::edge_type;
-    using vertex_container = typename Forest::vertex_container;
-    using edge_container = typename Forest::edge_container;
+    using vertex_iterator = typename VertexStore::iterator;
+    using vertex_type = typename VertexStore::mapped_type;
+    using key_type = typename VertexStore::key_type;
+    using edge_type = std::pair<key_type, key_type>;
 
-    explicit Tree(std::shared_ptr<Forest> forest = nullptr);
-    Tree(std::shared_ptr<Forest> forest, vertex_iterator root);
-    const edge_container& edges() const;
-    const vertex_container& vertices() const;
+    explicit Tree(std::shared_ptr<VertexStore> vertices = nullptr);
+    Tree(std::shared_ptr<VertexStore> vertices, vertex_iterator root);
     void root(vertex_iterator value);
     vertex_iterator root() const;
     bool empty() const;
-    const std::shared_ptr<Forest>& forest() const;
+    const std::shared_ptr<VertexStore>& vertices() const;
 
-    bool operator==(const Tree<Forest>& rhs) const;
+    bool operator==(const Tree<VertexStore>& rhs) const;
 
     /** Insert a vertex  iterator insert(const vertex_type& vertex);  */
     /** Insert a edge  iterator insert(std::pair<Edge, Edge>);  */
@@ -45,20 +40,20 @@ public:
     vertex_iterator update(vertex_iterator source, const vertex_type& value);
 
 private:
-    std::shared_ptr<Forest> forest_;
+    std::shared_ptr<VertexStore> vertices_;
     vertex_iterator root_;
 
     class Pin
     {
 
     public:
-        using value_type = typename Forest::edge_value_type;
-        using key_type = typename Forest::key_type;
-        Pin(Forest* const forest, key_type key);
+        using value_type = typename VertexStore::edge_value_type;
+        using key_type = typename VertexStore::key_type;
+        Pin(VertexStore* const vertices, key_type key);
         ~Pin();
         void detach()
         {
-            forest_ = nullptr;
+            vertices_ = nullptr;
         }
         Pin(Pin&& other) noexcept;
         const key_type& key()
@@ -67,7 +62,7 @@ private:
         }
 
     private:
-        Forest* forest_;
+        VertexStore* vertices_;
         value_type edge_;
     };
 
@@ -76,8 +71,8 @@ private:
 
     public:
         using key_type = vertex_iterator;
-        explicit Mapping(std::shared_ptr<Forest> forest)
-            : forest_(std::move(forest))
+        explicit Mapping(std::shared_ptr<VertexStore> vertices)
+            : vertices_(std::move(vertices))
         {
         }
         struct Compare
@@ -90,7 +85,7 @@ private:
         vertex_iterator get(vertex_iterator input);
 
     private:
-        const std::shared_ptr<Forest> forest_;
+        const std::shared_ptr<VertexStore> vertices_;
         std::map<key_type, key_type, Compare> map_;
     };
 };
@@ -137,104 +132,95 @@ Container exclude_copy(const typename Container::value_type& exclude,
     return output;
 }
 
-template <typename Forest>
-Tree<Forest>::Pin::Pin(Forest* const forest, key_type key)
-    : forest_(forest), edge_(value_type(key, key))
+template <typename VertexStore>
+Tree<VertexStore>::Pin::Pin(VertexStore* const vertices, key_type key)
+    : vertices_(vertices), edge_(value_type(key, key))
 {
-    if (forest_)
+    if (vertices_)
     {
-        forest_->insert(edge_);
+        vertices_->insert(edge_);
     }
 }
 
-template <typename Forest>
-Tree<Forest>::Pin::~Pin()
+template <typename VertexStore>
+Tree<VertexStore>::Pin::~Pin()
 {
-    if (forest_)
+    if (vertices_)
     {
-        forest_->erase(edge_);
+        vertices_->erase(edge_);
     }
 }
 
-template <typename Forest>
-Tree<Forest>::Pin::Pin(Pin&& other) noexcept : forest_(other.forest_),
-                                               edge_(std::move(other.edge_))
+template <typename VertexStore>
+Tree<VertexStore>::Pin::Pin(Pin&& other) noexcept
+    : vertices_(other.vertices_),
+      edge_(std::move(other.edge_))
 {
-    other.forest_ = nullptr;
+    other.vertices_ = nullptr;
 }
 
-template <typename Forest>
-bool Tree<Forest>::Mapping::Compare::
+template <typename VertexStore>
+bool Tree<VertexStore>::Mapping::Compare::
 operator()(vertex_iterator a, vertex_iterator b)
 {
     return a->first < b->first;
 }
 
-template <typename Forest>
-Tree<Forest>::Tree(std::shared_ptr<Forest> forest) : forest_(std::move(forest))
+template <typename VertexStore>
+Tree<VertexStore>::Tree(std::shared_ptr<VertexStore> vertices)
+    : vertices_(std::move(vertices))
 {
-    if (forest_ == nullptr)
+    if (vertices_ == nullptr)
     {
-        forest_ = std::make_shared<Forest>();
+        vertices_ = std::make_shared<VertexStore>();
     }
-    root_ = forest_->insert(typename Forest::vertex_type{}).first;
+    root_ = vertices_->insert(typename VertexStore::vertex_type{}).first;
 }
 
-template <typename Forest>
-Tree<Forest>::Tree(std::shared_ptr<Forest> forest, vertex_iterator root)
-    : forest_(std::move(forest)), root_(std::move(root))
+template <typename VertexStore>
+Tree<VertexStore>::Tree(std::shared_ptr<VertexStore> vertices,
+                        vertex_iterator root)
+    : vertices_(std::move(vertices)), root_(std::move(root))
 {
 }
 
-template <typename Forest>
-const typename Tree<Forest>::edge_container& Tree<Forest>::edges() const
-{
-    return forest_->edges();
-}
-
-template <typename Forest>
-const typename Tree<Forest>::vertex_container& Tree<Forest>::vertices() const
-{
-    return forest_->vertices();
-}
-
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator Tree<Forest>::root() const
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator Tree<VertexStore>::root() const
 {
     return root_;
 }
 
-template <typename Forest>
-bool Tree<Forest>::empty() const
+template <typename VertexStore>
+bool Tree<VertexStore>::empty() const
 {
     return root()->second.edges().empty();
 }
 
-template <typename Forest>
-void Tree<Forest>::root(typename Tree<Forest>::vertex_iterator value)
+template <typename VertexStore>
+void Tree<VertexStore>::root(typename Tree<VertexStore>::vertex_iterator value)
 {
     auto last_root(root());
     root_ = value;
-    forest_->erase(last_root);
+    vertices_->erase(last_root);
 }
 
-template <typename Forest>
-const std::shared_ptr<Forest>& Tree<Forest>::forest() const
+template <typename VertexStore>
+const std::shared_ptr<VertexStore>& Tree<VertexStore>::vertices() const
 {
-    return forest_;
+    return vertices_;
 }
 
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator
-Tree<Forest>::update(typename Tree<Forest>::vertex_iterator source,
-                     const typename Tree<Forest>::vertex_type& value)
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator
+Tree<VertexStore>::update(typename Tree<VertexStore>::vertex_iterator source,
+                          const typename Tree<VertexStore>::vertex_type& value)
 {
-    auto inserted_vertex = forest_->insert(value);
+    auto inserted_vertex = vertices_->insert(value);
     auto target = inserted_vertex.first;
-    using vertex_iterator = typename Forest::vertex_iterator;
-    using key_type = typename Forest::key_type;
+    using vertex_iterator = typename VertexStore::vertex_iterator;
+    using key_type = typename VertexStore::key_type;
     auto pins = std::vector<Pin>{}; // pins prevent deletion of WIP subtree
-    auto updated = Mapping(forest_);
+    auto updated = Mapping(vertices_);
     updated.set(source, target);
     auto to_visit = std::queue<std::pair<vertex_iterator, vertex_iterator>>{};
     auto enqueue_parents = [&to_visit, &value,
@@ -245,7 +231,7 @@ Tree<Forest>::update(typename Tree<Forest>::vertex_iterator source,
         assert(child != vertices().end());
         auto it =
             std::find(value.edges().begin(), value.edges().end(), edge.second);
-        auto grandparents = edges().count(edge.second);
+        auto grandparents = vertices().count(edge.second);
         if (child != root() && parent->first != value.self_edge() &&
             it == value.edges().end() &&
             (grandparents != 0 || (grandparents == 0 && parent == root())))
@@ -272,14 +258,14 @@ Tree<Forest>::update(typename Tree<Forest>::vertex_iterator source,
         {
             if (pins.empty() || target_child->first != pins.back().key())
             {
-                pins.emplace_back(Pin(forest_.get(), target_child->first));
+                pins.emplace_back(Pin(vertices_.get(), target_child->first));
             }
             auto children = exclude_copy(source_child->first,
                                          target_parent->second.edges());
             insert_unique(target_child->first, children);
             auto vertex = target_parent->second;
             vertex.edges(children);
-            auto inserted_parent = forest_->insert(vertex);
+            auto inserted_parent = vertices_->insert(vertex);
             auto range = edges().equal_range(source_parent->first);
             if (root() == target_parent)
             {
@@ -291,7 +277,7 @@ Tree<Forest>::update(typename Tree<Forest>::vertex_iterator source,
                 std::for_each(range.first, range.second, enqueue_parents);
                 if (to_visit.size() == remaining)
                 { // reached a source vertex without finding target root
-                    forest_->erase(inserted_parent.first);
+                    vertices_->erase(inserted_parent.first);
                 }
                 else
                 {
@@ -304,16 +290,16 @@ Tree<Forest>::update(typename Tree<Forest>::vertex_iterator source,
     return target;
 }
 
-template <typename Forest>
-bool Tree<Forest>::operator==(const Tree<Forest>& rhs) const
+template <typename VertexStore>
+bool Tree<VertexStore>::operator==(const Tree<VertexStore>& rhs) const
 {
-    return forest_ == rhs.forest_ && root_ == rhs.root_;
+    return vertices_ == rhs.vertices_ && root_ == rhs.root_;
 }
 
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator
-Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
-                     typename Tree<Forest>::vertex_iterator child)
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator
+Tree<VertexStore>::insert(typename Tree<VertexStore>::vertex_iterator parent,
+                          typename Tree<VertexStore>::vertex_iterator child)
 {
     auto children = unique_copy(parent->second.edges());
     insert_unique(child->first, children);
@@ -322,10 +308,10 @@ Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
     return update(parent, vertex);
 }
 
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator
-Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
-                     typename Tree<Forest>::edge_type edge)
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator
+Tree<VertexStore>::insert(typename Tree<VertexStore>::vertex_iterator parent,
+                          typename Tree<VertexStore>::edge_type edge)
 {
     auto children = unique_copy(parent->second.edges());
     insert_unique(edge, children);
@@ -334,21 +320,21 @@ Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
     return update(parent, vertex);
 }
 
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator
-Tree<Forest>::insert(typename Tree<Forest>::vertex_iterator parent,
-                     const typename Tree<Forest>::vertex_type& child)
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator
+Tree<VertexStore>::insert(typename Tree<VertexStore>::vertex_iterator parent,
+                          const typename Tree<VertexStore>::vertex_type& child)
 {
-    forest_->insert(child);
+    vertices_->insert(child);
     return insert(parent, child.self_edge());
 }
 
 /* Follow edges up the tree and speculatively generate new branches. When
     the path terminates, check if the endpoint is root, if not, unedge */
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator
-Tree<Forest>::erase(typename Tree<Forest>::vertex_iterator parent,
-                    typename Tree<Forest>::vertex_iterator child)
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator
+Tree<VertexStore>::erase(typename Tree<VertexStore>::vertex_iterator parent,
+                         typename Tree<VertexStore>::vertex_iterator child)
 {
     auto children = exclude_copy(child->first, parent->second.edges());
     auto vertex = vertex_type(parent->second);
@@ -356,9 +342,10 @@ Tree<Forest>::erase(typename Tree<Forest>::vertex_iterator parent,
     return update(parent, vertex);
 }
 
-template <typename Forest>
-void Tree<Forest>::Mapping::set(typename Tree<Forest>::vertex_iterator input,
-                                typename Tree<Forest>::vertex_iterator output)
+template <typename VertexStore>
+void Tree<VertexStore>::Mapping::set(
+    typename Tree<VertexStore>::vertex_iterator input,
+    typename Tree<VertexStore>::vertex_iterator output)
 {
     if (input != output)
     {
@@ -366,9 +353,9 @@ void Tree<Forest>::Mapping::set(typename Tree<Forest>::vertex_iterator input,
     }
 }
 
-template <typename Forest>
-typename Tree<Forest>::vertex_iterator
-Tree<Forest>::Mapping::get(typename Tree<Forest>::vertex_iterator input)
+template <typename VertexStore>
+typename Tree<VertexStore>::vertex_iterator Tree<VertexStore>::Mapping::get(
+    typename Tree<VertexStore>::vertex_iterator input)
 
 {
     auto output = input;
@@ -376,7 +363,7 @@ Tree<Forest>::Mapping::get(typename Tree<Forest>::vertex_iterator input)
     if (output_it != map_.end())
     {
         output = output_it->second;
-        output = forest_->vertices().find(output->first);
+        output = vertices_->vertices().find(output->first);
     }
     return output;
 }

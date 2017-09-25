@@ -6,17 +6,17 @@ namespace vertex
 {
 template <typename VertexStore,
           typename Predicate = NullaryPredicate<VertexStore, true>>
-class InOrderTraversal
+class PostOrderTraversal
     : public Traversal<VertexStore,
-                       InOrderTraversal<VertexStore, Predicate>,
+                       PostOrderTraversal<VertexStore, Predicate>,
                        Predicate>
 {
 public:
-    InOrderTraversal(VertexStore* vertices,
-                     typename VertexStore::iterator root,
-                     Predicate predicate = Predicate{});
+    PostOrderTraversal(VertexStore* vertices,
+                       typename VertexStore::iterator root,
+                       Predicate predicate = Predicate{});
     using base_type = Traversal<VertexStore,
-                                InOrderTraversal<VertexStore, Predicate>,
+                                PostOrderTraversal<VertexStore, Predicate>,
                                 Predicate>;
     using base_type::vertices;
     using base_type::vertex;
@@ -32,7 +32,7 @@ private:
 };
 
 template <typename VertexStore, typename Predicate>
-InOrderTraversal<VertexStore, Predicate>::InOrderTraversal(
+PostOrderTraversal<VertexStore, Predicate>::PostOrderTraversal(
     VertexStore* vertices,
     typename VertexStore::iterator root,
     Predicate predicate)
@@ -46,7 +46,7 @@ InOrderTraversal<VertexStore, Predicate>::InOrderTraversal(
 }
 
 template <typename VertexStore, typename Predicate>
-bool InOrderTraversal<VertexStore, Predicate>::advance()
+bool PostOrderTraversal<VertexStore, Predicate>::advance()
 {
     if (to_visit_.empty())
     {
@@ -70,7 +70,6 @@ bool InOrderTraversal<VertexStore, Predicate>::advance()
     { // next child on stack is not null
         base_type::position(child);
     }
-    base_type::vertex(position()->second);
     if (position()->second.size() == 2)
     { // traverse right branch
         auto link = *(++position()->second.begin());
@@ -82,6 +81,7 @@ bool InOrderTraversal<VertexStore, Predicate>::advance()
             base_type::position(child);
         }
     }
+    base_type::vertex(position()->second);
     return true;
 }
 

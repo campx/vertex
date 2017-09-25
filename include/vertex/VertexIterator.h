@@ -11,9 +11,11 @@ using VertexAccessor =
 template <typename Traversal>
 Iterator<Traversal, VertexAccessor<Traversal>>
 VertexIterator(typename Traversal::vertex_store_type* vertices,
-               typename Traversal::vertex_store_type::iterator vertex)
+               typename Traversal::vertex_store_type::iterator vertex,
+               typename Traversal::predicate_type predicate =
+                   typename Traversal::predicate_type{})
 {
-    auto traversal = std::make_shared<Traversal>(vertices, vertex);
+    auto traversal = std::make_shared<Traversal>(vertices, vertex, predicate);
     return VertexIterator<Traversal>(traversal);
 }
 

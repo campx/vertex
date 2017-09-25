@@ -13,10 +13,9 @@ add_library(libvertex
             src/BredthFirstTraversal.cpp
             src/InOrderTraversal.cpp
             src/VertexIterator.cpp
-           #src/Tree.cpp
-           #src/Forest.cpp
-           #src/Iterator.cpp
-           #src/Array.cpp
+            src/Iterator.cpp
+            #src/Array.cpp
+            #src/Tree.cpp
            )
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 
