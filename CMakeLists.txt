@@ -26,8 +26,7 @@ target_include_directories(libvertex INTERFACE "${vertex_SOURCE_DIR}/include")
 enable_testing()
 add_executable(TestVertex
                test/TestVertex.cpp 
-               test/TestBredthFirstTraversal.cpp
-               test/TestInOrderTraversal.cpp
+               test/TestTraversal.cpp
                test/TestIterator.cpp
               #test/TestTree.cpp 
               #test/TestForest.cpp

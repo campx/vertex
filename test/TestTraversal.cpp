@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include <vertex/BredthFirstTraversal.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/Vertex.h>
@@ -13,6 +14,13 @@ using VertexMap = std::map<std::string, TestVertex>;
 std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
 {
     output << vertex.data();
+    return output;
+}
+
+std::ostream& operator<<(std::ostream& output,
+                         const std::pair<std::string, std::string>& edge)
+{
+    output << edge.first << edge.second;
     return output;
 }
 
@@ -114,6 +122,64 @@ TEST_F(Tree, PredicatedInOrderTraversal)
             vertex_order << v;
         }
         EXPECT_EQ("FGI", vertex_order.str());
+    }
+}
+
+TEST_F(Tree, BredthFirstTraversal)
+{
+    EXPECT_FALSE(vertices.empty());
+    { // extract edges and vertices during a single traversal of the tree
+        using Bfs = BredthFirstTraversal<VertexMap>;
+        auto edge_it = EdgeIterator<Bfs>(&vertices, vertices.find("F"));
+        auto vertex_it = VertexIterator<Bfs>(edge_it.traversal());
+        EXPECT_EQ(edge_it.traversal(), vertex_it.traversal());
+        EXPECT_NE(begin(edge_it), end(edge_it));
+        auto edge_csv = std::ostringstream{};
+        auto vertex_csv = std::ostringstream{};
+        for (auto end_it = std::end(edge_it); edge_it != end_it; ++edge_it)
+        {
+            edge_csv << *edge_it << ", ";
+            vertex_csv << *vertex_it;
+        }
+        EXPECT_EQ("F, FB, FG, BA, BD, GI, DC, DE, IH, ", edge_csv.str());
+        EXPECT_EQ("FBGADICEH", vertex_csv.str());
+    }
+    vertices.clear();
+    { // traverse empty graph
+        using Bfs = BredthFirstTraversal<VertexMap>;
+        auto traversal = std::make_shared<Bfs>(&vertices, vertices.begin());
+
+        // Create an accessor which pulls out edges from a traversal
+        using EdgeAccess = std::function<const Bfs::edge_type&(const Bfs&)>;
+        auto accessor =
+            EdgeAccess([](const auto& t) -> auto { return t.edge(); });
+
+        auto it = make_iterator(traversal, accessor);
+        EXPECT_EQ(begin(it), end(it));
+        auto os = std::ostringstream{};
+        for (const auto& edge : it)
+        {
+            os << edge << ", ";
+        }
+        EXPECT_EQ("", os.str());
+    }
+    vertices.insert(std::make_pair("B", TestVertex("B")));
+    vertices.insert(std::make_pair("C", TestVertex("C")));
+    vertices.insert(std::make_pair("D", TestVertex("D")));
+    auto root = TestVertex("A");
+    root.insert("B");
+    root.insert("C");
+    root.insert("D");
+    vertices.insert(std::make_pair("A", root));
+    { // traverse graph of depth 1
+        using Bfs = BredthFirstTraversal<VertexMap>;
+        auto it = VertexIterator<Bfs>(&vertices, vertices.find("A"));
+        auto os = std::ostringstream{};
+        for (const auto& vertex : it)
+        {
+            os << vertex;
+        }
+        EXPECT_EQ("ABCD", os.str());
     }
 }
 

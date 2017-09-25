@@ -37,7 +37,11 @@ bool BredthFirstTraversal<VertexStore>::advance()
             to_visit_.push(std::make_pair(position()->first, child));
         }
     }
-    if (!to_visit_.empty())
+    else
+    {
+        result = false;
+    }
+    while (!to_visit_.empty())
     {
         base_type::edge(to_visit_.front());
         to_visit_.pop();
@@ -45,8 +49,9 @@ bool BredthFirstTraversal<VertexStore>::advance()
         if (position() != vertices()->end())
         {
             base_type::vertex(position()->second);
+            result = true;
+            break;
         }
-        result = true;
     }
     return result;
 }
