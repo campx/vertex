@@ -2,6 +2,7 @@
 #include <vertex/BredthFirstTraversal.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
+#include <vertex/PostOrderTraversal.h>
 #include <vertex/Vertex.h>
 #include <vertex/VertexIterator.h>
 
@@ -72,6 +73,23 @@ struct Tree : public ::testing::Test
     }
 };
 
+TEST_F(Tree, InOrderIterator)
+{
+    auto traversal =
+        InOrderTraversal<VertexMap>(&vertices, vertices.find("F"));
+    auto output = std::ostringstream{};
+    auto count = 0;
+    for (const auto& i : traversal)
+    {
+        output << i.vertex().data();
+        if (++count > 10)
+        {
+            break;
+        }
+    }
+    EXPECT_EQ("ABCDEFGHI", output.str());
+}
+
 TEST_F(Tree, InOrderTraversal)
 {
     using Iot = InOrderTraversal<VertexMap>;
@@ -123,6 +141,23 @@ TEST_F(Tree, PredicatedInOrderTraversal)
         }
         EXPECT_EQ("FGI", vertex_order.str());
     }
+}
+
+TEST_F(Tree, PostOrderTraversal)
+{
+    using Pot = PostOrderTraversal<VertexMap>;
+    auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
+    auto vertex_order = std::ostringstream{};
+    auto i = 0;
+    for (const auto& v : vertex_it)
+    {
+        vertex_order << v;
+        if (++i > 10)
+        {
+            break;
+        }
+    }
+    EXPECT_EQ("ACEDBHIGF", vertex_order.str());
 }
 
 TEST_F(Tree, BredthFirstTraversal)

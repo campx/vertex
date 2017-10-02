@@ -5,7 +5,8 @@
 
 namespace vertex
 {
-
+/** TODO make this a generic iterator adapter which applies a function to one
+ * iterator to generate another */
 template <typename Traversal, typename Accessor>
 class Iterator
 {
@@ -35,7 +36,7 @@ public:
     self_type begin() const;
     self_type end() const;
     self_type& operator++();
-    self_type& operator++(int dummy);
+    self_type operator++(int dummy);
     reference operator*();
     pointer operator->();
 
@@ -92,7 +93,7 @@ Iterator<Traversal, Accessor> Iterator<Traversal, Accessor>::end() const
 template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor>& Iterator<Traversal, Accessor>::operator++()
 {
-    if (!traversal_->advance())
+    if (!traversal_->next())
     {
         *this = end();
     }
@@ -100,7 +101,7 @@ Iterator<Traversal, Accessor>& Iterator<Traversal, Accessor>::operator++()
 }
 
 template <typename Traversal, typename Accessor>
-Iterator<Traversal, Accessor>& Iterator<Traversal, Accessor>::
+Iterator<Traversal, Accessor> Iterator<Traversal, Accessor>::
 operator++(int dummy)
 {
     (void)dummy;

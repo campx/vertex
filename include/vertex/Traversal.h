@@ -36,6 +36,11 @@ public:
     using edge_type = std::pair<key_type, key_type>;
     using predicate_type = Predicate;
 
+    using value_type = Impl;
+    using self_type = Traversal<VertexStore, Impl, Predicate>;
+    using reference = Impl&;
+    using pointer = Impl*;
+
     Traversal(VertexStore* vertices,
               typename VertexStore::iterator root,
               Predicate predicate = Predicate{});
@@ -47,6 +52,16 @@ public:
     const edge_type& edge() const;
     const predicate_type& predicate() const;
     bool isTraversible(const edge_type& value) const;
+
+    Impl begin() const;
+    Impl end() const;
+    Impl& operator++();
+    Impl operator++(int dummy);
+    reference operator*();
+    pointer operator->();
+
+    bool operator!=(const self_type& rhs) const;
+    bool operator==(const self_type& rhs) const;
 
 protected:
     void position(const vertex_iterator& value);
@@ -146,6 +161,69 @@ bool Traversal<VertexStore, Impl, Predicate>::isTraversible(
     const
 {
     return predicate_(value);
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+Impl Traversal<VertexStore, Impl, Predicate>::begin() const
+{
+    return Impl(vertices(), root(), predicate());
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+Impl Traversal<VertexStore, Impl, Predicate>::end() const
+{
+    auto result = Impl(vertices(), root(), predicate());
+    result.position(vertices()->end());
+    return result;
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+Impl& Traversal<VertexStore, Impl, Predicate>::operator++()
+{
+    auto pImpl = static_cast<Impl*>(this);
+    if (!pImpl->next())
+    {
+        position(vertices()->end());
+    }
+    return *pImpl;
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+Impl Traversal<VertexStore, Impl, Predicate>::operator++(int dummy)
+{
+    (void)dummy;
+    auto pImpl = static_cast<Impl*>(this);
+    auto copy = *pImpl;
+    ++*this;
+    return copy;
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+Impl& Traversal<VertexStore, Impl, Predicate>::operator*()
+{
+    auto pImpl = static_cast<Impl*>(this);
+    return *pImpl;
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+Impl* Traversal<VertexStore, Impl, Predicate>::operator->()
+{
+    auto pImpl = static_cast<Impl*>(this);
+    return pImpl;
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+bool Traversal<VertexStore, Impl, Predicate>::
+operator==(const Traversal<VertexStore, Impl, Predicate>& rhs) const
+{
+    return position() == rhs.position() && root() == rhs.root();
+}
+
+template <typename VertexStore, typename Impl, typename Predicate>
+bool Traversal<VertexStore, Impl, Predicate>::
+operator!=(const Traversal<VertexStore, Impl, Predicate>& rhs) const
+{
+    return !(*this == rhs);
 }
 
 } // namespace vertex

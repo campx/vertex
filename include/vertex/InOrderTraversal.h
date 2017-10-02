@@ -4,6 +4,7 @@
 
 namespace vertex
 {
+/** TODO put logic currently in Iterator into the Traversal class */
 template <typename VertexStore,
           typename Predicate = NullaryPredicate<VertexStore, true>>
 class InOrderTraversal
@@ -25,7 +26,7 @@ public:
     using base_type::edge;
     using base_type::isTraversible;
 
-    bool advance();
+    bool next();
 
 private:
     std::stack<typename base_type::edge_type> to_visit_;
@@ -41,12 +42,12 @@ InOrderTraversal<VertexStore, Predicate>::InOrderTraversal(
     if (position() != base_type::vertices()->end())
     {
         to_visit_.push(edge());
-        advance();
+        next();
     }
 }
 
 template <typename VertexStore, typename Predicate>
-bool InOrderTraversal<VertexStore, Predicate>::advance()
+bool InOrderTraversal<VertexStore, Predicate>::next()
 {
     if (to_visit_.empty())
     {

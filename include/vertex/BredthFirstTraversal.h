@@ -20,14 +20,14 @@ public:
     using base_type::position;
     using base_type::edge;
 
-    bool advance();
+    bool next();
 
 private:
     std::queue<typename base_type::edge_type> to_visit_;
 };
 
 template <typename VertexStore>
-bool BredthFirstTraversal<VertexStore>::advance()
+bool BredthFirstTraversal<VertexStore>::next()
 {
     auto result = false;
     if (position() != vertices()->end())
