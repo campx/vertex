@@ -13,19 +13,19 @@ namespace vertex
  *     B  C  D  E *
  *****************/
 /** Array provides a std::vector like interface atop a tree of depth 1 */
-template <typename VertexStore>
+template <typename VertexMap>
 class Array
 {
 public:
-    using vertex_iterator = typename VertexStore::iterator;
-    using vertex_type = typename VertexStore::value_type;
-    using vertex_container = typename VertexStore::vertex_container;
-    using traversal_type = typename BredthFirstTraversal<VertexStore>;
+    using vertex_iterator = typename VertexMap::iterator;
+    using vertex_type = typename VertexMap::value_type;
+    using vertex_container = typename VertexMap::vertex_container;
+    using traversal_type = typename BredthFirstTraversal<VertexMap>;
     using iterator = Iterator<Bfs, VertexAccessor<Bfs>>;
     using const_iterator = const iterator;
-    Array(VertexStore* vertices, typename VertexStore::iterator root);
+    Array(VertexMap* vertices, typename VertexMap::iterator root);
     vertex_iterator root() const;
-    VertexStore* vertices() const;
+    VertexMap* vertices() const;
 
     void clear();
     iterator insert(const_iterator pos, const vertex_type& value);
@@ -39,16 +39,16 @@ public:
 
 private:
     vertex_iterator root_;
-    VertexStore* vertices_;
+    VertexMap* vertices_;
 };
 
-template <typename VertexStore>
-Array<VertexStore>::Array(VertexStore tree) : tree_(std::move(tree))
+template <typename VertexMap>
+Array<VertexMap>::Array(VertexMap tree) : tree_(std::move(tree))
 {
 }
 
-template <typename VertexStore>
-void Array<VertexStore>::clear()
+template <typename VertexMap>
+void Array<VertexMap>::clear()
 {
     auto root_key = root()->first;
     auto vertex = root()->second;
@@ -56,41 +56,41 @@ void Array<VertexStore>::clear()
     vertices_->insert(vertex);
 }
 
-template <typename VertexStore>
-void Array<VertexStore>::root(
-    typename Array<VertexStore>::vertex_iterator vertex)
+template <typename VertexMap>
+void Array<VertexMap>::root(
+    typename Array<VertexMap>::vertex_iterator vertex)
 {
     tree_.root(vertex);
 }
 
-template <typename VertexStore>
-typename Array<VertexStore>::vertex_iterator Array<VertexStore>::root() const
+template <typename VertexMap>
+typename Array<VertexMap>::vertex_iterator Array<VertexMap>::root() const
 {
     return tree_.root();
 }
 
-template <typename VertexStore>
-bool Array<VertexStore>::empty() const
+template <typename VertexMap>
+bool Array<VertexMap>::empty() const
 {
     return begin() == end();
 }
 
-template <typename VertexStore>
-typename Array<VertexStore>::iterator Array<VertexStore>::begin() const
+template <typename VertexMap>
+typename Array<VertexMap>::iterator Array<VertexMap>::begin() const
 {
     return iterator(&tree_.vertices(), tree_.root()->second.edges().begin());
 }
 
-template <typename VertexStore>
-typename Array<VertexStore>::iterator Array<VertexStore>::end() const
+template <typename VertexMap>
+typename Array<VertexMap>::iterator Array<VertexMap>::end() const
 {
     return iterator(&tree_.vertices(), tree_.root()->second.edges().end());
 }
 
-template <typename VertexStore>
-typename Array<VertexStore>::iterator Array<VertexStore>::insert(
-    const typename Array<VertexStore>::const_iterator& pos,
-    const typename Array<VertexStore>::vertex_type& value)
+template <typename VertexMap>
+typename Array<VertexMap>::iterator Array<VertexMap>::insert(
+    const typename Array<VertexMap>::const_iterator& pos,
+    const typename Array<VertexMap>::vertex_type& value)
 {
 }
 

@@ -5,19 +5,19 @@
 namespace vertex
 {
 /** TODO put logic currently in Iterator into the Traversal class */
-template <typename VertexStore,
-          typename Predicate = NullaryPredicate<VertexStore, true>>
+template <typename VertexMap,
+          typename Predicate = NullaryPredicate<VertexMap, true>>
 class InOrderTraversal
-    : public Traversal<VertexStore,
-                       InOrderTraversal<VertexStore, Predicate>,
+    : public Traversal<VertexMap,
+                       InOrderTraversal<VertexMap, Predicate>,
                        Predicate>
 {
 public:
-    InOrderTraversal(VertexStore* vertices,
-                     typename VertexStore::iterator root,
+    InOrderTraversal(VertexMap* vertices,
+                     typename VertexMap::iterator root,
                      Predicate predicate = Predicate{});
-    using base_type = Traversal<VertexStore,
-                                InOrderTraversal<VertexStore, Predicate>,
+    using base_type = Traversal<VertexMap,
+                                InOrderTraversal<VertexMap, Predicate>,
                                 Predicate>;
     using base_type::vertices;
     using base_type::vertex;
@@ -32,10 +32,10 @@ private:
     std::stack<typename base_type::edge_type> to_visit_;
 };
 
-template <typename VertexStore, typename Predicate>
-InOrderTraversal<VertexStore, Predicate>::InOrderTraversal(
-    VertexStore* vertices,
-    typename VertexStore::iterator root,
+template <typename VertexMap, typename Predicate>
+InOrderTraversal<VertexMap, Predicate>::InOrderTraversal(
+    VertexMap* vertices,
+    typename VertexMap::iterator root,
     Predicate predicate)
     : base_type(vertices, root, predicate)
 {
@@ -46,8 +46,8 @@ InOrderTraversal<VertexStore, Predicate>::InOrderTraversal(
     }
 }
 
-template <typename VertexStore, typename Predicate>
-bool InOrderTraversal<VertexStore, Predicate>::next()
+template <typename VertexMap, typename Predicate>
+bool InOrderTraversal<VertexMap, Predicate>::next()
 {
     if (to_visit_.empty())
     {

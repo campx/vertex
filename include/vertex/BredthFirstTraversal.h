@@ -7,13 +7,13 @@ namespace vertex
 {
 
 /** Bredth first tree traversal */
-template <typename VertexStore>
+template <typename VertexMap>
 class BredthFirstTraversal
-    : public Traversal<VertexStore, BredthFirstTraversal<VertexStore>>
+    : public Traversal<VertexMap, BredthFirstTraversal<VertexMap>>
 {
 public:
     using base_type =
-        Traversal<VertexStore, BredthFirstTraversal<VertexStore>>;
+        Traversal<VertexMap, BredthFirstTraversal<VertexMap>>;
     using base_type::base_type;
     using base_type::vertices;
     using base_type::vertex;
@@ -26,8 +26,8 @@ private:
     std::queue<typename base_type::edge_type> to_visit_;
 };
 
-template <typename VertexStore>
-bool BredthFirstTraversal<VertexStore>::next()
+template <typename VertexMap>
+bool BredthFirstTraversal<VertexMap>::next()
 {
     auto result = false;
     if (position() != vertices()->end())

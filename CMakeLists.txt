@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 
 add_library(libvertex
             src/Vertex.cpp
-            src/VertexStore.cpp
+            src/VertexMap.cpp
             src/EdgeIterator.cpp
             src/BredthFirstTraversal.cpp
             src/InOrderTraversal.cpp
