@@ -103,33 +103,33 @@ bool PostOrderTraversal<VertexStore, Predicate>::traverseRight()
 template <typename VertexStore, typename Predicate>
 bool PostOrderTraversal<VertexStore, Predicate>::next()
 {
-    int count = 0;
+    auto moved = false;
     prev_pos_ = position();
     while (!to_visit_.empty())
     {
-        if (count == 0)
+        if (!moved)
         {
             base_type::edge(to_visit_.top());
             base_type::position(vertices()->find(edge().second));
-            ++count;
+            moved = true;
         }
         else if (traverseLeft())
         {
-            ++count;
+            moved = true;
             break;
         }
         else if (traverseRight())
         {
-            ++count;
+            moved = true;
         }
-        else if (count > 0 && !to_visit_.empty())
+        else if (!to_visit_.empty())
         {
             to_visit_.pop();
             break;
         }
     }
     base_type::vertex(position()->second);
-    return count > 0;
+    return moved;
 }
 
 } // namespace vertex
