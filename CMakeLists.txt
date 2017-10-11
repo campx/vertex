@@ -11,7 +11,9 @@ add_library(libvertex
             src/VertexMap.cpp
             src/EdgeIterator.cpp
             src/BredthFirstTraversal.cpp
+            src/PreOrderTraversal.cpp
             src/InOrderTraversal.cpp
+            src/PostOrderTraversal.cpp
             src/VertexIterator.cpp
             src/Iterator.cpp
             #src/Array.cpp
@@ -25,12 +27,12 @@ target_include_directories(libvertex INTERFACE "${vertex_SOURCE_DIR}/include")
 
 enable_testing()
 add_executable(TestVertex
-               test/TestVertex.cpp 
-               test/TestTraversal.cpp
-               test/TestIterator.cpp
-              #test/TestTree.cpp 
-              #test/TestForest.cpp
-              #test/TestArray.cpp 
+               test/Vertex.cpp 
+               test/Traversal.cpp
+               test/Iterator.cpp
+              #test/Tree.cpp 
+              #test/Forest.cpp
+              #test/Array.cpp 
                test/main.cpp
               )
 target_link_libraries(TestVertex gtest libvertex)

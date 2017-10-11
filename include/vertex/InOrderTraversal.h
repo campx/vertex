@@ -4,7 +4,6 @@
 
 namespace vertex
 {
-/** TODO put logic currently in Iterator into the Traversal class */
 template <typename VertexMap,
           typename Predicate = NullaryPredicate<VertexMap, true>>
 class InOrderTraversal

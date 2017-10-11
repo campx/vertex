@@ -3,6 +3,7 @@
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/PostOrderTraversal.h>
+#include <vertex/PreOrderTraversal.h>
 #include <vertex/Vertex.h>
 #include <vertex/VertexIterator.h>
 
@@ -88,6 +89,20 @@ TEST_F(Tree, InOrderIterator)
         }
     }
     EXPECT_EQ("ABCDEFGHI", output.str());
+}
+
+TEST_F(Tree, PreOrderTraversal)
+{
+    using Pot = PreOrderTraversal<VertexMap>;
+    {
+        auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
+        auto vertex_order = std::ostringstream{};
+        for (const auto& v : vertex_it)
+        {
+            vertex_order << v;
+        }
+        EXPECT_EQ("FBADCEGIH", vertex_order.str());
+    }
 }
 
 TEST_F(Tree, InOrderTraversal)

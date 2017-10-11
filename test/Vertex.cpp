@@ -1,4 +1,4 @@
-#include "TestVertex.h"
+#include "Vertex.h"
 #include "gtest/gtest.h"
 
 namespace vertex
