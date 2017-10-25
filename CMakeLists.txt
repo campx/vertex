@@ -16,8 +16,6 @@ add_library(libvertex
             src/PostOrderTraversal.cpp
             src/VertexIterator.cpp
             src/Iterator.cpp
-            #src/Array.cpp
-            #src/Tree.cpp
            )
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 
@@ -30,9 +28,6 @@ add_executable(TestVertex
                test/Vertex.cpp 
                test/Traversal.cpp
                test/Iterator.cpp
-              #test/Tree.cpp 
-              #test/Forest.cpp
-              #test/Array.cpp 
                test/main.cpp
               )
 target_link_libraries(TestVertex gtest libvertex)
