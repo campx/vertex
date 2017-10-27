@@ -42,11 +42,10 @@ public:
     using iterator = typename VertexMap::iterator;
     using const_iterator = typename VertexMap::const_iterator;
     using reverse_iterator = typename VertexMap::reverse_iterator;
-    using const_reverse_iterator =
-        typename VertexMap::const_reverse_iterator;
+    using const_reverse_iterator = typename VertexMap::const_reverse_iterator;
 
     explicit ManagedVertexMap(VertexMap vertices = VertexMap(),
-                                EdgeMap edges = EdgeMap());
+                              EdgeMap edges = EdgeMap());
 
     iterator begin() const;
     const_iterator cbegin() const;
@@ -100,9 +99,9 @@ ManagedVertexMap<V, E>::insert(
     const typename ManagedVertexMap<V, E>::value_type& value)
 {
     auto result = vertices_.insert(value); /** store the vertex */
-    for (const auto& edge : value.second.children())
+    for (const auto& link : value.second.children())
     { // add a edge from vertex to each of its children
-        edges_.insert(std::make_pair(edge, value.first));
+        edges_.insert(std::make_pair(link.key(), value.first));
     }
     return result;
 }
@@ -168,8 +167,7 @@ ManagedVertexMap<V, E>::erase(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::edge_iterator
-ManagedVertexMap<V, E>::find(
+typename ManagedVertexMap<V, E>::edge_iterator ManagedVertexMap<V, E>::find(
     const typename ManagedVertexMap<V, E>::edge_type& edge)
 {
     auto result = edges_.cend();
@@ -183,8 +181,7 @@ ManagedVertexMap<V, E>::find(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::edge_iterator
-ManagedVertexMap<V, E>::erase(
+typename ManagedVertexMap<V, E>::edge_iterator ManagedVertexMap<V, E>::erase(
     const typename ManagedVertexMap<V, E>::edge_type& edge)
 {
     auto result = find(edge);
@@ -196,8 +193,8 @@ ManagedVertexMap<V, E>::erase(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::size_type ManagedVertexMap<V, E>::count(
-    const typename ManagedVertexMap::key_type& key)
+typename ManagedVertexMap<V, E>::size_type
+ManagedVertexMap<V, E>::count(const typename ManagedVertexMap::key_type& key)
 {
     return edges_.count(key);
 }

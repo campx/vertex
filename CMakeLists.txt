@@ -7,6 +7,7 @@ include_directories(${vertex_SOURCE_DIR}/include)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 
 add_library(libvertex
+            src/Link.cpp
             src/Vertex.cpp
             src/ManagedVertexMap.cpp
             src/EdgeIterator.cpp
@@ -25,6 +26,7 @@ target_include_directories(libvertex INTERFACE "${vertex_SOURCE_DIR}/include")
 
 enable_testing()
 add_executable(TestVertex
+               test/Link.cpp
                test/Vertex.cpp 
                test/Traversal.cpp
                test/Iterator.cpp
