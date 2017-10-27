@@ -5,15 +5,15 @@
 namespace vertex
 {
 
-/** A node in a tree, which has data of type T, and a collection of Key
+/** A node in a tree, which has data of type T, and a collection of Edge
  * pointers to child nodes.
  * Provides a set-like interface for adding and removing children */
-template <typename Key, typename T>
+template <typename Edge, typename T>
 class Vertex
 {
 public:
-    using key_type = Key;
-    using container_type = std::vector<key_type>;
+    using edge_type = Edge;
+    using container_type = std::vector<edge_type>;
 
     using value_type = T;
     using size_type = typename container_type::size_type;
@@ -36,17 +36,17 @@ public:
     Vertex& operator=(const Vertex&) = default;
     Vertex& operator=(Vertex&&) = default;
 
-    /** Return an iterator to the first child Key */
+    /** Return an iterator to the first child Edge */
     iterator begin();
-    /** Return an iterator to the first child Key */
+    /** Return an iterator to the first child Edge */
     const_iterator begin() const;
-    /** Return an iterator to the first child Key */
+    /** Return an iterator to the first child Edge */
     const_iterator cbegin() const;
-    /** Return an iterator to the element following the last child Key */
+    /** Return an iterator to the element following the last child Edge */
     iterator end();
-    /** Return an iterator to the element following the last child Key */
+    /** Return an iterator to the element following the last child Edge */
     const_iterator end() const;
-    /** Return an iterator to the element following the last child Key */
+    /** Return an iterator to the element following the last child Edge */
     const_iterator cend() const;
 
     /** Get the number of children */
@@ -62,17 +62,17 @@ public:
     void swap(Vertex& other);
 
     /** Insert a child vertex */
-    std::pair<iterator, bool> insert(const Key& child);
+    std::pair<iterator, bool> insert(const Edge& child);
 
     /** Insert a range of children */
     template <typename InputIt>
     iterator insert(iterator pos, InputIt first, InputIt last);
 
     /** Find a child vertex */
-    iterator find(const Key& child);
+    iterator find(const Edge& child);
 
     /** Find a child vertex */
-    const_iterator find(const Key& child) const;
+    const_iterator find(const Edge& child) const;
 
     /** Remove a child vertex */
     iterator erase(const_iterator child);
@@ -94,75 +94,75 @@ private:
     container_type children_;
 };
 
-template <typename Key, typename T>
-Vertex<Key, T>::Vertex(value_type data) : data_(std::move(data))
+template <typename Edge, typename T>
+Vertex<Edge, T>::Vertex(value_type data) : data_(std::move(data))
 {
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::iterator Vertex<Key, T>::begin()
-{
-    return children_.begin();
-}
-
-template <typename Key, typename T>
-typename Vertex<Key, T>::iterator Vertex<Key, T>::end()
-{
-    return children_.end();
-}
-
-template <typename Key, typename T>
-typename Vertex<Key, T>::const_iterator Vertex<Key, T>::begin() const
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::iterator Vertex<Edge, T>::begin()
 {
     return children_.begin();
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::const_iterator Vertex<Key, T>::end() const
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::iterator Vertex<Edge, T>::end()
 {
     return children_.end();
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::const_iterator Vertex<Key, T>::cbegin() const
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::const_iterator Vertex<Edge, T>::begin() const
+{
+    return children_.begin();
+}
+
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::const_iterator Vertex<Edge, T>::end() const
+{
+    return children_.end();
+}
+
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::const_iterator Vertex<Edge, T>::cbegin() const
 {
     return children_.cbegin();
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::const_iterator Vertex<Key, T>::cend() const
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::const_iterator Vertex<Edge, T>::cend() const
 {
     return children_.cend();
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::size_type Vertex<Key, T>::size() const
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::size_type Vertex<Edge, T>::size() const
 {
     return children_.size();
 }
 
-template <typename Key, typename T>
-bool Vertex<Key, T>::empty() const
+template <typename Edge, typename T>
+bool Vertex<Edge, T>::empty() const
 {
     return children_.empty();
 }
 
-template <typename Key, typename T>
-void Vertex<Key, T>::clear()
+template <typename Edge, typename T>
+void Vertex<Edge, T>::clear()
 {
     return children_.clear();
 }
 
-template <typename Key, typename T>
-void Vertex<Key, T>::swap(Vertex& other)
+template <typename Edge, typename T>
+void Vertex<Edge, T>::swap(Vertex& other)
 {
     std::swap(children_, other.children_);
     std::swap(data_, other.data_);
 }
 
-template <typename Key, typename T>
-std::pair<typename Vertex<Key, T>::iterator, bool>
-Vertex<Key, T>::insert(const Key& child)
+template <typename Edge, typename T>
+std::pair<typename Vertex<Edge, T>::iterator, bool>
+Vertex<Edge, T>::insert(const Edge& child)
 {
     auto it = find(child);
     auto do_insert = it == end();
@@ -174,57 +174,57 @@ Vertex<Key, T>::insert(const Key& child)
     return result;
 }
 
-template <typename Key, typename T>
+template <typename Edge, typename T>
 template <typename InputIt>
-typename Vertex<Key, T>::iterator
-Vertex<Key, T>::insert(typename Vertex<Key, T>::iterator pos,
-                       InputIt first,
-                       InputIt last)
+typename Vertex<Edge, T>::iterator
+Vertex<Edge, T>::insert(typename Vertex<Edge, T>::iterator pos,
+                        InputIt first,
+                        InputIt last)
 {
     return children_.insert(pos, first, last);
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::iterator Vertex<Key, T>::find(const Key& child)
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::iterator Vertex<Edge, T>::find(const Edge& child)
 {
     auto it = std::find(children_.begin(), children_.end(), child);
     return it;
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::const_iterator
-Vertex<Key, T>::find(const Key& child) const
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::const_iterator
+Vertex<Edge, T>::find(const Edge& child) const
 {
     return find(child);
 }
 
-template <typename Key, typename T>
-typename Vertex<Key, T>::iterator
-Vertex<Key, T>::erase(typename Vertex<Key, T>::const_iterator child)
+template <typename Edge, typename T>
+typename Vertex<Edge, T>::iterator
+Vertex<Edge, T>::erase(typename Vertex<Edge, T>::const_iterator child)
 {
     return children_.erase(child);
 }
 
-template <typename Key, typename T>
-const typename Vertex<Key, T>::value_type& Vertex<Key, T>::data() const
+template <typename Edge, typename T>
+const typename Vertex<Edge, T>::value_type& Vertex<Edge, T>::data() const
 {
     return data_;
 }
 
-template <typename Key, typename T>
-void Vertex<Key, T>::data(const typename Vertex<Key, T>::value_type& value)
+template <typename Edge, typename T>
+void Vertex<Edge, T>::data(const typename Vertex<Edge, T>::value_type& value)
 {
     data_ = value;
 }
 
-template <typename Key, typename T>
-bool Vertex<Key, T>::operator==(const Vertex<Key, T>& rhs) const
+template <typename Edge, typename T>
+bool Vertex<Edge, T>::operator==(const Vertex<Edge, T>& rhs) const
 {
     return data_ == rhs.data_ && children_ == rhs.children_;
 }
 
-template <typename Key, typename T>
-bool Vertex<Key, T>::operator!=(const Vertex<Key, T>& rhs) const
+template <typename Edge, typename T>
+bool Vertex<Edge, T>::operator!=(const Vertex<Edge, T>& rhs) const
 {
     return !(*this == rhs);
 }

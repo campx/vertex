@@ -22,7 +22,7 @@ TEST(Merkle, Vertex)
     {
         auto data = std::string("hello");
         auto vertex = TestVertex(data);
-        auto child = TestVertex::key_type(12345678);
+        auto child = TestVertex::edge_type(12345678);
         EXPECT_EQ(data, vertex.data());
         EXPECT_EQ(vertex.end(), vertex.find(child));
         vertex.insert(child);
@@ -36,10 +36,10 @@ TEST(Merkle, Vertex)
     {
         auto vertex = TestVertex("world");
 
-        std::vector<TestVertex::key_type> children;
-        children.push_back(TestVertex::key_type(2762169579135187400));
-        children.push_back(TestVertex::key_type(8751027807033337960));
-        vertex.insert<std::vector<TestVertex::key_type>::iterator>(
+        std::vector<TestVertex::edge_type> children;
+        children.push_back(TestVertex::edge_type(2762169579135187400));
+        children.push_back(TestVertex::edge_type(8751027807033337960));
+        vertex.insert<std::vector<TestVertex::edge_type>::iterator>(
             vertex.end(), children.begin(), children.end());
         EXPECT_FALSE(vertex.empty());
         EXPECT_EQ(std::size_t(2), vertex.size());
