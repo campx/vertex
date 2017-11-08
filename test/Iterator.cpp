@@ -59,7 +59,7 @@ TEST(Vertex, VertexIterator)
         using Bfs = BredthFirstTraversal<VertexMap>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_NE(begin(it), end(it));
-        auto os = std::ostringstream{};
+        auto os = std::ostringstream();
         for (const auto& vertex : it)
         {
             os << vertex;
@@ -73,7 +73,7 @@ TEST(Vertex, VertexIterator)
         using Bfs = BredthFirstTraversal<VertexMap>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_EQ(begin(it), end(it));
-        auto os = std::ostringstream{};
+        auto os = std::ostringstream();
         for (const auto& vertex : it)
         {
             os << vertex;

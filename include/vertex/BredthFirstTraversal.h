@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 #include <queue>
 #include <vertex/Traversal.h>
@@ -8,18 +9,21 @@ namespace vertex
 
 /** Bredth first tree traversal */
 template <typename VertexMap,
-typename Predicate = NullaryPredicate<VertexMap, true>>
+          typename Predicate = NullaryPredicate<VertexMap, true>>
 class BredthFirstTraversal
-    : public Traversal<VertexMap, BredthFirstTraversal<VertexMap, Predicate>>
+        : public Traversal<VertexMap,
+                           BredthFirstTraversal<VertexMap, Predicate>,
+                           Predicate>
 {
 public:
-    using base_type =
-        Traversal<VertexMap, BredthFirstTraversal<VertexMap, Predicate>>;
+    using self_type = BredthFirstTraversal<VertexMap, Predicate>;
+    using base_type = Traversal<VertexMap, self_type, Predicate>;
     using base_type::base_type;
     using base_type::vertices;
     using base_type::vertex;
     using base_type::position;
     using base_type::edge;
+    using base_type::isTraversible;
 
     bool next();
 
@@ -35,10 +39,13 @@ bool BredthFirstTraversal<VertexMap, Predicate>::next()
     {
         for (const auto& child : position()->second)
         {
-            to_visit_.push(std::make_pair(position()->first, child));
+            auto e = std::make_pair(position()->first, child);
+            if (isTraversible(e))
+            {
+                to_visit_.push(e);
+            }
         }
-    }
-    else
+    } else
     {
         result = false;
     }

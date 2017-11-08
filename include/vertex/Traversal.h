@@ -24,6 +24,10 @@ operator()(const typename NullaryPredicate<VertexMap, Result>::argument_type&
     return Result;
 }
 
+/** @TODO Implement traversal routine in this class in terms of Impl methods,
+ * implement SkipIterator which evaluates a predicate on increment and skips
+ * over elements which do not pass
+ */
 template <typename VertexMap,
           typename Impl,
           typename Predicate = NullaryPredicate<VertexMap, true>>

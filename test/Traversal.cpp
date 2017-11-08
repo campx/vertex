@@ -78,7 +78,7 @@ TEST_F(Tree, InOrderIterator)
 {
     auto traversal =
         InOrderTraversal<VertexMap>(&vertices, vertices.find("F"));
-    auto output = std::ostringstream{};
+    auto output = std::ostringstream();
     auto count = 0;
     for (const auto& i : traversal)
     {
@@ -96,7 +96,7 @@ TEST_F(Tree, PreOrderTraversal)
     using Pot = PreOrderTraversal<VertexMap>;
     {
         auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
-        auto vertex_order = std::ostringstream{};
+        auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
             vertex_order << v;
@@ -110,7 +110,7 @@ TEST_F(Tree, InOrderTraversal)
     using Iot = InOrderTraversal<VertexMap>;
     {
         auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("F"));
-        auto vertex_order = std::ostringstream{};
+        auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
             vertex_order << v;
@@ -119,7 +119,7 @@ TEST_F(Tree, InOrderTraversal)
     }
     { // traverse sub tree rooted at B
         auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("B"));
-        auto vertex_order = std::ostringstream{};
+        auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
             vertex_order << v;
@@ -128,7 +128,7 @@ TEST_F(Tree, InOrderTraversal)
     }
     { // traverse sub tree rooted at G
         auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("G"));
-        auto vertex_order = std::ostringstream{};
+        auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
             vertex_order << v;
@@ -149,7 +149,7 @@ TEST_F(Tree, PredicatedInOrderTraversal)
     {
         auto vertex_it =
             VertexIterator<Iot>(&vertices, vertices.find("F"), predicate);
-        auto vertex_order = std::ostringstream{};
+        auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
             vertex_order << v;
@@ -158,11 +158,32 @@ TEST_F(Tree, PredicatedInOrderTraversal)
     }
 }
 
+TEST_F(Tree, PredicatedBredthFirstTraversal)
+{
+    using Predicate = std::function<bool(
+        const std::pair<VertexMap::key_type, VertexMap::key_type>&)>;
+    auto predicate = Predicate([](const auto& e) -> auto {
+        return e.first == "F";
+    });
+
+    using Bft = BredthFirstTraversal<VertexMap, Predicate>;
+    {
+        auto vertex_it =
+            VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
+        auto vertex_order = std::ostringstream();
+        for (const auto& v : vertex_it)
+        {
+            vertex_order << v;
+        }
+        EXPECT_EQ("FBG", vertex_order.str());
+    }
+}
+
 TEST_F(Tree, PostOrderTraversal)
 {
     using Pot = PostOrderTraversal<VertexMap>;
     auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
-    auto vertex_order = std::ostringstream{};
+    auto vertex_order = std::ostringstream();
     auto i = 0;
     for (const auto& v : vertex_it)
     {
@@ -184,8 +205,8 @@ TEST_F(Tree, BredthFirstTraversal)
         auto vertex_it = VertexIterator<Bfs>(edge_it.traversal());
         EXPECT_EQ(edge_it.traversal(), vertex_it.traversal());
         EXPECT_NE(begin(edge_it), end(edge_it));
-        auto edge_csv = std::ostringstream{};
-        auto vertex_csv = std::ostringstream{};
+        auto edge_csv = std::ostringstream();
+        auto vertex_csv = std::ostringstream();
         for (auto end_it = std::end(edge_it); edge_it != end_it; ++edge_it)
         {
             edge_csv << *edge_it << ", ";
@@ -206,7 +227,7 @@ TEST_F(Tree, BredthFirstTraversal)
 
         auto it = make_iterator(traversal, accessor);
         EXPECT_EQ(begin(it), end(it));
-        auto os = std::ostringstream{};
+        auto os = std::ostringstream();
         for (const auto& edge : it)
         {
             os << edge << ", ";
@@ -224,7 +245,7 @@ TEST_F(Tree, BredthFirstTraversal)
     { // traverse graph of depth 1
         using Bfs = BredthFirstTraversal<VertexMap>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.find("A"));
-        auto os = std::ostringstream{};
+        auto os = std::ostringstream();
         for (const auto& vertex : it)
         {
             os << vertex;
