@@ -7,13 +7,14 @@ namespace vertex
 {
 
 /** Bredth first tree traversal */
-template <typename VertexMap>
+template <typename VertexMap,
+typename Predicate = NullaryPredicate<VertexMap, true>>
 class BredthFirstTraversal
-    : public Traversal<VertexMap, BredthFirstTraversal<VertexMap>>
+    : public Traversal<VertexMap, BredthFirstTraversal<VertexMap, Predicate>>
 {
 public:
     using base_type =
-        Traversal<VertexMap, BredthFirstTraversal<VertexMap>>;
+        Traversal<VertexMap, BredthFirstTraversal<VertexMap, Predicate>>;
     using base_type::base_type;
     using base_type::vertices;
     using base_type::vertex;
@@ -26,8 +27,8 @@ private:
     std::queue<typename base_type::edge_type> to_visit_;
 };
 
-template <typename VertexMap>
-bool BredthFirstTraversal<VertexMap>::next()
+template <typename VertexMap, typename Predicate>
+bool BredthFirstTraversal<VertexMap, Predicate>::next()
 {
     auto result = false;
     if (position() != vertices()->end())
