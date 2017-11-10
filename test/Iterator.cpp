@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include <vertex/BredthFirstTraversal.h>
+#include <vertex/BreadthFirstTraversal.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/Vertex.h>
 #include <vertex/VertexIterator.h>
@@ -56,7 +56,7 @@ TEST(Vertex, VertexIterator)
     }
     EXPECT_FALSE(vertices.empty());
     {
-        using Bfs = BredthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<VertexMap>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_NE(begin(it), end(it));
         auto os = std::ostringstream();
@@ -70,7 +70,7 @@ TEST(Vertex, VertexIterator)
     vertices.clear();
     { // traverse empty graph
 
-        using Bfs = BredthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<VertexMap>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_EQ(begin(it), end(it));
         auto os = std::ostringstream();

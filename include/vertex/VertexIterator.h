@@ -5,29 +5,18 @@ namespace vertex
 {
 
 template <typename Traversal>
-using VertexAccessor =
-    std::function<const typename Traversal::vertex_type&(const Traversal&)>;
-
-template <typename Traversal>
-Iterator<Traversal, VertexAccessor<Traversal>>
-VertexIterator(typename Traversal::vertex_store_type* vertices,
-               typename Traversal::vertex_store_type::iterator vertex,
-               typename Traversal::predicate_type predicate =
-                   typename Traversal::predicate_type{})
+struct VertexAccessor
 {
-    auto traversal = std::make_shared<Traversal>(vertices, vertex, predicate);
-    return VertexIterator<Traversal>(traversal);
-}
+	using result_type = typename Traversal::vertex_type;
+	using argument_type = Traversal;
 
-template <typename Traversal>
-Iterator<Traversal, VertexAccessor<Traversal>>
-VertexIterator(const typename std::shared_ptr<Traversal>& traversal)
-{
-    using Accessor = VertexAccessor<Traversal>;
-    using vertex_type = typename Traversal::vertex_type;
-    auto accessor = Accessor(
-        [](const Traversal& t) -> const vertex_type& { return t.vertex(); });
-    return make_iterator(traversal, accessor);
-}
+	const result_type& operator() (const argument_type& t) const
+	{
+		return t.vertex();
+	}
+};
+
+template<typename Traversal>
+using VertexIterator = Iterator<Traversal, VertexAccessor<Traversal>>;
 
 } // namespace vertex

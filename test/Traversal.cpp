@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include <vertex/BredthFirstTraversal.h>
+#include <vertex/BreadthFirstTraversal.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/PostOrderTraversal.h>
@@ -158,7 +158,7 @@ TEST_F(Tree, PredicatedInOrderTraversal)
     }
 }
 
-TEST_F(Tree, PredicatedBredthFirstTraversal)
+TEST_F(Tree, PredicatedBreadthFirstTraversal)
 {
     using Predicate = std::function<bool(
         const std::pair<VertexMap::key_type, VertexMap::key_type>&)>;
@@ -166,7 +166,7 @@ TEST_F(Tree, PredicatedBredthFirstTraversal)
         return e.first == "F";
     });
 
-    using Bft = BredthFirstTraversal<VertexMap, Predicate>;
+    using Bft = BreadthFirstTraversal<VertexMap, Predicate>;
     {
         auto vertex_it =
             VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
@@ -200,7 +200,7 @@ TEST_F(Tree, BredthFirstTraversal)
 {
     EXPECT_FALSE(vertices.empty());
     { // extract edges and vertices during a single traversal of the tree
-        using Bfs = BredthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<VertexMap>;
         auto edge_it = EdgeIterator<Bfs>(&vertices, vertices.find("F"));
         auto vertex_it = VertexIterator<Bfs>(edge_it.traversal());
         EXPECT_EQ(edge_it.traversal(), vertex_it.traversal());
@@ -217,7 +217,7 @@ TEST_F(Tree, BredthFirstTraversal)
     }
     vertices.clear();
     { // traverse empty graph
-        using Bfs = BredthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<VertexMap>;
         auto traversal = std::make_shared<Bfs>(&vertices, vertices.begin());
 
         // Create an accessor which pulls out edges from a traversal
@@ -243,7 +243,7 @@ TEST_F(Tree, BredthFirstTraversal)
     root.insert("D");
     vertices.insert(std::make_pair("A", root));
     { // traverse graph of depth 1
-        using Bfs = BredthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<VertexMap>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.find("A"));
         auto os = std::ostringstream();
         for (const auto& vertex : it)
