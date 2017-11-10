@@ -10,13 +10,13 @@ namespace vertex
 /** Bredth first tree traversal */
 template <typename VertexMap,
           typename Predicate = NullaryPredicate<VertexMap, true>>
-class BredthFirstTraversal
+class BreadthFirstTraversal
         : public Traversal<VertexMap,
-                           BredthFirstTraversal<VertexMap, Predicate>,
+                           BreadthFirstTraversal<VertexMap, Predicate>,
                            Predicate>
 {
 public:
-    using self_type = BredthFirstTraversal<VertexMap, Predicate>;
+    using self_type = BreadthFirstTraversal<VertexMap, Predicate>;
     using base_type = Traversal<VertexMap, self_type, Predicate>;
     using base_type::base_type;
     using base_type::vertices;
@@ -32,7 +32,7 @@ private:
 };
 
 template <typename VertexMap, typename Predicate>
-bool BredthFirstTraversal<VertexMap, Predicate>::next()
+bool BreadthFirstTraversal<VertexMap, Predicate>::next()
 {
     auto result = false;
     if (position() != vertices()->end())
