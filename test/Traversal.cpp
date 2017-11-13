@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include <vertex/BreadthFirstTraversal.h>
+#include <vertex/Predicate.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/PostOrderTraversal.h>
@@ -179,6 +180,23 @@ TEST_F(Tree, PredicatedBreadthFirstTraversal)
     }
 }
 
+TEST_F(Tree, MaxDepthBreadthFirstTraversal)
+{
+    using Predicate = MaxDepthPredicate<VertexMap>;
+    auto predicate = Predicate(2);
+
+    using Bft = BreadthFirstTraversal<VertexMap, Predicate>;
+    {
+        auto vertex_it =
+            VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
+        auto vertex_order = std::ostringstream();
+        for (const auto& v : vertex_it)
+        {
+            vertex_order << v;
+        }
+        EXPECT_EQ("FBGADI", vertex_order.str());
+    }
+}
 TEST_F(Tree, PostOrderTraversal)
 {
     using Pot = PostOrderTraversal<VertexMap>;

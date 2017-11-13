@@ -1,28 +1,9 @@
 #pragma once
 #include <utility>
+#include <vertex/Predicate.h>
 
 namespace vertex
 {
-
-/** A predicate which always returns either true or false regardless of the
- * input */
-template <typename VertexMap, bool Result>
-struct NullaryPredicate
-{
-    using result_type = bool;
-    using argument_type = std::pair<typename VertexMap::key_type,
-                                    typename VertexMap::key_type>;
-    bool operator()(const argument_type& value) const;
-};
-
-template <typename VertexMap, bool Result>
-bool NullaryPredicate<VertexMap, Result>::
-operator()(const typename NullaryPredicate<VertexMap, Result>::argument_type&
-               value) const
-{
-    (void)value;
-    return Result;
-}
 
 /** @TODO Implement traversal routine in this class in terms of Impl methods,
  * implement SkipIterator which evaluates a predicate on increment and skips
@@ -56,7 +37,7 @@ public:
     const vertex_type& vertex() const;
     const edge_type& edge() const;
     const predicate_type& predicate() const;
-    bool isTraversible(const edge_type& value) const;
+    bool isTraversible(const edge_type& value);
 
     Impl begin() const;
     Impl end() const;
@@ -163,7 +144,6 @@ void Traversal<VertexMap, Impl, Predicate>::edge(
 template <typename VertexMap, typename Impl, typename Predicate>
 bool Traversal<VertexMap, Impl, Predicate>::isTraversible(
     const typename Traversal<VertexMap, Impl, Predicate>::edge_type& value)
-    const
 {
     return predicate_(value);
 }

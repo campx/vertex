@@ -11,7 +11,6 @@ IF (NOT MSVC)
   ENDIF(MINGW)
 ENDIF(NOT MSVC)
 
-include_directories(${vertex_SOURCE_DIR}/include)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 
 add_library(libvertex
@@ -22,6 +21,7 @@ add_library(libvertex
     include/vertex/BreadthFirstTraversal.h  src/BreadthFirstTraversal.cpp
     include/vertex/PreOrderTraversal.h      src/PreOrderTraversal.cpp
     include/vertex/InOrderTraversal.h       src/InOrderTraversal.cpp
+	include/vertex/Predicate.h				src/Predicate.cpp
     include/vertex/Traversal.h              src/Traversal.cpp
     include/vertex/PostOrderTraversal.h     src/PostOrderTraversal.cpp
     include/vertex/VertexIterator.h         src/VertexIterator.cpp
@@ -32,7 +32,7 @@ set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 
 add_subdirectory(external/gtest)
 
-target_include_directories(libvertex INTERFACE "${vertex_SOURCE_DIR}/include")
+target_include_directories(libvertex PUBLIC "${vertex_SOURCE_DIR}/include")
 
 enable_testing()
 add_executable(TestVertex
