@@ -4,19 +4,19 @@
 
 namespace vertex
 {
-template <typename VertexMap,
-          typename Predicate = NullaryPredicate<VertexMap, true>>
+template <typename Container,
+          typename Predicate = NullaryPredicate<Container, true>>
 class InOrderTraversal
-    : public Traversal<VertexMap,
-                       InOrderTraversal<VertexMap, Predicate>,
+    : public Traversal<Container,
+                       InOrderTraversal<Container, Predicate>,
                        Predicate>
 {
 public:
-    InOrderTraversal(VertexMap* vertices,
-                     typename VertexMap::iterator root,
+    InOrderTraversal(Container* vertices,
+                     typename Container::iterator root,
                      Predicate predicate = Predicate{});
-    using base_type = Traversal<VertexMap,
-                                InOrderTraversal<VertexMap, Predicate>,
+    using base_type = Traversal<Container,
+                                InOrderTraversal<Container, Predicate>,
                                 Predicate>;
     using base_type::vertices;
     using base_type::vertex;
@@ -31,10 +31,10 @@ private:
     std::stack<typename base_type::edge_type> to_visit_;
 };
 
-template <typename VertexMap, typename Predicate>
-InOrderTraversal<VertexMap, Predicate>::InOrderTraversal(
-    VertexMap* vertices,
-    typename VertexMap::iterator root,
+template <typename Container, typename Predicate>
+InOrderTraversal<Container, Predicate>::InOrderTraversal(
+    Container* vertices,
+    typename Container::iterator root,
     Predicate predicate)
     : base_type(vertices, root, predicate)
 {
@@ -45,8 +45,8 @@ InOrderTraversal<VertexMap, Predicate>::InOrderTraversal(
     }
 }
 
-template <typename VertexMap, typename Predicate>
-bool InOrderTraversal<VertexMap, Predicate>::next()
+template <typename Container, typename Predicate>
+bool InOrderTraversal<Container, Predicate>::next()
 {
     if (to_visit_.empty())
     {

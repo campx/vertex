@@ -8,7 +8,7 @@ namespace
 {
 
 using TestVertex = vertex::Vertex<std::string, std::string>;
-using VertexMap = std::map<std::string, TestVertex>;
+using Container = std::map<std::string, TestVertex>;
 
 std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
 {
@@ -31,7 +31,7 @@ TEST(Vertex, VertexIterator)
      *       /\   /\        *
      *      D  E F  G       *
      ***********************/
-    auto vertices = VertexMap{};
+    auto vertices = Container{};
     vertices.insert(std::make_pair("G", TestVertex("G")));
     vertices.insert(std::make_pair("F", TestVertex("F")));
     vertices.insert(std::make_pair("E", TestVertex("E")));
@@ -56,7 +56,7 @@ TEST(Vertex, VertexIterator)
     }
     EXPECT_FALSE(vertices.empty());
     {
-        using Bfs = BreadthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<Container>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_NE(begin(it), end(it));
         auto os = std::ostringstream();
@@ -70,7 +70,7 @@ TEST(Vertex, VertexIterator)
     vertices.clear();
     { // traverse empty graph
 
-        using Bfs = BreadthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<Container>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.begin());
         EXPECT_EQ(begin(it), end(it));
         auto os = std::ostringstream();

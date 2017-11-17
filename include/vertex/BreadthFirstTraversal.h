@@ -6,18 +6,20 @@
 
 namespace vertex
 {
+/**@TODO Allow construction AT a given parent/child. Store child link pointer.
+ * Ensure Iterator can be used to construct container of values */
 
 /** Bredth first tree traversal */
-template <typename VertexMap,
-          typename Predicate = NullaryPredicate<VertexMap, true>>
+template <typename Container,
+          typename Predicate = NullaryPredicate<Container, true>>
 class BreadthFirstTraversal
-        : public Traversal<VertexMap,
-                           BreadthFirstTraversal<VertexMap, Predicate>,
-                           Predicate>
+    : public Traversal<Container,
+                       BreadthFirstTraversal<Container, Predicate>,
+                       Predicate>
 {
 public:
-    using self_type = BreadthFirstTraversal<VertexMap, Predicate>;
-    using base_type = Traversal<VertexMap, self_type, Predicate>;
+    using self_type = BreadthFirstTraversal<Container, Predicate>;
+    using base_type = Traversal<Container, self_type, Predicate>;
     using base_type::base_type;
     using base_type::vertices;
     using base_type::vertex;
@@ -31,8 +33,8 @@ private:
     std::queue<typename base_type::edge_type> to_visit_;
 };
 
-template <typename VertexMap, typename Predicate>
-bool BreadthFirstTraversal<VertexMap, Predicate>::next()
+template <typename Container, typename Predicate>
+bool BreadthFirstTraversal<Container, Predicate>::next()
 {
     auto result = false;
     if (position() != vertices()->end())
@@ -45,7 +47,8 @@ bool BreadthFirstTraversal<VertexMap, Predicate>::next()
                 to_visit_.push(e);
             }
         }
-    } else
+    }
+    else
     {
         result = false;
     }

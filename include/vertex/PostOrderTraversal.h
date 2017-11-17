@@ -4,19 +4,19 @@
 
 namespace vertex
 {
-template <typename VertexMap,
-          typename Predicate = NullaryPredicate<VertexMap, true>>
+template <typename Container,
+          typename Predicate = NullaryPredicate<Container, true>>
 class PostOrderTraversal
-    : public Traversal<VertexMap,
-                       PostOrderTraversal<VertexMap, Predicate>,
+    : public Traversal<Container,
+                       PostOrderTraversal<Container, Predicate>,
                        Predicate>
 {
 public:
-    PostOrderTraversal(VertexMap* vertices,
-                       typename VertexMap::iterator root,
+    PostOrderTraversal(Container* vertices,
+                       typename Container::iterator root,
                        Predicate predicate = Predicate{});
-    using base_type = Traversal<VertexMap,
-                                PostOrderTraversal<VertexMap, Predicate>,
+    using base_type = Traversal<Container,
+                                PostOrderTraversal<Container, Predicate>,
                                 Predicate>;
     using base_type::vertices;
     using base_type::vertex;
@@ -34,10 +34,10 @@ private:
     typename base_type::vertex_iterator prev_pos_;
 };
 
-template <typename VertexMap, typename Predicate>
-PostOrderTraversal<VertexMap, Predicate>::PostOrderTraversal(
-    VertexMap* vertices,
-    typename VertexMap::iterator root,
+template <typename Container, typename Predicate>
+PostOrderTraversal<Container, Predicate>::PostOrderTraversal(
+    Container* vertices,
+    typename Container::iterator root,
     Predicate predicate)
     : base_type(vertices, root, predicate), prev_pos_(vertices->end())
 {
@@ -48,8 +48,8 @@ PostOrderTraversal<VertexMap, Predicate>::PostOrderTraversal(
     }
 }
 
-template <typename VertexMap, typename Predicate>
-bool PostOrderTraversal<VertexMap, Predicate>::traverseLeft()
+template <typename Container, typename Predicate>
+bool PostOrderTraversal<Container, Predicate>::traverseLeft()
 {
     auto moved = false;
     while (position()->second.size() == 2)
@@ -79,8 +79,8 @@ bool PostOrderTraversal<VertexMap, Predicate>::traverseLeft()
     return moved;
 }
 
-template <typename VertexMap, typename Predicate>
-bool PostOrderTraversal<VertexMap, Predicate>::traverseRight()
+template <typename Container, typename Predicate>
+bool PostOrderTraversal<Container, Predicate>::traverseRight()
 {
     auto moved = false;
     if (position()->second.size() == 2)
@@ -100,8 +100,8 @@ bool PostOrderTraversal<VertexMap, Predicate>::traverseRight()
     return moved;
 }
 
-template <typename VertexMap, typename Predicate>
-bool PostOrderTraversal<VertexMap, Predicate>::next()
+template <typename Container, typename Predicate>
+bool PostOrderTraversal<Container, Predicate>::next()
 {
     auto moved = false;
     prev_pos_ = position();

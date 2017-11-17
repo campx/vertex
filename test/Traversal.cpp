@@ -12,7 +12,7 @@ namespace
 {
 
 using TestVertex = vertex::Vertex<std::string, std::string>;
-using VertexMap = std::map<std::string, TestVertex>;
+using Container = std::map<std::string, TestVertex>;
 
 std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
 {
@@ -34,7 +34,7 @@ namespace vertex
 
 struct Tree : public ::testing::Test
 {
-    VertexMap vertices;
+    Container vertices;
     Tree()
     {
         /*******************\
@@ -78,7 +78,7 @@ struct Tree : public ::testing::Test
 TEST_F(Tree, InOrderIterator)
 {
     auto traversal =
-        InOrderTraversal<VertexMap>(&vertices, vertices.find("F"));
+        InOrderTraversal<Container>(&vertices, vertices.find("F"));
     auto output = std::ostringstream();
     auto count = 0;
     for (const auto& i : traversal)
@@ -94,7 +94,7 @@ TEST_F(Tree, InOrderIterator)
 
 TEST_F(Tree, PreOrderTraversal)
 {
-    using Pot = PreOrderTraversal<VertexMap>;
+    using Pot = PreOrderTraversal<Container>;
     {
         auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
         auto vertex_order = std::ostringstream();
@@ -108,7 +108,7 @@ TEST_F(Tree, PreOrderTraversal)
 
 TEST_F(Tree, InOrderTraversal)
 {
-    using Iot = InOrderTraversal<VertexMap>;
+    using Iot = InOrderTraversal<Container>;
     {
         auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("F"));
         auto vertex_order = std::ostringstream();
@@ -141,12 +141,12 @@ TEST_F(Tree, InOrderTraversal)
 TEST_F(Tree, PredicatedInOrderTraversal)
 {
     using Predicate = std::function<bool(
-        const std::pair<VertexMap::key_type, VertexMap::key_type>&)>;
+        const std::pair<Container::key_type, Container::key_type>&)>;
     auto predicate = Predicate([](const auto& e) -> auto {
         return e.second == "G" || e.second == "F" || e.second == "I";
     });
 
-    using Iot = InOrderTraversal<VertexMap, Predicate>;
+    using Iot = InOrderTraversal<Container, Predicate>;
     {
         auto vertex_it =
             VertexIterator<Iot>(&vertices, vertices.find("F"), predicate);
@@ -162,12 +162,12 @@ TEST_F(Tree, PredicatedInOrderTraversal)
 TEST_F(Tree, PredicatedBreadthFirstTraversal)
 {
     using Predicate = std::function<bool(
-        const std::pair<VertexMap::key_type, VertexMap::key_type>&)>;
+        const std::pair<Container::key_type, Container::key_type>&)>;
     auto predicate = Predicate([](const auto& e) -> auto {
         return e.first == "F";
     });
 
-    using Bft = BreadthFirstTraversal<VertexMap, Predicate>;
+    using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
         auto vertex_it =
             VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
@@ -182,10 +182,10 @@ TEST_F(Tree, PredicatedBreadthFirstTraversal)
 
 TEST_F(Tree, MaxDepthBreadthFirstTraversal)
 {
-    using Predicate = MaxDepthPredicate<VertexMap>;
+    using Predicate = MaxDepthPredicate<Container>;
     auto predicate = Predicate(2);
 
-    using Bft = BreadthFirstTraversal<VertexMap, Predicate>;
+    using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
         auto vertex_it =
             VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
@@ -199,7 +199,7 @@ TEST_F(Tree, MaxDepthBreadthFirstTraversal)
 }
 TEST_F(Tree, PostOrderTraversal)
 {
-    using Pot = PostOrderTraversal<VertexMap>;
+    using Pot = PostOrderTraversal<Container>;
     auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
     auto vertex_order = std::ostringstream();
     auto i = 0;
@@ -218,7 +218,7 @@ TEST_F(Tree, BredthFirstTraversal)
 {
     EXPECT_FALSE(vertices.empty());
     { // extract edges and vertices during a single traversal of the tree
-        using Bfs = BreadthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<Container>;
         auto edge_it = EdgeIterator<Bfs>(&vertices, vertices.find("F"));
         auto vertex_it = VertexIterator<Bfs>(edge_it.traversal());
         EXPECT_EQ(edge_it.traversal(), vertex_it.traversal());
@@ -235,7 +235,7 @@ TEST_F(Tree, BredthFirstTraversal)
     }
     vertices.clear();
     { // traverse empty graph
-        using Bfs = BreadthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<Container>;
         auto traversal = std::make_shared<Bfs>(&vertices, vertices.begin());
 
         // Create an accessor which pulls out edges from a traversal
@@ -261,7 +261,7 @@ TEST_F(Tree, BredthFirstTraversal)
     root.insert("D");
     vertices.insert(std::make_pair("A", root));
     { // traverse graph of depth 1
-        using Bfs = BreadthFirstTraversal<VertexMap>;
+        using Bfs = BreadthFirstTraversal<Container>;
         auto it = VertexIterator<Bfs>(&vertices, vertices.find("A"));
         auto os = std::ostringstream();
         for (const auto& vertex : it)

@@ -5,19 +5,19 @@
 namespace vertex
 {
 
-template <typename VertexMap>
+template <typename Container>
 class Edge
 {
 public:
-    using vertex_type = typename VertexMap::mapped_type;
-    using vertex_iterator = typename VertexMap::iterator;
+    using vertex_type = typename Container::mapped_type;
+    using vertex_iterator = typename Container::iterator;
     using link_type = typename vertex_type::link_type;
     using link_iterator = typename vertex_type::iterator;
 
     Edge();
 
     /** Create an Edge from two links */
-    Edge(VertexMap* vertices, const link_type& source, const link_type& target);
+    Edge(Container* vertices, const link_type& source, const link_type& target);
 
     /** Create an Edge from Vertex and Link iterators */
     Edge(vertex_iterator v, link_iterator l);
@@ -37,27 +37,27 @@ public:
     vertex_iterator target() const;
 
 private:
-    VertexMap* vertices_;
+    Container* vertices_;
     vertex_iterator source_;
     vertex_iterator target_;
     link_iterator link_;
 };
 
-template <typename VertexMap>
-Edge<VertexMap>::Edge() : vertices_(nullptr)
+template <typename Container>
+Edge<Container>::Edge() : vertices_(nullptr)
 {
 }
 
-template <typename VertexMap>
-Edge<VertexMap>::Edge(VertexMap* vertices, const typename
-Edge<VertexMap>::link_type& source,
-                      const typename Edge<VertexMap>::link_type& target)
+template <typename Container>
+Edge<Container>::Edge(Container* vertices, const typename
+Edge<Container>::link_type& source,
+                      const typename Edge<Container>::link_type& target)
         : vertices_(vertices), source_(vertices_ ? vertices_->find(source) :
-                                       Edge<VertexMap>::link_type()),
+                                       Edge<Container>::link_type()),
           target_(vertices_ ? vertices_->find(target)
-                           : Edge<VertexMap>::link_type()),
+                           : Edge<Container>::link_type()),
           link_((vertices_ && source_ != vertices_->end()) ? source_->find(
-                  target) : Edge<VertexMap>::link_iterator())
+                  target) : Edge<Container>::link_iterator())
 {
 }
 

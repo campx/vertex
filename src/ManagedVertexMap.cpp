@@ -1,1 +1,0 @@
-#include <vertex/ManagedVertexMap.h>

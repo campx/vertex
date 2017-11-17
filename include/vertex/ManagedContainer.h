@@ -11,40 +11,40 @@
 namespace vertex
 {
 
-/** ManagedVertexMap is a specialised AssociativeArray with reference
+/** ManagedContainer is a specialised AssociativeArray with reference
  * counting to ensure unreferenced Vertex objects are deleted from storage.
- * VertexMap is a map which stores Vertex objects by Key
+ * Container is a map which stores Vertex objects by Key
  * EdgeMap is a multimap which stores Vertex parents as pairs of Edge objects
- * VertexMap MUST NOT invalidate iterators on insertion or deletion
+ * Container MUST NOT invalidate iterators on insertion or deletion
  */
-template <typename VertexMap, typename EdgeMap>
-class ManagedVertexMap
+template <typename Container, typename EdgeMap>
+class ManagedContainer
 {
 public:
-    static_assert(std::is_same<typename VertexMap::key_type,
+    static_assert(std::is_same<typename Container::key_type,
                                typename EdgeMap::key_type>::value,
-                  "VertexMap::key_type != EdgeMap::key_type");
+                  "Container::key_type != EdgeMap::key_type");
     static_assert(
         std::is_same<typename EdgeMap::key_type,
                      typename EdgeMap::value_type::second_type>::value,
         "EdgeMap::key_type != EdgeMap::value_type::second_type");
 
-    using key_type = typename VertexMap::key_type;
-    using mapped_type = typename VertexMap::mapped_type;
-    using value_type = typename VertexMap::value_type;
-    using size_type = typename VertexMap::size_type;
-    using difference_type = typename VertexMap::difference_type;
-    using key_compare = typename VertexMap::key_compare;
+    using key_type = typename Container::key_type;
+    using mapped_type = typename Container::mapped_type;
+    using value_type = typename Container::value_type;
+    using size_type = typename Container::size_type;
+    using difference_type = typename Container::difference_type;
+    using key_compare = typename Container::key_compare;
     using reference = value_type&;
     using const_reference = const value_type&;
-    using pointer = typename VertexMap::pointer;
-    using const_pointer = typename VertexMap::const_pointer;
-    using iterator = typename VertexMap::iterator;
-    using const_iterator = typename VertexMap::const_iterator;
-    using reverse_iterator = typename VertexMap::reverse_iterator;
-    using const_reverse_iterator = typename VertexMap::const_reverse_iterator;
+    using pointer = typename Container::pointer;
+    using const_pointer = typename Container::const_pointer;
+    using iterator = typename Container::iterator;
+    using const_iterator = typename Container::const_iterator;
+    using reverse_iterator = typename Container::reverse_iterator;
+    using const_reverse_iterator = typename Container::const_reverse_iterator;
 
-    explicit ManagedVertexMap(VertexMap vertices = VertexMap(),
+    explicit ManagedContainer(Container vertices = Container(),
                               EdgeMap edges = EdgeMap());
 
     iterator begin() const;
@@ -83,20 +83,20 @@ private:
      * The given position must be valid. */
     edge_iterator erase(edge_iterator pos);
 
-    VertexMap vertices_;
+    Container vertices_;
     EdgeMap edges_;
 };
 
 template <typename V, typename E>
-ManagedVertexMap<V, E>::ManagedVertexMap(V vertices, E edges)
+ManagedContainer<V, E>::ManagedContainer(V vertices, E edges)
     : vertices_(std::move(vertices)), edges_(std::move(edges))
 {
 }
 
 template <typename V, typename E>
-std::pair<typename ManagedVertexMap<V, E>::iterator, bool>
-ManagedVertexMap<V, E>::insert(
-    const typename ManagedVertexMap<V, E>::value_type& value)
+std::pair<typename ManagedContainer<V, E>::iterator, bool>
+ManagedContainer<V, E>::insert(
+    const typename ManagedContainer<V, E>::value_type& value)
 {
     auto result = vertices_.insert(value); /** store the vertex */
     for (const auto& link : value.second.children())
@@ -107,15 +107,15 @@ ManagedVertexMap<V, E>::insert(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::iterator ManagedVertexMap<V, E>::find(
-    const typename ManagedVertexMap<V, E>::key_type& key)
+typename ManagedContainer<V, E>::iterator ManagedContainer<V, E>::find(
+    const typename ManagedContainer<V, E>::key_type& key)
 {
     return vertices_.find(key);
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::iterator ManagedVertexMap<V, E>::erase(
-    typename ManagedVertexMap<V, E>::iterator pos)
+typename ManagedContainer<V, E>::iterator ManagedContainer<V, E>::erase(
+    typename ManagedContainer<V, E>::iterator pos)
 {
     auto result = pos;
     const auto& edge = pos->first;
@@ -135,9 +135,9 @@ typename ManagedVertexMap<V, E>::iterator ManagedVertexMap<V, E>::erase(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::edge_iterator
-ManagedVertexMap<V, E>::erase(
-    typename ManagedVertexMap<V, E>::edge_iterator pos)
+typename ManagedContainer<V, E>::edge_iterator
+ManagedContainer<V, E>::erase(
+    typename ManagedContainer<V, E>::edge_iterator pos)
 {
     auto result = pos;
     std::queue<edge_iterator> to_visit;
@@ -167,8 +167,8 @@ ManagedVertexMap<V, E>::erase(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::edge_iterator ManagedVertexMap<V, E>::find(
-    const typename ManagedVertexMap<V, E>::edge_type& edge)
+typename ManagedContainer<V, E>::edge_iterator ManagedContainer<V, E>::find(
+    const typename ManagedContainer<V, E>::edge_type& edge)
 {
     auto result = edges_.cend();
     auto range = edges_.equal_range(edge.first);
@@ -181,8 +181,8 @@ typename ManagedVertexMap<V, E>::edge_iterator ManagedVertexMap<V, E>::find(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::edge_iterator ManagedVertexMap<V, E>::erase(
-    const typename ManagedVertexMap<V, E>::edge_type& edge)
+typename ManagedContainer<V, E>::edge_iterator ManagedContainer<V, E>::erase(
+    const typename ManagedContainer<V, E>::edge_type& edge)
 {
     auto result = find(edge);
     if (result != edges_.end())
@@ -193,14 +193,14 @@ typename ManagedVertexMap<V, E>::edge_iterator ManagedVertexMap<V, E>::erase(
 }
 
 template <typename V, typename E>
-typename ManagedVertexMap<V, E>::size_type
-ManagedVertexMap<V, E>::count(const typename ManagedVertexMap::key_type& key)
+typename ManagedContainer<V, E>::size_type
+ManagedContainer<V, E>::count(const typename ManagedContainer::key_type& key)
 {
     return edges_.count(key);
 }
 
 template <typename V, typename E>
-void ManagedVertexMap<V, E>::clear()
+void ManagedContainer<V, E>::clear()
 {
     edges_.clear();
     vertices_.clear();

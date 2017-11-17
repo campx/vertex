@@ -8,31 +8,34 @@ namespace vertex
 /** @TODO Implement traversal routine in this class in terms of Impl methods,
  * implement SkipIterator which evaluates a predicate on increment and skips
  * over elements which do not pass
+ * @TODO Reverse iterators, prev method
  */
-template <typename VertexMap,
+template <typename Container,
           typename Impl,
-          typename Predicate = NullaryPredicate<VertexMap, true>>
+          typename Predicate = NullaryPredicate<Container, true>>
 class Traversal
 {
 public:
-    using vertex_store_type = VertexMap;
-    using vertex_iterator = typename VertexMap::iterator;
-    using vertex_type = typename VertexMap::mapped_type;
-    using key_type = typename VertexMap::key_type;
+    using container_type = Container;
+    using vertex_iterator = typename Container::iterator;
+    using vertex_type = typename Container::mapped_type;
+    using child_iterator = typename vertex_type::iterator;
+    using key_type = typename Container::key_type;
     using edge_type = std::pair<key_type, key_type>;
     using predicate_type = Predicate;
 
     using value_type = Impl;
-    using self_type = Traversal<VertexMap, Impl, Predicate>;
+    using self_type = Traversal<Container, Impl, Predicate>;
     using reference = Impl&;
     using pointer = Impl*;
 
-    Traversal(VertexMap* vertices,
-              typename VertexMap::iterator root,
+    Traversal(Container* vertices,
+              typename Container::iterator root,
               Predicate predicate = Predicate{});
 
-    VertexMap* vertices() const;
+    Container* vertices() const;
     const vertex_iterator& root() const;
+    const vertex_iterator& parent() const;
     const vertex_iterator& position() const;
     const vertex_type& vertex() const;
     const edge_type& edge() const;
@@ -50,23 +53,26 @@ public:
     bool operator==(const self_type& rhs) const;
 
 protected:
+    void parent(const vertex_iterator& value);
+    void chid(const child_iterator& value);
     void position(const vertex_iterator& value);
     void vertex(const vertex_type& value);
     void edge(const edge_type& value);
 
 private:
-    VertexMap* vertices_;
+    Container* vertices_;
     vertex_iterator root_;
     vertex_iterator position_;
+    child_iterator child_;
     vertex_type vertex_;
     edge_type edge_;
     Predicate predicate_;
 };
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Traversal<VertexMap, Impl, Predicate>::Traversal(
-    VertexMap* vertices,
-    typename VertexMap::iterator root,
+template <typename Container, typename Impl, typename Predicate>
+Traversal<Container, Impl, Predicate>::Traversal(
+    Container* vertices,
+    typename Container::iterator root,
     Predicate predicate)
     : vertices_(vertices), root_(std::move(root)), position_(root_),
       vertex_(position_ == vertices_->end() ? vertex_type{} :
@@ -78,92 +84,92 @@ Traversal<VertexMap, Impl, Predicate>::Traversal(
 {
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-VertexMap* Traversal<VertexMap, Impl, Predicate>::vertices() const
+template <typename Container, typename Impl, typename Predicate>
+Container* Traversal<Container, Impl, Predicate>::vertices() const
 {
     return vertices_;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-const typename Traversal<VertexMap, Impl, Predicate>::vertex_iterator&
-Traversal<VertexMap, Impl, Predicate>::root() const
+template <typename Container, typename Impl, typename Predicate>
+const typename Traversal<Container, Impl, Predicate>::vertex_iterator&
+Traversal<Container, Impl, Predicate>::root() const
 {
     return root_;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-const typename Traversal<VertexMap, Impl, Predicate>::vertex_iterator&
-Traversal<VertexMap, Impl, Predicate>::position() const
+template <typename Container, typename Impl, typename Predicate>
+const typename Traversal<Container, Impl, Predicate>::vertex_iterator&
+Traversal<Container, Impl, Predicate>::position() const
 {
     return position_;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-const typename Traversal<VertexMap, Impl, Predicate>::vertex_type&
-Traversal<VertexMap, Impl, Predicate>::vertex() const
+template <typename Container, typename Impl, typename Predicate>
+const typename Traversal<Container, Impl, Predicate>::vertex_type&
+Traversal<Container, Impl, Predicate>::vertex() const
 {
     return vertex_;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-const typename Traversal<VertexMap, Impl, Predicate>::edge_type&
-Traversal<VertexMap, Impl, Predicate>::edge() const
+template <typename Container, typename Impl, typename Predicate>
+const typename Traversal<Container, Impl, Predicate>::edge_type&
+Traversal<Container, Impl, Predicate>::edge() const
 {
     return edge_;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-const typename Traversal<VertexMap, Impl, Predicate>::predicate_type&
-Traversal<VertexMap, Impl, Predicate>::predicate() const
+template <typename Container, typename Impl, typename Predicate>
+const typename Traversal<Container, Impl, Predicate>::predicate_type&
+Traversal<Container, Impl, Predicate>::predicate() const
 {
     return predicate_;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-void Traversal<VertexMap, Impl, Predicate>::vertex(
-    const typename Traversal<VertexMap, Impl, Predicate>::vertex_type& value)
+template <typename Container, typename Impl, typename Predicate>
+void Traversal<Container, Impl, Predicate>::vertex(
+    const typename Traversal<Container, Impl, Predicate>::vertex_type& value)
 {
     vertex_ = value;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-void Traversal<VertexMap, Impl, Predicate>::position(
-    const typename Traversal<VertexMap, Impl, Predicate>::vertex_iterator&
+template <typename Container, typename Impl, typename Predicate>
+void Traversal<Container, Impl, Predicate>::position(
+    const typename Traversal<Container, Impl, Predicate>::vertex_iterator&
         value)
 {
     position_ = value;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-void Traversal<VertexMap, Impl, Predicate>::edge(
-    const typename Traversal<VertexMap, Impl, Predicate>::edge_type& value)
+template <typename Container, typename Impl, typename Predicate>
+void Traversal<Container, Impl, Predicate>::edge(
+    const typename Traversal<Container, Impl, Predicate>::edge_type& value)
 {
     edge_ = value;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-bool Traversal<VertexMap, Impl, Predicate>::isTraversible(
-    const typename Traversal<VertexMap, Impl, Predicate>::edge_type& value)
+template <typename Container, typename Impl, typename Predicate>
+bool Traversal<Container, Impl, Predicate>::isTraversible(
+    const typename Traversal<Container, Impl, Predicate>::edge_type& value)
 {
     return predicate_(value);
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Impl Traversal<VertexMap, Impl, Predicate>::begin() const
+template <typename Container, typename Impl, typename Predicate>
+Impl Traversal<Container, Impl, Predicate>::begin() const
 {
     return Impl(vertices(), root(), predicate());
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Impl Traversal<VertexMap, Impl, Predicate>::end() const
+template <typename Container, typename Impl, typename Predicate>
+Impl Traversal<Container, Impl, Predicate>::end() const
 {
     auto result = Impl(vertices(), root(), predicate());
     result.position(vertices()->end());
     return result;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Impl& Traversal<VertexMap, Impl, Predicate>::operator++()
+template <typename Container, typename Impl, typename Predicate>
+Impl& Traversal<Container, Impl, Predicate>::operator++()
 {
     auto pImpl = static_cast<Impl*>(this);
     if (!pImpl->next())
@@ -173,8 +179,8 @@ Impl& Traversal<VertexMap, Impl, Predicate>::operator++()
     return *pImpl;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Impl Traversal<VertexMap, Impl, Predicate>::operator++(int dummy)
+template <typename Container, typename Impl, typename Predicate>
+Impl Traversal<Container, Impl, Predicate>::operator++(int dummy)
 {
     (void)dummy;
     auto pImpl = static_cast<Impl*>(this);
@@ -183,30 +189,30 @@ Impl Traversal<VertexMap, Impl, Predicate>::operator++(int dummy)
     return copy;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Impl& Traversal<VertexMap, Impl, Predicate>::operator*()
+template <typename Container, typename Impl, typename Predicate>
+Impl& Traversal<Container, Impl, Predicate>::operator*()
 {
     auto pImpl = static_cast<Impl*>(this);
     return *pImpl;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-Impl* Traversal<VertexMap, Impl, Predicate>::operator->()
+template <typename Container, typename Impl, typename Predicate>
+Impl* Traversal<Container, Impl, Predicate>::operator->()
 {
     auto pImpl = static_cast<Impl*>(this);
     return pImpl;
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-bool Traversal<VertexMap, Impl, Predicate>::
-operator==(const Traversal<VertexMap, Impl, Predicate>& rhs) const
+template <typename Container, typename Impl, typename Predicate>
+bool Traversal<Container, Impl, Predicate>::
+operator==(const Traversal<Container, Impl, Predicate>& rhs) const
 {
     return position() == rhs.position() && root() == rhs.root();
 }
 
-template <typename VertexMap, typename Impl, typename Predicate>
-bool Traversal<VertexMap, Impl, Predicate>::
-operator!=(const Traversal<VertexMap, Impl, Predicate>& rhs) const
+template <typename Container, typename Impl, typename Predicate>
+bool Traversal<Container, Impl, Predicate>::
+operator!=(const Traversal<Container, Impl, Predicate>& rhs) const
 {
     return !(*this == rhs);
 }

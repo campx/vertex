@@ -20,7 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 add_library(libvertex
     include/vertex/Link.h                   src/Link.cpp
     include/vertex/Vertex.h                 src/Vertex.cpp
-    include/vertex/ManagedVertexMap.h       src/ManagedVertexMap.cpp
+    include/vertex/ManagedContainer.h       src/ManagedContainer.cpp
     include/vertex/EdgeIterator.h           src/EdgeIterator.cpp
     include/vertex/BreadthFirstTraversal.h  src/BreadthFirstTraversal.cpp
     include/vertex/PreOrderTraversal.h      src/PreOrderTraversal.cpp

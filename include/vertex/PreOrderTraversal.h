@@ -4,19 +4,19 @@
 
 namespace vertex
 {
-template <typename VertexMap,
-          typename Predicate = NullaryPredicate<VertexMap, true>>
+template <typename Container,
+          typename Predicate = NullaryPredicate<Container, true>>
 class PreOrderTraversal
-    : public Traversal<VertexMap,
-                       PreOrderTraversal<VertexMap, Predicate>,
+    : public Traversal<Container,
+                       PreOrderTraversal<Container, Predicate>,
                        Predicate>
 {
 public:
-    PreOrderTraversal(VertexMap* vertices,
-                      typename VertexMap::iterator root,
+    PreOrderTraversal(Container* vertices,
+                      typename Container::iterator root,
                       Predicate predicate = Predicate{});
-    using base_type = Traversal<VertexMap,
-                                PreOrderTraversal<VertexMap, Predicate>,
+    using base_type = Traversal<Container,
+                                PreOrderTraversal<Container, Predicate>,
                                 Predicate>;
     using base_type::vertices;
     using base_type::vertex;
@@ -34,10 +34,10 @@ private:
     typename base_type::vertex_iterator prev_pos_;
 };
 
-template <typename VertexMap, typename Predicate>
-PreOrderTraversal<VertexMap, Predicate>::PreOrderTraversal(
-    VertexMap* vertices,
-    typename VertexMap::iterator root,
+template <typename Container, typename Predicate>
+PreOrderTraversal<Container, Predicate>::PreOrderTraversal(
+    Container* vertices,
+    typename Container::iterator root,
     Predicate predicate)
     : base_type(vertices, root, predicate), prev_pos_(vertices->end())
 {
@@ -47,8 +47,8 @@ PreOrderTraversal<VertexMap, Predicate>::PreOrderTraversal(
     }
 }
 
-template <typename VertexMap, typename Predicate>
-bool PreOrderTraversal<VertexMap, Predicate>::traverseLeft()
+template <typename Container, typename Predicate>
+bool PreOrderTraversal<Container, Predicate>::traverseLeft()
 {
     auto moved = false;
     if (position()->second.size() == 2)
@@ -72,8 +72,8 @@ bool PreOrderTraversal<VertexMap, Predicate>::traverseLeft()
     return moved;
 }
 
-template <typename VertexMap, typename Predicate>
-bool PreOrderTraversal<VertexMap, Predicate>::traverseRight()
+template <typename Container, typename Predicate>
+bool PreOrderTraversal<Container, Predicate>::traverseRight()
 {
     auto moved = false;
     if (position()->second.size() == 2)
@@ -92,8 +92,8 @@ bool PreOrderTraversal<VertexMap, Predicate>::traverseRight()
     return moved;
 }
 
-template <typename VertexMap, typename Predicate>
-bool PreOrderTraversal<VertexMap, Predicate>::next()
+template <typename Container, typename Predicate>
+bool PreOrderTraversal<Container, Predicate>::next()
 {
     auto moved = false;
     prev_pos_ = position();
