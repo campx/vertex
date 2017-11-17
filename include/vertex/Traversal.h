@@ -16,7 +16,7 @@ class Traversal
 {
 public:
     using vertex_store_type = VertexMap;
-    using vertex_iterator = typename VertexMap::iterator;
+    using vertex_iterator = typename VertexMap::const_iterator;
     using vertex_type = typename VertexMap::mapped_type;
     using key_type = typename VertexMap::key_type;
     using edge_type = std::pair<key_type, key_type>;
@@ -28,7 +28,7 @@ public:
     using pointer = Impl*;
 
     Traversal(VertexMap* vertices,
-              typename VertexMap::iterator root,
+              vertex_iterator root,
               Predicate predicate = Predicate{});
 
     VertexMap* vertices() const;
@@ -64,10 +64,9 @@ private:
 };
 
 template <typename VertexMap, typename Impl, typename Predicate>
-Traversal<VertexMap, Impl, Predicate>::Traversal(
-    VertexMap* vertices,
-    typename VertexMap::iterator root,
-    Predicate predicate)
+Traversal<VertexMap, Impl, Predicate>::Traversal(VertexMap* vertices,
+                                                 vertex_iterator root,
+                                                 Predicate predicate)
     : vertices_(vertices), root_(std::move(root)), position_(root_),
       vertex_(position_ == vertices_->end() ? vertex_type{} :
                                               position_->second),

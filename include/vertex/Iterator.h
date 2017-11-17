@@ -12,7 +12,7 @@ class Iterator
 {
 public:
     using vertex_store_type = typename Traversal::vertex_store_type;
-    using vertex_iterator = typename vertex_store_type::iterator;
+    using vertex_iterator = typename Traversal::vertex_iterator;
     using value_type = typename std::result_of<Accessor(Traversal)>::type;
 
     Iterator(std::shared_ptr<Traversal> traversal,
@@ -58,7 +58,7 @@ Iterator<Traversal, Accessor>::Iterator(std::shared_ptr<Traversal> traversal,
 template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor>::Iterator(
     vertex_store_type* vertices,
-    typename vertex_store_type::iterator vertex,
+    typename Iterator<Traversal, Accessor>::vertex_iterator vertex,
     typename Traversal::predicate_type predicate,
     Accessor accessor)
     : Iterator(std::make_shared<Traversal>(

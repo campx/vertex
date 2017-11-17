@@ -12,9 +12,6 @@ class InOrderTraversal
                        Predicate>
 {
 public:
-    InOrderTraversal(VertexMap* vertices,
-                     typename VertexMap::iterator root,
-                     Predicate predicate = Predicate{});
     using base_type = Traversal<VertexMap,
                                 InOrderTraversal<VertexMap, Predicate>,
                                 Predicate>;
@@ -25,6 +22,9 @@ public:
     using base_type::edge;
     using base_type::isTraversible;
 
+    InOrderTraversal(VertexMap* vertices,
+                     typename base_type::vertex_iterator root,
+                     Predicate predicate = Predicate{});
     bool next();
 
 private:
@@ -34,7 +34,7 @@ private:
 template <typename VertexMap, typename Predicate>
 InOrderTraversal<VertexMap, Predicate>::InOrderTraversal(
     VertexMap* vertices,
-    typename VertexMap::iterator root,
+    typename base_type::vertex_iterator root,
     Predicate predicate)
     : base_type(vertices, root, predicate)
 {

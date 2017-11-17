@@ -12,9 +12,6 @@ class PreOrderTraversal
                        Predicate>
 {
 public:
-    PreOrderTraversal(VertexMap* vertices,
-                      typename VertexMap::iterator root,
-                      Predicate predicate = Predicate{});
     using base_type = Traversal<VertexMap,
                                 PreOrderTraversal<VertexMap, Predicate>,
                                 Predicate>;
@@ -25,6 +22,9 @@ public:
     using base_type::edge;
     using base_type::isTraversible;
 
+    PreOrderTraversal(VertexMap* vertices,
+                      typename base_type::vertex_iterator root,
+                      Predicate predicate = Predicate{});
     bool traverseRight();
     bool traverseLeft();
     bool next();
@@ -37,7 +37,7 @@ private:
 template <typename VertexMap, typename Predicate>
 PreOrderTraversal<VertexMap, Predicate>::PreOrderTraversal(
     VertexMap* vertices,
-    typename VertexMap::iterator root,
+    typename base_type::vertex_iterator root,
     Predicate predicate)
     : base_type(vertices, root, predicate), prev_pos_(vertices->end())
 {
