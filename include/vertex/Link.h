@@ -14,6 +14,7 @@ public:
     using value_type = T;
 
     explicit Link(key_type key = key_type(), value_type data = value_type());
+    Link(const Link&) = default;
     Link(Link&&) = default;
     Link& operator=(const Link&) = default;
     Link& operator=(Link&&) = default;

@@ -35,8 +35,8 @@ public:
 
     Container* vertices() const;
     const vertex_iterator& root() const;
-    const vertex_iterator& parent() const;
     const vertex_iterator& position() const;
+    const child_iterator& child() const;
     const vertex_type& vertex() const;
     const edge_type& edge() const;
     const predicate_type& predicate() const;
@@ -53,9 +53,8 @@ public:
     bool operator==(const self_type& rhs) const;
 
 protected:
-    void parent(const vertex_iterator& value);
-    void chid(const child_iterator& value);
     void position(const vertex_iterator& value);
+    void child(const child_iterator& value);
     void vertex(const vertex_type& value);
     void edge(const edge_type& value);
 

@@ -19,6 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 
 add_library(libvertex
     include/vertex/Link.h                   src/Link.cpp
+    include/vertex/LinkIterator.h           src/LinkIterator.cpp
     include/vertex/Vertex.h                 src/Vertex.cpp
     include/vertex/ManagedContainer.h       src/ManagedContainer.cpp
     include/vertex/EdgeIterator.h           src/EdgeIterator.cpp
@@ -40,12 +41,13 @@ target_include_directories(libvertex PUBLIC "${vertex_SOURCE_DIR}/include")
 
 enable_testing()
 add_executable(TestVertex
-               test/Link.cpp
-               test/Vertex.cpp
-               test/Traversal.cpp
-               test/Iterator.cpp
-               test/main.cpp
-              )
+    test/Link.h     test/Link.cpp
+                    test/LinkIterator.cpp
+    test/Vertex.h   test/Vertex.cpp
+                    test/Traversal.cpp
+                    test/Iterator.cpp
+                    test/main.cpp)
+
 target_link_libraries(TestVertex gtest libvertex)
 set_target_properties(TestVertex PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                       ${CMAKE_CURRENT_BINARY_DIR}/test)
