@@ -12,9 +12,6 @@ class PreOrderTraversal
                        Predicate>
 {
 public:
-    PreOrderTraversal(Container* vertices,
-                      typename Container::iterator root,
-                      Predicate predicate = Predicate{});
     using base_type = Traversal<Container,
                                 PreOrderTraversal<Container, Predicate>,
                                 Predicate>;
@@ -25,6 +22,9 @@ public:
     using base_type::edge;
     using base_type::isTraversible;
 
+    PreOrderTraversal(Container* vertices,
+                      typename Container::iterator root,
+                      Predicate predicate = Predicate{});
     bool traverseRight();
     bool traverseLeft();
     bool next();

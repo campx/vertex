@@ -12,9 +12,6 @@ class InOrderTraversal
                        Predicate>
 {
 public:
-    InOrderTraversal(Container* vertices,
-                     typename Container::iterator root,
-                     Predicate predicate = Predicate{});
     using base_type = Traversal<Container,
                                 InOrderTraversal<Container, Predicate>,
                                 Predicate>;
@@ -25,6 +22,9 @@ public:
     using base_type::edge;
     using base_type::isTraversible;
 
+    InOrderTraversal(Container* vertices,
+                     typename Container::iterator root,
+                     Predicate predicate = Predicate{});
     bool next();
 
 private:
