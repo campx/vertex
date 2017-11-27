@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
 #include <vertex/BreadthFirstTraversal.h>
-#include <vertex/Predicate.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
+#include <vertex/Predicate.h>
 #include <vertex/Vertex.h>
 #include <vertex/VertexIterator.h>
 
@@ -53,24 +53,24 @@ struct Tree : public ::testing::Test
         vertices.insert(std::make_pair("E", TestVertex("E")));
         vertices.insert(std::make_pair("H", TestVertex("H")));
         auto d = TestVertex("D");
-        d.insert("C");
-        d.insert("E");
+        d.insert(d.end(), "C");
+        d.insert(d.end(), "E");
         vertices.insert(std::make_pair("D", d));
         auto b = TestVertex("B");
-        b.insert("A");
-        b.insert("D");
+        b.insert(b.end(), "A");
+        b.insert(b.end(), "D");
         vertices.insert(std::make_pair("B", b));
         auto f = TestVertex("F");
-        f.insert("B");
-        f.insert("G");
+        f.insert(f.end(), "B");
+        f.insert(f.end(), "G");
         vertices.insert(std::make_pair("F", f));
         auto g = TestVertex("G");
-        g.insert("");
-        g.insert("I");
+        g.insert(g.end(), "");
+        g.insert(g.end(), "I");
         vertices.insert(std::make_pair("G", g));
         auto i = TestVertex("I");
-        i.insert("H");
-        i.insert("");
+        i.insert(i.end(), "H");
+        i.insert(i.end(), "");
         vertices.insert(std::make_pair("I", i));
     }
 };
@@ -163,9 +163,8 @@ TEST_F(Tree, PredicatedBreadthFirstTraversal)
 {
     using Predicate = std::function<bool(
         const std::pair<Container::key_type, Container::key_type>&)>;
-    auto predicate = Predicate([](const auto& e) -> auto {
-        return e.first == "F";
-    });
+    auto predicate =
+        Predicate([](const auto& e) -> auto { return e.first == "F"; });
 
     using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
@@ -256,9 +255,9 @@ TEST_F(Tree, BredthFirstTraversal)
     vertices.insert(std::make_pair("C", TestVertex("C")));
     vertices.insert(std::make_pair("D", TestVertex("D")));
     auto root = TestVertex("A");
-    root.insert("B");
-    root.insert("C");
-    root.insert("D");
+    root.insert(root.end(), "B");
+    root.insert(root.end(), "C");
+    root.insert(root.end(), "D");
     vertices.insert(std::make_pair("A", root));
     { // traverse graph of depth 1
         using Bfs = BreadthFirstTraversal<Container>;

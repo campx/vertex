@@ -62,7 +62,7 @@ public:
     void swap(Vertex& other);
 
     /** Insert a child vertex */
-    std::pair<iterator, bool> insert(const Link& child);
+    std::pair<iterator, bool> insert(const_iterator pos, const Link& child);
 
     /** Insert a range of children */
     template <typename InputIt>
@@ -162,13 +162,14 @@ void Vertex<Link, T>::swap(Vertex& other)
 
 template <typename Link, typename T>
 std::pair<typename Vertex<Link, T>::iterator, bool>
-Vertex<Link, T>::insert(const Link& child)
+Vertex<Link, T>::insert(typename Vertex<Link, T>::const_iterator pos,
+                        const Link& child)
 {
     auto it = find(child);
     auto do_insert = it == end();
     if (do_insert)
     {
-        it = children_.insert(children_.end(), child);
+        it = children_.insert(pos, child);
     }
     auto result = std::make_pair(it, do_insert);
     return result;

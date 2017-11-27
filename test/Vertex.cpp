@@ -25,7 +25,7 @@ TEST(vertex, Vertex)
         auto child = TestVertex::link_type(12345678);
         EXPECT_EQ(data, vertex.data());
         EXPECT_EQ(vertex.end(), vertex.find(child));
-        vertex.insert(child);
+        vertex.insert(vertex.end(), child);
         EXPECT_NE(vertex.end(), vertex.find(child));
         EXPECT_FALSE(vertex.empty());
         EXPECT_EQ(vertex.end(), vertex.erase(vertex.find(child)));
@@ -47,7 +47,7 @@ TEST(vertex, Vertex)
                                children.end()));
         auto other = vertex;
         EXPECT_EQ(other, vertex);
-        other.insert(TestLink(898989));
+        other.insert(other.end(), TestLink(898989));
         EXPECT_NE(other, vertex);
         auto other_copy = other;
         auto vertex_copy = vertex;
@@ -61,8 +61,8 @@ TEST(vertex, Vertex)
     // Inserting duplicate children
     {
         auto vertex = TestVertex("!");
-        auto child_a = vertex.insert(TestLink(1));
-        auto child_b = vertex.insert(TestLink(1));
+        auto child_a = vertex.insert(vertex.end(), TestLink(1));
+        auto child_b = vertex.insert(vertex.end(), TestLink(1));
         EXPECT_TRUE(child_a.second);
         EXPECT_FALSE(child_b.second);
         EXPECT_EQ(child_a.first, child_b.first); // same unique child

@@ -22,15 +22,15 @@ TEST(Vertex, LinkIterator)
         vertices.insert(std::make_pair(2, TestVertex("B")));
         vertices.insert(std::make_pair(3, TestVertex("C")));
         vertices.insert(std::make_pair(4, TestVertex("D")));
-        vertex.insert(TestVertex::link_type(1));
-        vertex.insert(TestVertex::link_type(2));
-        vertex.insert(TestVertex::link_type(3));
-        vertex.insert(TestVertex::link_type(4));
+        vertex.insert(vertex.end(), TestVertex::link_type(1));
+        vertex.insert(vertex.end(), TestVertex::link_type(2));
+        vertex.insert(vertex.end(), TestVertex::link_type(3));
+        vertex.insert(vertex.end(), TestVertex::link_type(4));
 
         auto inserted = false;
         auto vit = Container::iterator();
         std::tie(vit, inserted) = vertices.insert(std::make_pair(0, vertex));
-        auto it = LinkIterator<Container>(&vertices, vit, vit->second.begin());
+        auto it = LinkIterator<Container>(&vertices, &vertex, vertex.begin());
         auto begin = std::begin(it);
         auto end = std::end(it);
         EXPECT_EQ(TestVertex("A"), *begin);

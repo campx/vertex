@@ -38,20 +38,20 @@ TEST(Vertex, VertexIterator)
     vertices.insert(std::make_pair("D", TestVertex("D")));
     {
         auto vertex = TestVertex("C");
-        vertex.insert("F");
-        vertex.insert("G");
+        vertex.insert(vertex.end(), "F");
+        vertex.insert(vertex.end(), "G");
         vertices.insert(std::make_pair("C", vertex));
     }
     {
         auto vertex = TestVertex("B");
-        vertex.insert("D");
-        vertex.insert("E");
+        vertex.insert(vertex.end(), "D");
+        vertex.insert(vertex.end(), "E");
         vertices.insert(std::make_pair("B", vertex));
     }
     {
         auto vertex = TestVertex("A");
-        vertex.insert("B");
-        vertex.insert("C");
+        vertex.insert(vertex.end(), "B");
+        vertex.insert(vertex.end(), "C");
         vertices.insert(std::make_pair("A", vertex));
     }
     EXPECT_FALSE(vertices.empty());

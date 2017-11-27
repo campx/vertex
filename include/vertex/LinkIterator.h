@@ -13,18 +13,19 @@ class LinkIterator : public std::iterator<std::input_iterator_tag,
 {
 public:
     using container_type = Container;
-    using vertex_iterator = typename container_type::iterator;
+    using vertex_iterator = typename container_type::const_iterator;
     using vertex_type = typename container_type::mapped_type;
-    using child_iterator = typename vertex_type::iterator;
-    using value_type = vertex_type;
+    using child_iterator = typename vertex_type::const_iterator;
+    using value_type = const vertex_type;
     using self_type = LinkIterator<Container>;
     using reference = typename std::add_lvalue_reference<value_type>::type;
     using pointer = typename std::add_pointer<value_type>::type;
 
-    LinkIterator(Container* vertices,
-                 vertex_iterator vertex,
+    LinkIterator(const Container* vertices,
+                 const vertex_type* parent,
                  child_iterator child);
 
+    child_iterator position() const;
     self_type begin() const;
     self_type end() const;
     self_type& operator++();
@@ -36,45 +37,47 @@ public:
     bool operator==(const self_type& rhs) const;
 
 private:
-    Container* vertices_;
-    vertex_iterator parent_;
+    const Container* vertices_;
+    const vertex_type* parent_;
     vertex_iterator child_;
     child_iterator chit_;
 };
 
 template <typename Container>
-LinkIterator<Container>::LinkIterator(Container* vertices,
-                                      vertex_iterator vertex,
+LinkIterator<Container>::LinkIterator(const Container* vertices,
+                                      const vertex_type* parent,
                                       child_iterator child)
-    : vertices_(vertices), parent_(std::move(vertex)), child_(vertices->end()),
+    : vertices_(vertices), parent_(parent), child_(vertices->cend()),
       chit_(std::move(child))
 {
+}
+
+template <typename Container>
+typename LinkIterator<Container>::child_iterator
+LinkIterator<Container>::position() const
+{
+    return chit_;
 }
 
 template <typename Container>
 typename LinkIterator<Container>::self_type
 LinkIterator<Container>::begin() const
 {
-    return self_type(vertices_, parent_, parent_ == vertices_->end() ?
-                                             child_iterator() :
-                                             parent_->second.begin());
+    return self_type(vertices_, parent_, parent_->begin());
 }
 
 template <typename Container>
 typename LinkIterator<Container>::self_type
 LinkIterator<Container>::end() const
 {
-    return self_type(vertices_, parent_, child_iterator());
+    return self_type(vertices_, parent_, parent_->end());
 }
 
 template <typename Container>
 typename LinkIterator<Container>::self_type& LinkIterator<Container>::
 operator++()
 {
-    if (++chit_ == parent_->second.end())
-    {
-        chit_ = child_iterator();
-    }
+    ++chit_;
     return *this;
 }
 
