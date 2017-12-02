@@ -5,16 +5,16 @@
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
 #include <vertex/Predicate.h>
-#include <vertex/Vertex.h>
-#include <vertex/VertexIterator.h>
+#include <vertex/Node.h>
+#include <vertex/NodeIterator.h>
 
 namespace
 {
 
-using TestVertex = vertex::Vertex<std::string, std::string>;
-using Container = std::map<std::string, TestVertex>;
+using TestNode = vertex::Node<std::string, std::string>;
+using Container = std::map<std::string, TestNode>;
 
-std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
+std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
 {
     output << vertex.data();
     return output;
@@ -48,27 +48,27 @@ struct Tree : public ::testing::Test
          *      C   E H     *
         \*******************/
 
-        vertices.insert(std::make_pair("A", TestVertex("A")));
-        vertices.insert(std::make_pair("C", TestVertex("C")));
-        vertices.insert(std::make_pair("E", TestVertex("E")));
-        vertices.insert(std::make_pair("H", TestVertex("H")));
-        auto d = TestVertex("D");
+        vertices.insert(std::make_pair("A", TestNode("A")));
+        vertices.insert(std::make_pair("C", TestNode("C")));
+        vertices.insert(std::make_pair("E", TestNode("E")));
+        vertices.insert(std::make_pair("H", TestNode("H")));
+        auto d = TestNode("D");
         d.insert(d.end(), "C");
         d.insert(d.end(), "E");
         vertices.insert(std::make_pair("D", d));
-        auto b = TestVertex("B");
+        auto b = TestNode("B");
         b.insert(b.end(), "A");
         b.insert(b.end(), "D");
         vertices.insert(std::make_pair("B", b));
-        auto f = TestVertex("F");
+        auto f = TestNode("F");
         f.insert(f.end(), "B");
         f.insert(f.end(), "G");
         vertices.insert(std::make_pair("F", f));
-        auto g = TestVertex("G");
+        auto g = TestNode("G");
         g.insert(g.end(), "");
         g.insert(g.end(), "I");
         vertices.insert(std::make_pair("G", g));
-        auto i = TestVertex("I");
+        auto i = TestNode("I");
         i.insert(i.end(), "H");
         i.insert(i.end(), "");
         vertices.insert(std::make_pair("I", i));
@@ -96,7 +96,7 @@ TEST_F(Tree, PreOrderTraversal)
 {
     using Pot = PreOrderTraversal<Container>;
     {
-        auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
+        auto vertex_it = NodeIterator<Pot>(&vertices, vertices.find("F"));
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -110,7 +110,7 @@ TEST_F(Tree, InOrderTraversal)
 {
     using Iot = InOrderTraversal<Container>;
     {
-        auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("F"));
+        auto vertex_it = NodeIterator<Iot>(&vertices, vertices.find("F"));
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -119,7 +119,7 @@ TEST_F(Tree, InOrderTraversal)
         EXPECT_EQ("ABCDEFGHI", vertex_order.str());
     }
     { // traverse sub tree rooted at B
-        auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("B"));
+        auto vertex_it = NodeIterator<Iot>(&vertices, vertices.find("B"));
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -128,7 +128,7 @@ TEST_F(Tree, InOrderTraversal)
         EXPECT_EQ("ABCDE", vertex_order.str());
     }
     { // traverse sub tree rooted at G
-        auto vertex_it = VertexIterator<Iot>(&vertices, vertices.find("G"));
+        auto vertex_it = NodeIterator<Iot>(&vertices, vertices.find("G"));
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -149,7 +149,7 @@ TEST_F(Tree, PredicatedInOrderTraversal)
     using Iot = InOrderTraversal<Container, Predicate>;
     {
         auto vertex_it =
-            VertexIterator<Iot>(&vertices, vertices.find("F"), predicate);
+            NodeIterator<Iot>(&vertices, vertices.find("F"), predicate);
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -169,7 +169,7 @@ TEST_F(Tree, PredicatedBreadthFirstTraversal)
     using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
         auto vertex_it =
-            VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
+            NodeIterator<Bft>(&vertices, vertices.find("F"), predicate);
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -187,7 +187,7 @@ TEST_F(Tree, MaxDepthBreadthFirstTraversal)
     using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
         auto vertex_it =
-            VertexIterator<Bft>(&vertices, vertices.find("F"), predicate);
+            NodeIterator<Bft>(&vertices, vertices.find("F"), predicate);
         auto vertex_order = std::ostringstream();
         for (const auto& v : vertex_it)
         {
@@ -199,7 +199,7 @@ TEST_F(Tree, MaxDepthBreadthFirstTraversal)
 TEST_F(Tree, PostOrderTraversal)
 {
     using Pot = PostOrderTraversal<Container>;
-    auto vertex_it = VertexIterator<Pot>(&vertices, vertices.find("F"));
+    auto vertex_it = NodeIterator<Pot>(&vertices, vertices.find("F"));
     auto vertex_order = std::ostringstream();
     auto i = 0;
     for (const auto& v : vertex_it)
@@ -219,7 +219,7 @@ TEST_F(Tree, BredthFirstTraversal)
     { // extract edges and vertices during a single traversal of the tree
         using Bfs = BreadthFirstTraversal<Container>;
         auto edge_it = EdgeIterator<Bfs>(&vertices, vertices.find("F"));
-        auto vertex_it = VertexIterator<Bfs>(edge_it.traversal());
+        auto vertex_it = NodeIterator<Bfs>(edge_it.traversal());
         EXPECT_EQ(edge_it.traversal(), vertex_it.traversal());
         EXPECT_NE(begin(edge_it), end(edge_it));
         auto edge_csv = std::ostringstream();
@@ -251,17 +251,17 @@ TEST_F(Tree, BredthFirstTraversal)
         }
         EXPECT_EQ("", os.str());
     }
-    vertices.insert(std::make_pair("B", TestVertex("B")));
-    vertices.insert(std::make_pair("C", TestVertex("C")));
-    vertices.insert(std::make_pair("D", TestVertex("D")));
-    auto root = TestVertex("A");
+    vertices.insert(std::make_pair("B", TestNode("B")));
+    vertices.insert(std::make_pair("C", TestNode("C")));
+    vertices.insert(std::make_pair("D", TestNode("D")));
+    auto root = TestNode("A");
     root.insert(root.end(), "B");
     root.insert(root.end(), "C");
     root.insert(root.end(), "D");
     vertices.insert(std::make_pair("A", root));
     { // traverse graph of depth 1
         using Bfs = BreadthFirstTraversal<Container>;
-        auto it = VertexIterator<Bfs>(&vertices, vertices.find("A"));
+        auto it = NodeIterator<Bfs>(&vertices, vertices.find("A"));
         auto os = std::ostringstream();
         for (const auto& vertex : it)
         {

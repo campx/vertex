@@ -1,28 +1,28 @@
-#include "Vertex.h"
+#include "Node.h"
 #include "gtest/gtest.h"
 
 namespace vertex
 {
 
-std::ostream& operator<<(std::ostream& output, const TestVertex& vertex)
+std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
 {
     output << vertex.data();
     return output;
 }
 
-TEST(vertex, Vertex)
+TEST(vertex, Node)
 {
     // Initialise vertex
     {
-        auto vertex = TestVertex();
+        auto vertex = TestNode();
         EXPECT_TRUE(vertex.empty());
     }
 
     // Add data and edge
     {
         auto data = std::string("hello");
-        auto vertex = TestVertex(data);
-        auto child = TestVertex::link_type(12345678);
+        auto vertex = TestNode(data);
+        auto child = TestNode::link_type(12345678);
         EXPECT_EQ(data, vertex.data());
         EXPECT_EQ(vertex.end(), vertex.find(child));
         vertex.insert(vertex.end(), child);
@@ -34,12 +34,12 @@ TEST(vertex, Vertex)
 
     // Compare vertices
     {
-        auto vertex = TestVertex("world");
+        auto vertex = TestNode("world");
 
-        std::vector<TestVertex::link_type> children;
-        children.push_back(TestVertex::link_type(2762169579135187400));
-        children.push_back(TestVertex::link_type(8751027807033337960));
-        vertex.insert<std::vector<TestVertex::link_type>::iterator>(
+        std::vector<TestNode::link_type> children;
+        children.push_back(TestNode::link_type(2762169579135187400));
+        children.push_back(TestNode::link_type(8751027807033337960));
+        vertex.insert<std::vector<TestNode::link_type>::iterator>(
             vertex.end(), children.begin(), children.end());
         EXPECT_FALSE(vertex.empty());
         EXPECT_EQ(std::size_t(2), vertex.size());
@@ -60,7 +60,7 @@ TEST(vertex, Vertex)
 
     // Inserting duplicate children
     {
-        auto vertex = TestVertex("!");
+        auto vertex = TestNode("!");
         auto child_a = vertex.insert(vertex.end(), TestLink(1));
         auto child_b = vertex.insert(vertex.end(), TestLink(1));
         EXPECT_TRUE(child_a.second);

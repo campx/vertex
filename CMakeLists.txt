@@ -20,7 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
 add_library(libvertex
     include/vertex/Link.h                   src/Link.cpp
     include/vertex/LinkIterator.h           src/LinkIterator.cpp
-    include/vertex/Vertex.h                 src/Vertex.cpp
+    include/vertex/Node.h                 src/Node.cpp
     include/vertex/ManagedContainer.h       src/ManagedContainer.cpp
     include/vertex/EdgeIterator.h           src/EdgeIterator.cpp
     include/vertex/BreadthFirstTraversal.h  src/BreadthFirstTraversal.cpp
@@ -29,7 +29,7 @@ add_library(libvertex
 	include/vertex/Predicate.h				src/Predicate.cpp
     include/vertex/Traversal.h              src/Traversal.cpp
     include/vertex/PostOrderTraversal.h     src/PostOrderTraversal.cpp
-    include/vertex/VertexIterator.h         src/VertexIterator.cpp
+    include/vertex/NodeIterator.h         src/NodeIterator.cpp
     include/vertex/Iterator.h               src/Iterator.cpp 
 	include/vertex/Edge.h					src/Edge.cpp)
 
@@ -43,7 +43,7 @@ enable_testing()
 add_executable(TestVertex
     test/Link.h     test/Link.cpp
                     test/LinkIterator.cpp
-    test/Vertex.h   test/Vertex.cpp
+    test/Node.h     test/Node.cpp
                     test/Traversal.cpp
                     test/Iterator.cpp
                     test/main.cpp)

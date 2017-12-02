@@ -19,21 +19,21 @@ public:
     /** Create an Edge from two links */
     Edge(Container* vertices, const link_type& source, const link_type& target);
 
-    /** Create an Edge from Vertex and Link iterators */
+    /** Create an Edge from Node and Link iterators */
     Edge(vertex_iterator v, link_iterator l);
 
-    /** Determine whether the edge links to a root Vertex
+    /** Determine whether the edge links to a root Node
      * A root edge has no source */
     bool root() const;
 
-    /** Determine whether the edge links to a leaf Vertex
+    /** Determine whether the edge links to a leaf Node
      * A leaf edge has no target */
     bool leaf() const;
 
-    /** Get the source Vertex */
+    /** Get the source Node */
     vertex_iterator source() const;
 
-    /** Get the target Vertex */
+    /** Get the target Node */
     vertex_iterator target() const;
 
 private:

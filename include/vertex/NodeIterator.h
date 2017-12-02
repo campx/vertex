@@ -5,7 +5,7 @@ namespace vertex
 {
 
 template <typename Traversal>
-struct VertexAccessor
+struct NodeAccessor
 {
 	using result_type = typename Traversal::vertex_type;
 	using argument_type = Traversal;
@@ -17,6 +17,6 @@ struct VertexAccessor
 };
 
 template<typename Traversal>
-using VertexIterator = Iterator<Traversal, VertexAccessor<Traversal>>;
+using NodeIterator = Iterator<Traversal, NodeAccessor<Traversal>>;
 
 } // namespace vertex

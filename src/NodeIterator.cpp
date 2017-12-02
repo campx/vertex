@@ -1,0 +1,1 @@
+#include <vertex/NodeIterator.h>

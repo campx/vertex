@@ -6,15 +6,15 @@
 #include <queue>
 #include <set>
 #include <type_traits>
-#include <vertex/Vertex.h>
+#include <vertex/Node.h>
 
 namespace vertex
 {
 
 /** ManagedContainer is a specialised AssociativeArray with reference
- * counting to ensure unreferenced Vertex objects are deleted from storage.
- * Container is a map which stores Vertex objects by Key
- * EdgeMap is a multimap which stores Vertex parents as pairs of Edge objects
+ * counting to ensure unreferenced Node objects are deleted from storage.
+ * Container is a map which stores Node objects by Key
+ * EdgeMap is a multimap which stores Node parents as pairs of Edge objects
  * Container MUST NOT invalidate iterators on insertion or deletion
  */
 template <typename Container, typename EdgeMap>

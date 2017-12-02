@@ -6,7 +6,7 @@
 namespace vertex
 {
 
-/** Follows links in Vertex by performing look-ups in a Container */
+/** Follows links in Node by performing look-ups in a Container */
 template <typename Container>
 class LinkIterator : public std::iterator<std::input_iterator_tag,
                                           typename Container::mapped_type>
