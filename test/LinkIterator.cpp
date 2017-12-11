@@ -33,11 +33,14 @@ TEST(Node, LinkIterator)
         auto it = LinkIterator<Container>(&vertices, &vertex, vertex.begin());
         auto begin = std::begin(it);
         auto end = std::end(it);
-        EXPECT_EQ(TestNode("A"), *begin);
+        EXPECT_EQ(Container::value_type(1u, TestNode("A")), *begin);
         EXPECT_EQ(4, std::distance(begin, end));
-        auto result = std::vector<TestNode>(begin, end);
-        EXPECT_EQ((std::vector<TestNode>{TestNode("A"), TestNode("B"),
-                                           TestNode("C"), TestNode("D")}),
+        auto result = std::vector<Container::value_type>(begin, end);
+        EXPECT_EQ((std::vector<Container::value_type>{
+                      Container::value_type(1, TestNode("A")),
+                      Container::value_type(2, TestNode("B")),
+                      Container::value_type(3, TestNode("C")),
+                      Container::value_type(4, TestNode("D"))}),
                   result);
     }
 }

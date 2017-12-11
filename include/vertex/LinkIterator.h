@@ -16,10 +16,10 @@ public:
     using vertex_iterator = typename container_type::const_iterator;
     using vertex_type = typename container_type::mapped_type;
     using child_iterator = typename vertex_type::const_iterator;
-    using value_type = const vertex_type;
+    using value_type = typename Container::value_type;
     using self_type = LinkIterator<Container>;
-    using reference = typename std::add_lvalue_reference<value_type>::type;
-    using pointer = typename std::add_pointer<value_type>::type;
+    using reference = const value_type&;
+    using pointer = const value_type*;
 
     LinkIterator(const Container* vertices,
                  const vertex_type* parent,
@@ -96,7 +96,7 @@ typename LinkIterator<Container>::reference LinkIterator<Container>::
 operator*()
 {
     child_ = vertices_->find(chit_->key());
-    return child_->second;
+    return *child_;
 }
 
 template <typename Container>
