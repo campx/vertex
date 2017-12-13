@@ -95,7 +95,7 @@ template <typename Container>
 typename LinkIterator<Container>::reference LinkIterator<Container>::
 operator*()
 {
-    child_ = vertices_->find(chit_->key());
+    child_ = vertices_->find(chit_->id());
     return *child_;
 }
 

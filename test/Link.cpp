@@ -5,7 +5,7 @@ namespace vertex
 
 std::ostream& operator<<(std::ostream& output, const TestLink& link)
 {
-    output << link.key();
+    output << link.id();
     return output;
 }
 
