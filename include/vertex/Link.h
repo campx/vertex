@@ -26,6 +26,7 @@ public:
 
     bool operator==(const Link& rhs) const;
     bool operator!=(const Link& rhs) const;
+    bool operator<(const Link& rhs) const;
 
 private:
     id_type id_;
@@ -53,7 +54,7 @@ const T& Link<Identifier, T>::data() const
 template <typename Identifier, typename T>
 void Link<Identifier, T>::id(const Identifier& data)
 {
-    return id_ = data;
+    id_ = data;
 }
 
 template <typename Identifier, typename T>
@@ -72,6 +73,25 @@ template <typename Identifier, typename T>
 bool Link<Identifier, T>::operator!=(const Link<Identifier, T>& rhs) const
 {
     return !(*this == rhs);
+}
+
+template <typename Identifier, typename T>
+bool Link<Identifier, T>::operator<(const Link<Identifier, T>& rhs) const
+{
+    auto result = false;
+    if (id_ < rhs.id_)
+    {
+        result = true;
+    }
+    else if (id_ > rhs.id_)
+    {
+        result = false;
+    }
+    else if (data_ < rhs.data_)
+    {
+        result = true;
+    }
+    return result;
 }
 
 } // namespace
