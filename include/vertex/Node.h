@@ -163,7 +163,7 @@ void Node<Link, T>::swap(Node& other)
 template <typename Link, typename T>
 std::pair<typename Node<Link, T>::iterator, bool>
 Node<Link, T>::insert(typename Node<Link, T>::const_iterator pos,
-                        const Link& child)
+                      const Link& child)
 {
     auto it = find(child);
     auto do_insert = it == end();
@@ -179,8 +179,8 @@ template <typename Link, typename T>
 template <typename InputIt>
 typename Node<Link, T>::iterator
 Node<Link, T>::insert(typename Node<Link, T>::iterator pos,
-                        InputIt first,
-                        InputIt last)
+                      InputIt first,
+                      InputIt last)
 {
     return children_.insert(pos, first, last);
 }
@@ -196,7 +196,8 @@ template <typename Link, typename T>
 typename Node<Link, T>::const_iterator
 Node<Link, T>::find(const Link& child) const
 {
-    return find(child);
+    auto it = std::find(children_.cbegin(), children_.cend(), child);
+    return it;
 }
 
 template <typename Link, typename T>

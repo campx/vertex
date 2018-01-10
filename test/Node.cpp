@@ -4,69 +4,71 @@
 namespace vertex
 {
 
-std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
+std::ostream& operator<<(std::ostream& output, const TestNode& node)
 {
-    output << vertex.data();
+    output << node.data();
     return output;
 }
 
 TEST(vertex, Node)
 {
-    // Initialise vertex
+    // Initialise node
     {
-        auto vertex = TestNode();
-        EXPECT_TRUE(vertex.empty());
+        auto node = TestNode();
+        EXPECT_TRUE(node.empty());
     }
 
     // Add data and edge
     {
         auto data = std::string("hello");
-        auto vertex = TestNode(data);
+        auto node = TestNode(data);
         auto child = TestNode::link_type(12345678);
-        EXPECT_EQ(data, vertex.data());
-        EXPECT_EQ(vertex.end(), vertex.find(child));
-        vertex.insert(vertex.end(), child);
-        EXPECT_NE(vertex.end(), vertex.find(child));
-        EXPECT_FALSE(vertex.empty());
-        EXPECT_EQ(vertex.end(), vertex.erase(vertex.find(child)));
-        EXPECT_TRUE(vertex.empty());
+        EXPECT_EQ(data, node.data());
+        EXPECT_EQ(node.end(), node.find(child));
+        node.insert(node.end(), child);
+        EXPECT_NE(node.end(), node.find(child));
+        EXPECT_FALSE(node.empty());
+        EXPECT_EQ(std::size_t(1), node.size());
+        auto erased = node.erase(node.find(child));
+        EXPECT_EQ(node.end(), erased);
+        EXPECT_TRUE(node.empty());
     }
 
     // Compare vertices
     {
-        auto vertex = TestNode("world");
+        auto node = TestNode("world");
 
         std::vector<TestNode::link_type> children;
         children.push_back(TestNode::link_type(2762169579135187400));
         children.push_back(TestNode::link_type(8751027807033337960));
-        vertex.insert<std::vector<TestNode::link_type>::iterator>(
-            vertex.end(), children.begin(), children.end());
-        EXPECT_FALSE(vertex.empty());
-        EXPECT_EQ(std::size_t(2), vertex.size());
-        EXPECT_TRUE(std::equal(vertex.begin(), vertex.end(), children.begin(),
+        node.insert<std::vector<TestNode::link_type>::iterator>(
+            node.end(), children.begin(), children.end());
+        EXPECT_FALSE(node.empty());
+        EXPECT_EQ(std::size_t(2), node.size());
+        EXPECT_TRUE(std::equal(node.begin(), node.end(), children.begin(),
                                children.end()));
-        auto other = vertex;
-        EXPECT_EQ(other, vertex);
+        auto other = node;
+        EXPECT_EQ(other, node);
         other.insert(other.end(), TestLink(898989));
-        EXPECT_NE(other, vertex);
+        EXPECT_NE(other, node);
         auto other_copy = other;
-        auto vertex_copy = vertex;
-        std::swap(other, vertex);
-        EXPECT_EQ(vertex_copy, other);
-        EXPECT_EQ(other_copy, vertex);
-        vertex.clear();
-        EXPECT_TRUE(vertex.empty());
+        auto node_copy = node;
+        std::swap(other, node);
+        EXPECT_EQ(node_copy, other);
+        EXPECT_EQ(other_copy, node);
+        node.clear();
+        EXPECT_TRUE(node.empty());
     }
 
     // Inserting duplicate children
     {
-        auto vertex = TestNode("!");
-        auto child_a = vertex.insert(vertex.end(), TestLink(1));
-        auto child_b = vertex.insert(vertex.end(), TestLink(1));
+        auto node = TestNode("!");
+        auto const child_a = node.insert(node.end(), TestLink(1));
+        auto child_b = node.insert(node.end(), TestLink(1));
         EXPECT_TRUE(child_a.second);
         EXPECT_FALSE(child_b.second);
         EXPECT_EQ(child_a.first, child_b.first); // same unique child
-        EXPECT_NE(vertex.end(), child_a.first);
+        EXPECT_NE(node.end(), child_a.first);
     }
 }
 
