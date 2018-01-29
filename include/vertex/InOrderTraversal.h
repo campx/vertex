@@ -53,7 +53,7 @@ bool InOrderTraversal<Container, Predicate>::next()
         return false;
     }
     auto child = position();
-    while (child != vertices()->end() && child->second.size() == 2)
+    while (child != vertices()->end() && child->second.length() == 2)
     { // traversal to bottom of left branch
         auto next_child = vertices()->find(*child->second.begin());
         auto e = std::make_pair(child->first, *child->second.begin());
@@ -71,7 +71,7 @@ bool InOrderTraversal<Container, Predicate>::next()
         base_type::position(child);
     }
     base_type::vertex(position()->second);
-    if (position()->second.size() == 2)
+    if (position()->second.length() == 2)
     { // traverse right branch
         auto link = *(++position()->second.begin());
         child = vertices()->find(link);

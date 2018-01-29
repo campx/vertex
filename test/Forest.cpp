@@ -15,8 +15,8 @@ TEST(Merkle, Forest)
     auto a_0 = graph.insert(TestNode("a")).first;
     auto d_0 = graph.insert(TestNode("d")).first;
     auto e_0 = graph.insert(TestNode("e")).first;
-    EXPECT_EQ(std::size_t(3), graph.vertices().size());
-    EXPECT_EQ(std::size_t(0), graph.edges().size());
+    EXPECT_EQ(std::size_t(3), graph.vertices().length());
+    EXPECT_EQ(std::size_t(0), graph.edges().length());
     EXPECT_NE(graph.vertices().end(), d_0);
     EXPECT_NE(graph.vertices().end(), e_0);
 

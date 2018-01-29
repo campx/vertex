@@ -44,7 +44,7 @@ public: // methods
     iterator begin() const;
     iterator end() const;
     bool empty() const;
-    size_type size() const;
+    size_type length() const;
     void clear();
     iterator insert(const_iterator pos, const value_type& value);
     void push_back(const value_type& value);
@@ -76,9 +76,9 @@ bool Array<Container>::empty() const
 }
 
 template <typename Container>
-typename Array<Container>::size_type Array<Container>::size() const
+typename Array<Container>::size_type Array<Container>::length() const
 {
-    return root_it_->second.size();
+    return root_it_->second.length();
 }
 
 template <typename Container>

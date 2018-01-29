@@ -113,7 +113,7 @@ template <typename Container>
 Container unique_copy(const Container& input)
 {
     Container output{};
-    output.reserve(input.size());
+    output.reserve(input.length());
     std::copy_if(input.begin(), input.end(), std::back_inserter(output),
                  [&output](const auto& value) {
                      return is_in(value, output);
@@ -126,7 +126,7 @@ Container exclude_copy(const typename Container::value_type& exclude,
                        const Container& input)
 {
     Container output{};
-    output.reserve(input.size());
+    output.reserve(input.length());
     std::copy_if(input.begin(), input.end(), std::back_inserter(output),
                  [&exclude](const auto& value) { return value != exclude; });
     return output;
@@ -152,9 +152,8 @@ Tree<NodeMap>::Pin::~Pin()
 }
 
 template <typename NodeMap>
-Tree<NodeMap>::Pin::Pin(Pin&& other) noexcept
-    : vertices_(other.vertices_),
-      edge_(std::move(other.edge_))
+Tree<NodeMap>::Pin::Pin(Pin&& other) noexcept : vertices_(other.vertices_),
+                                                edge_(std::move(other.edge_))
 {
     other.vertices_ = nullptr;
 }
@@ -178,8 +177,7 @@ Tree<NodeMap>::Tree(std::shared_ptr<NodeMap> vertices)
 }
 
 template <typename NodeMap>
-Tree<NodeMap>::Tree(std::shared_ptr<NodeMap> vertices,
-                        objex_iterator root)
+Tree<NodeMap>::Tree(std::shared_ptr<NodeMap> vertices, objex_iterator root)
     : vertices_(std::move(vertices)), root_(std::move(root))
 {
 }
@@ -213,7 +211,7 @@ const std::shared_ptr<NodeMap>& Tree<NodeMap>::vertices() const
 template <typename NodeMap>
 typename Tree<NodeMap>::objex_iterator
 Tree<NodeMap>::update(typename Tree<NodeMap>::objex_iterator source,
-                          const typename Tree<NodeMap>::objex_type& value)
+                      const typename Tree<NodeMap>::objex_type& value)
 {
     auto inserted_objex = vertices_->insert(value);
     auto target = inserted_objex.first;
@@ -273,9 +271,9 @@ Tree<NodeMap>::update(typename Tree<NodeMap>::objex_iterator source,
             }
             else
             {
-                auto remaining = to_visit.size();
+                auto remaining = to_visit.length();
                 std::for_each(range.first, range.second, enqueue_parents);
-                if (to_visit.size() == remaining)
+                if (to_visit.length() == remaining)
                 { // reached a source objex without finding target root
                     vertices_->erase(inserted_parent.first);
                 }
@@ -299,7 +297,7 @@ bool Tree<NodeMap>::operator==(const Tree<NodeMap>& rhs) const
 template <typename NodeMap>
 typename Tree<NodeMap>::objex_iterator
 Tree<NodeMap>::insert(typename Tree<NodeMap>::objex_iterator parent,
-                          typename Tree<NodeMap>::objex_iterator child)
+                      typename Tree<NodeMap>::objex_iterator child)
 {
     auto children = unique_copy(parent->second.edges());
     insert_unique(child->first, children);
@@ -311,7 +309,7 @@ Tree<NodeMap>::insert(typename Tree<NodeMap>::objex_iterator parent,
 template <typename NodeMap>
 typename Tree<NodeMap>::objex_iterator
 Tree<NodeMap>::insert(typename Tree<NodeMap>::objex_iterator parent,
-                          typename Tree<NodeMap>::edge_type edge)
+                      typename Tree<NodeMap>::edge_type edge)
 {
     auto children = unique_copy(parent->second.edges());
     insert_unique(edge, children);
@@ -323,7 +321,7 @@ Tree<NodeMap>::insert(typename Tree<NodeMap>::objex_iterator parent,
 template <typename NodeMap>
 typename Tree<NodeMap>::objex_iterator
 Tree<NodeMap>::insert(typename Tree<NodeMap>::objex_iterator parent,
-                          const typename Tree<NodeMap>::objex_type& child)
+                      const typename Tree<NodeMap>::objex_type& child)
 {
     vertices_->insert(child);
     return insert(parent, child.self_edge());
@@ -334,7 +332,7 @@ Tree<NodeMap>::insert(typename Tree<NodeMap>::objex_iterator parent,
 template <typename NodeMap>
 typename Tree<NodeMap>::objex_iterator
 Tree<NodeMap>::erase(typename Tree<NodeMap>::objex_iterator parent,
-                         typename Tree<NodeMap>::objex_iterator child)
+                     typename Tree<NodeMap>::objex_iterator child)
 {
     auto children = exclude_copy(child->first, parent->second.edges());
     auto objex = objex_type(parent->second);
@@ -343,9 +341,8 @@ Tree<NodeMap>::erase(typename Tree<NodeMap>::objex_iterator parent,
 }
 
 template <typename NodeMap>
-void Tree<NodeMap>::Mapping::set(
-    typename Tree<NodeMap>::objex_iterator input,
-    typename Tree<NodeMap>::objex_iterator output)
+void Tree<NodeMap>::Mapping::set(typename Tree<NodeMap>::objex_iterator input,
+                                 typename Tree<NodeMap>::objex_iterator output)
 {
     if (input != output)
     {
@@ -354,8 +351,8 @@ void Tree<NodeMap>::Mapping::set(
 }
 
 template <typename NodeMap>
-typename Tree<NodeMap>::objex_iterator Tree<NodeMap>::Mapping::get(
-    typename Tree<NodeMap>::objex_iterator input)
+typename Tree<NodeMap>::objex_iterator
+Tree<NodeMap>::Mapping::get(typename Tree<NodeMap>::objex_iterator input)
 
 {
     auto output = input;

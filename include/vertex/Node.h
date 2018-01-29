@@ -50,7 +50,7 @@ public:
     const_iterator cend() const;
 
     /** Get the number of children */
-    size_type size() const;
+    size_type length() const;
 
     /** Check whether the vertex has any children */
     bool empty() const;
@@ -136,7 +136,7 @@ typename Node<Link, T>::const_iterator Node<Link, T>::cend() const
 }
 
 template <typename Link, typename T>
-typename Node<Link, T>::size_type Node<Link, T>::size() const
+typename Node<Link, T>::size_type Node<Link, T>::length() const
 {
     return children_.size();
 }

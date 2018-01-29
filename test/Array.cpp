@@ -23,7 +23,7 @@ TEST(Merkle, Array)
     auto rabbit = Array::value_type(Link(3), Node("rabbit"));
     auto lion = Array::value_type(Link(4), Node("lion"));
     array.push_back(elephant);
-    EXPECT_EQ(1u, array.size());
+    EXPECT_EQ(1u, array.length());
     EXPECT_FALSE(array.empty());
     array.push_back(bear);
     array.push_back(rabbit);
@@ -31,7 +31,7 @@ TEST(Merkle, Array)
     auto expected = NodeVector{elephant, bear, rabbit, lion};
     auto result = NodeVector(array.begin(), array.end());
     EXPECT_EQ(expected, result);
-    EXPECT_EQ(4u, array.size());
+    EXPECT_EQ(4u, array.length());
     auto bearit = std::find(array.begin(), array.end(), bear);
     EXPECT_NE(array.end(), bearit);
     EXPECT_EQ(bear, *bearit);
@@ -44,7 +44,7 @@ TEST(Merkle, Array)
     array.insert(bearit, pidgeon);
     auto another_pidgeon = Array::value_type(Link(5), Node("another pidgeon"));
     array.insert(array.end(), another_pidgeon);
-    EXPECT_EQ(2u, array.size());
+    EXPECT_EQ(2u, array.length());
     auto cat = Array::value_type(Link(6), Node("cat"));
     array.insert(std::find(array.begin(), array.end(), another_pidgeon), cat);
     expected = NodeVector{pidgeon, cat, another_pidgeon};

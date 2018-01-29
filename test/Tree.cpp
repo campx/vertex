@@ -25,8 +25,8 @@ TEST(Merkle, Tree)
     auto parent = root;
     snapshots.insert(snapshots.root(), root);
     EXPECT_NE(root, forest->vertices().end());
-    EXPECT_EQ(std::size_t(2), forest->vertices().size());
-    EXPECT_EQ(std::size_t(1), forest->edges().size());
+    EXPECT_EQ(std::size_t(2), forest->vertices().length());
+    EXPECT_EQ(std::size_t(1), forest->edges().length());
 
     /* S a_0    O a_1
      *          |

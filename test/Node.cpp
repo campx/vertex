@@ -28,7 +28,7 @@ TEST(vertex, Node)
         node.insert(node.end(), child);
         EXPECT_NE(node.end(), node.find(child));
         EXPECT_FALSE(node.empty());
-        EXPECT_EQ(std::size_t(1), node.size());
+        EXPECT_EQ(std::size_t(1), node.length());
         auto erased = node.erase(node.find(child));
         EXPECT_EQ(node.end(), erased);
         EXPECT_TRUE(node.empty());
@@ -44,7 +44,7 @@ TEST(vertex, Node)
         node.insert<std::vector<TestNode::link_type>::iterator>(
             node.end(), children.begin(), children.end());
         EXPECT_FALSE(node.empty());
-        EXPECT_EQ(std::size_t(2), node.size());
+        EXPECT_EQ(std::size_t(2), node.length());
         EXPECT_TRUE(std::equal(node.begin(), node.end(), children.begin(),
                                children.end()));
         auto other = node;

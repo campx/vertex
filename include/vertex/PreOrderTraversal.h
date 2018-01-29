@@ -51,7 +51,7 @@ template <typename Container, typename Predicate>
 bool PreOrderTraversal<Container, Predicate>::traverseLeft()
 {
     auto moved = false;
-    if (position()->second.size() == 2)
+    if (position()->second.length() == 2)
     { // traversal to bottom of left branch
         auto left_key = *position()->second.begin();
         auto right_child = vertices()->find(*(++position()->second.begin()));
@@ -76,7 +76,7 @@ template <typename Container, typename Predicate>
 bool PreOrderTraversal<Container, Predicate>::traverseRight()
 {
     auto moved = false;
-    if (position()->second.size() == 2)
+    if (position()->second.length() == 2)
     { // traverse right branch
         auto child_key = *(++position()->second.begin());
         auto child_vertex = vertices()->find(child_key);
