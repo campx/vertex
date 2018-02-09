@@ -89,6 +89,9 @@ public:
     /** Set the data associated with this node */
     void data(const value_type& value);
 
+    /** Provide read-write access to the data */
+    value_type& data();
+
     /** Compare the contents and children of a Node against another */
     bool operator==(const Node& rhs) const;
 
@@ -235,6 +238,12 @@ template <typename Link, typename T>
 void Node<Link, T>::data(const typename Node<Link, T>::value_type& value)
 {
     data_ = value;
+}
+
+template <typename Link, typename T>
+typename Node<Link, T>::value_type& Node<Link, T>::data()
+{
+    return data_;
 }
 
 template <typename Link, typename T>

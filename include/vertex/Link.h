@@ -23,6 +23,7 @@ public:
     const value_type& data() const;
     void id(const id_type& data);
     void data(const value_type& value);
+    value_type& data();
 
     bool operator==(const Link& rhs) const;
     bool operator!=(const Link& rhs) const;
@@ -47,6 +48,12 @@ const Identifier& Link<Identifier, T>::id() const
 
 template <typename Identifier, typename T>
 const T& Link<Identifier, T>::data() const
+{
+    return data_;
+}
+
+template <typename Identifier, typename T>
+T& Link<Identifier, T>::data()
 {
     return data_;
 }
