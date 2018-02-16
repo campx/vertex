@@ -12,12 +12,12 @@ class Iterator
 {
 public:
     using container_type = typename Traversal::container_type;
-    using vertex_iterator = typename container_type::iterator;
+    using vertex_iterator = typename container_type::const_iterator;
     using value_type = typename std::result_of<Accessor(Traversal)>::type;
 
     Iterator(std::shared_ptr<Traversal> traversal,
              Accessor accessor = Accessor());
-    Iterator(container_type* vertices,
+    Iterator(const container_type& vertices,
              vertex_iterator vertex,
              typename Traversal::predicate_type predicate =
                  typename Traversal::predicate_type{},
@@ -57,8 +57,8 @@ Iterator<Traversal, Accessor>::Iterator(std::shared_ptr<Traversal> traversal,
 
 template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor>::Iterator(
-    container_type* vertices,
-    typename container_type::iterator vertex,
+    const container_type& vertices,
+    typename container_type::const_iterator vertex,
     typename Traversal::predicate_type predicate,
     Accessor accessor)
     : Iterator(std::make_shared<Traversal>(
@@ -86,7 +86,7 @@ template <typename Traversal, typename Accessor>
 Iterator<Traversal, Accessor> Iterator<Traversal, Accessor>::end() const
 {
     return Iterator<Traversal, Accessor>(traversal_->vertices(),
-                                         traversal_->vertices()->end(),
+                                         traversal_->vertices().end(),
                                          traversal_->predicate(), accessor_);
 }
 

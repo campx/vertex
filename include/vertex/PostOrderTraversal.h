@@ -22,8 +22,8 @@ public:
     using base_type::edge;
     using base_type::isTraversible;
 
-    PostOrderTraversal(Container* vertices,
-                       typename Container::iterator root,
+    PostOrderTraversal(const Container& vertices,
+                       typename Container::const_iterator root,
                        Predicate predicate = Predicate{});
     bool traverseRight();
     bool traverseLeft();
@@ -36,12 +36,12 @@ private:
 
 template <typename Container, typename Predicate>
 PostOrderTraversal<Container, Predicate>::PostOrderTraversal(
-    Container* vertices,
-    typename Container::iterator root,
+    const Container& vertices,
+    typename Container::const_iterator root,
     Predicate predicate)
-    : base_type(vertices, root, predicate), prev_pos_(vertices->end())
+    : base_type(vertices, root, predicate), prev_pos_(vertices.end())
 {
-    if (position() != base_type::vertices()->end())
+    if (position() != base_type::vertices().end())
     {
         to_visit_.push(edge());
         next();
@@ -55,11 +55,11 @@ bool PostOrderTraversal<Container, Predicate>::traverseLeft()
     while (position()->second.length() == 2)
     { // traversal to bottom of left branch
         auto left_key = *position()->second.begin();
-        auto right_child = vertices()->find(*(++position()->second.begin()));
-        auto left_child = vertices()->find(left_key);
+        auto right_child = vertices().find(*(++position()->second.begin()));
+        auto left_child = vertices().find(left_key);
         auto left_edge = std::make_pair(position()->first, left_key);
         if (right_child == prev_pos_ || left_child == prev_pos_ ||
-            left_child == vertices()->end() || !isTraversible(left_edge))
+            left_child == vertices().end() || !isTraversible(left_edge))
         {
             moved = false;
             break;
@@ -86,9 +86,9 @@ bool PostOrderTraversal<Container, Predicate>::traverseRight()
     if (position()->second.length() == 2)
     { // traverse right branch
         auto child_key = *(++position()->second.begin());
-        auto child_vertex = vertices()->find(child_key);
+        auto child_vertex = vertices().find(child_key);
         auto child_edge = std::make_pair(position()->first, child_key);
-        if (child_vertex != vertices()->end() && child_vertex != prev_pos_ &&
+        if (child_vertex != vertices().end() && child_vertex != prev_pos_ &&
             isTraversible(child_edge))
         { // don't move to right child if null
             to_visit_.push(child_edge);
@@ -110,7 +110,7 @@ bool PostOrderTraversal<Container, Predicate>::next()
         if (!moved)
         {
             base_type::edge(to_visit_.top());
-            base_type::position(vertices()->find(edge().second));
+            base_type::position(vertices().find(edge().second));
             moved = true;
         }
         else if (traverseLeft())

@@ -34,10 +34,14 @@ private:
 };
 
 template <typename Container, typename Predicate>
+BreadthFirstTraversal<Container, Predicate>
+makeBreadthFirstTraversal(Container container, Predicate predicate);
+
+template <typename Container, typename Predicate>
 bool BreadthFirstTraversal<Container, Predicate>::next()
 {
     auto result = false;
-    if (position() != vertices()->end())
+    if (position() != vertices().end())
     {
         for (const auto& child : position()->second)
         {
@@ -56,8 +60,8 @@ bool BreadthFirstTraversal<Container, Predicate>::next()
     {
         base_type::edge(to_visit_.front());
         to_visit_.pop();
-        base_type::position(vertices()->find(edge().second));
-        if (position() != vertices()->end())
+        base_type::position(vertices().find(edge().second));
+        if (position() != vertices().end())
         {
             base_type::vertex(position()->second);
             result = true;
@@ -65,6 +69,14 @@ bool BreadthFirstTraversal<Container, Predicate>::next()
         }
     }
     return result;
+}
+
+template <typename Container, typename Predicate>
+BreadthFirstTraversal<Container, Predicate>
+makeBreadthFirstTraversal(Container container, Predicate predicate)
+{
+    return BreadthFirstTraversal<decltype(container), decltype(predicate)>(
+        std::forward(container), std::forward(predicate));
 }
 
 } // namespace vertex

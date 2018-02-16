@@ -17,7 +17,7 @@ class Traversal
 {
 public:
     using container_type = Container;
-    using vertex_iterator = typename Container::iterator;
+    using vertex_iterator = typename Container::const_iterator;
     using vertex_type = typename Container::mapped_type;
     using child_iterator = typename vertex_type::iterator;
     using key_type = typename Container::key_type;
@@ -29,11 +29,11 @@ public:
     using reference = Impl&;
     using pointer = Impl*;
 
-    Traversal(Container* vertices,
-              typename Container::iterator root,
+    Traversal(const Container& vertices,
+              typename Container::const_iterator root,
               Predicate predicate = Predicate{});
 
-    Container* vertices() const;
+    const Container& vertices() const;
     const vertex_iterator& root() const;
     const vertex_iterator& position() const;
     const child_iterator& child() const;
@@ -59,7 +59,7 @@ protected:
     void edge(const edge_type& value);
 
 private:
-    Container* vertices_;
+    const Container* vertices_;
     vertex_iterator root_;
     vertex_iterator position_;
     child_iterator child_;
@@ -70,10 +70,10 @@ private:
 
 template <typename Container, typename Impl, typename Predicate>
 Traversal<Container, Impl, Predicate>::Traversal(
-    Container* vertices,
-    typename Container::iterator root,
+    const Container& vertices,
+    typename Container::const_iterator root,
     Predicate predicate)
-    : vertices_(vertices), root_(std::move(root)), position_(root_),
+    : vertices_(&vertices), root_(std::move(root)), position_(root_),
       vertex_(position_ == vertices_->end() ? vertex_type{} :
                                               position_->second),
       edge_(std::make_pair(key_type{},
@@ -84,9 +84,9 @@ Traversal<Container, Impl, Predicate>::Traversal(
 }
 
 template <typename Container, typename Impl, typename Predicate>
-Container* Traversal<Container, Impl, Predicate>::vertices() const
+const Container& Traversal<Container, Impl, Predicate>::vertices() const
 {
-    return vertices_;
+    return *vertices_;
 }
 
 template <typename Container, typename Impl, typename Predicate>
@@ -163,7 +163,7 @@ template <typename Container, typename Impl, typename Predicate>
 Impl Traversal<Container, Impl, Predicate>::end() const
 {
     auto result = Impl(vertices(), root(), predicate());
-    result.position(vertices()->end());
+    result.position(vertices().end());
     return result;
 }
 
@@ -173,7 +173,7 @@ Impl& Traversal<Container, Impl, Predicate>::operator++()
     auto pImpl = static_cast<Impl*>(this);
     if (!pImpl->next())
     {
-        position(vertices()->end());
+        position(vertices().end());
     }
     return *pImpl;
 }
