@@ -2,7 +2,7 @@
 #include <vertex/BreadthFirstTraversal.h>
 #include <vertex/EdgeIterator.h>
 #include <vertex/Node.h>
-#include <vertex/NodeIterator.h>
+#include <vertex/VertexIterator.h>
 
 namespace
 {
@@ -21,7 +21,7 @@ std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
 namespace vertex
 {
 
-TEST(Node, NodeIterator)
+TEST(Node, VertexIterator)
 {
 
     /************************
@@ -57,7 +57,7 @@ TEST(Node, NodeIterator)
     EXPECT_FALSE(vertices.empty());
     {
         using Bfs = BreadthFirstTraversal<Container>;
-        auto it = NodeIterator<Bfs>(vertices, vertices.begin());
+        auto it = VertexIterator<Bfs>(vertices, vertices.begin());
         EXPECT_NE(begin(it), end(it));
         auto os = std::ostringstream();
         for (const auto& vertex : it)
@@ -71,7 +71,7 @@ TEST(Node, NodeIterator)
     { // traverse empty graph
 
         using Bfs = BreadthFirstTraversal<Container>;
-        auto it = NodeIterator<Bfs>(vertices, vertices.begin());
+        auto it = VertexIterator<Bfs>(vertices, vertices.begin());
         EXPECT_EQ(begin(it), end(it));
         auto os = std::ostringstream();
         for (const auto& vertex : it)

@@ -30,7 +30,7 @@ add_library(libvertex
 	include/vertex/Predicate.h				src/Predicate.cpp
     include/vertex/Traversal.h              src/Traversal.cpp
     include/vertex/PostOrderTraversal.h     src/PostOrderTraversal.cpp
-    include/vertex/NodeIterator.h           src/NodeIterator.cpp
+    include/vertex/VertexIterator.h         src/VertexIterator.cpp
     include/vertex/Iterator.h               src/Iterator.cpp 
 	include/vertex/Edge.h					src/Edge.cpp)
 

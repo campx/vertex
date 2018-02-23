@@ -17,6 +17,6 @@ struct NodeAccessor
 };
 
 template<typename Traversal>
-using NodeIterator = Iterator<Traversal, NodeAccessor<Traversal>>;
+using VertexIterator = Iterator<Traversal, NodeAccessor<Traversal>>;
 
 } // namespace vertex
