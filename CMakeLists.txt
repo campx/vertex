@@ -2,20 +2,19 @@ cmake_minimum_required(VERSION 2.8)
 
 project(vertex LANGUAGES CXX)
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    message(STATUS "Using MSVC")
-else()
+if (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra")
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") # using Clang
-        message(STATUS "Using Clang")
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU) # using GCC
-        message(STATUS "Using GNU")
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
+endif()
+
+SET(GTEST_LIBRARIES gtest)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+        SET(GTEST_LIBRARIES gtestd)
     endif()
 endif()
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #create compilation database for clang
+include_directories(${CMAKE_BINARY_DIR}/include)
+link_directories(${CMAKE_BINARY_DIR}/lib)
 
 add_library(libvertex
     include/vertex/Link.h                   src/Link.cpp
@@ -34,8 +33,9 @@ add_library(libvertex
     include/vertex/Iterator.h               src/Iterator.cpp 
 	include/vertex/Edge.h					src/Edge.cpp)
 
+add_dependencies(libvertex toolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
-target_link_libraries(libvertex libtoolbox)
+target_compile_features(libvertex PUBLIC cxx_return_type_deduction)
 
 add_subdirectory(external/gtest)
 add_subdirectory(external/toolbox)
@@ -52,7 +52,8 @@ add_executable(TestVertex
                     test/Iterator.cpp
                     test/main.cpp)
 
-target_link_libraries(TestVertex gtest libvertex libtoolbox)
+add_dependencies(TestVertex googletest toolbox)
+target_link_libraries(TestVertex ${GTEST_LIBRARIES} libvertex)
 set_target_properties(TestVertex PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                       ${CMAKE_CURRENT_BINARY_DIR}/test)
 add_test(NAME TestVertex
