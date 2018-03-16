@@ -34,6 +34,15 @@ add_subdirectory(external/toolbox)
 
 target_include_directories(libvertex PUBLIC "${vertex_SOURCE_DIR}")
 
+install(TARGETS libvertex 
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin)
+install(DIRECTORY vertex DESTINATION include 
+        FILES_MATCHING PATTERN "*.h" 
+        PATTERN "test/*" EXCLUDE
+        PATTERN "test" EXCLUDE)
+
 enable_testing()
 
 SET(GTEST_LIBRARIES gtest)
@@ -49,7 +58,8 @@ add_executable(TestVertex
 
 add_dependencies(TestVertex googletest toolbox)
 
-if (${CMAKE_BUILD_TYPE} STREQUAL Debug AND ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+if ((${CMAKE_BUILD_TYPE} STREQUAL Debug) 
+    AND (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC))
 	target_link_libraries(TestVertex gtestd libvertex)
 else()
 	target_link_libraries(TestVertex gtest libvertex)
