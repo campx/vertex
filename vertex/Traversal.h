@@ -29,6 +29,8 @@ public:
     using reference = Impl&;
     using pointer = Impl*;
 
+    Traversal() = default;
+
     Traversal(const Container& vertices,
               typename Container::const_iterator root,
               Predicate predicate = Predicate{});

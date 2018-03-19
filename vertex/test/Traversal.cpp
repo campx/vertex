@@ -3,10 +3,10 @@
 #include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/Node.h>
-#include <vertex/VertexIterator.h>
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
 #include <vertex/Predicate.h>
+#include <vertex/VertexIterator.h>
 
 namespace
 {
