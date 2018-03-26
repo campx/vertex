@@ -28,6 +28,7 @@ public:
     bool operator==(const Link& rhs) const;
     bool operator!=(const Link& rhs) const;
     bool operator<(const Link& rhs) const;
+    bool operator>(const Link& rhs) const;
 
 private:
     id_type id_;
@@ -95,6 +96,25 @@ bool Link<Identifier, T>::operator<(const Link<Identifier, T>& rhs) const
         result = false;
     }
     else if (data_ < rhs.data_)
+    {
+        result = true;
+    }
+    return result;
+}
+
+template <typename Identifier, typename T>
+bool Link<Identifier, T>::operator>(const Link<Identifier, T>& rhs) const
+{
+    auto result = false;
+    if (id_ > rhs.id_)
+    {
+        result = true;
+    }
+    else if (id_ < rhs.id_)
+    {
+        result = false;
+    }
+    else if (data_ > rhs.data_)
     {
         result = true;
     }

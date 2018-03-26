@@ -18,6 +18,7 @@ TEST(vertex, Link)
     link_b.id(1);
     EXPECT_NE(link_a, link_b);
     EXPECT_TRUE(link_a < link_b);
+    EXPECT_FALSE(link_a > link_b);
 }
 
 } // namespace vertex
