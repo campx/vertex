@@ -16,10 +16,8 @@ public:
                                 PreOrderTraversal<Container, Predicate>,
                                 Predicate>;
     using base_type::vertices;
-    using base_type::vertex;
     using base_type::position;
     using base_type::root;
-    using base_type::edge;
     using base_type::isTraversible;
 
     PreOrderTraversal(const Container& vertices,
@@ -43,7 +41,9 @@ PreOrderTraversal<Container, Predicate>::PreOrderTraversal(
 {
     if (position() != base_type::vertices().end())
     {
-        to_visit_.push(edge());
+        using key_type = typename Container::key_type;
+        auto edge = std::make_pair(key_type{}, position()->first);
+        to_visit_.push(edge);
     }
 }
 
@@ -64,7 +64,6 @@ bool PreOrderTraversal<Container, Predicate>::traverseLeft()
         }
         else
         {
-            base_type::edge(left_edge);
             base_type::position(left_child);
             moved = true;
         }
@@ -84,7 +83,6 @@ bool PreOrderTraversal<Container, Predicate>::traverseRight()
         if (child_vertex != prev_pos_ && child_vertex != vertices().end() &&
             isTraversible(child_edge))
         {
-            base_type::edge(child_edge);
             base_type::position(child_vertex);
             moved = true;
         }
@@ -99,15 +97,18 @@ bool PreOrderTraversal<Container, Predicate>::next()
     prev_pos_ = position();
     while (!to_visit_.empty())
     {
+        auto link = position()->first;
         if (traverseLeft())
         {
-            to_visit_.push(edge());
+            auto edge = std::make_pair(link, position()->first);
+            to_visit_.push(edge);
             moved = true;
             break;
         }
         else if (traverseRight())
         {
-            to_visit_.push(edge());
+            auto edge = std::make_pair(link, position()->first);
+            to_visit_.push(edge);
             moved = true;
             break;
         }
@@ -117,12 +118,11 @@ bool PreOrderTraversal<Container, Predicate>::next()
             prev_pos_ = position();
             if (!to_visit_.empty())
             {
-                base_type::edge(to_visit_.top());
-                base_type::position(vertices().find(edge().second));
+                auto edge = to_visit_.top();
+                base_type::position(vertices().find(edge.second));
             }
         }
     }
-    base_type::vertex(position()->second);
     return moved;
 }
 

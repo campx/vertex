@@ -78,7 +78,7 @@ get_python_inc(),
 '-I',
 './include',
 '-I',
-'build/googletest-src/googletest/include'
+'build/include'
 ]
 
 # Clang automatically sets the '-std=' flag to 'c++14' for MSVC 2015 or later,

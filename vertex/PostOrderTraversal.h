@@ -16,10 +16,8 @@ public:
                                 PostOrderTraversal<Container, Predicate>,
                                 Predicate>;
     using base_type::vertices;
-    using base_type::vertex;
     using base_type::position;
     using base_type::root;
-    using base_type::edge;
     using base_type::isTraversible;
 
     PostOrderTraversal(const Container& vertices,
@@ -43,7 +41,9 @@ PostOrderTraversal<Container, Predicate>::PostOrderTraversal(
 {
     if (position() != base_type::vertices().end())
     {
-        to_visit_.push(edge());
+        using key_type = typename Container::key_type;
+        auto edge = std::make_pair(key_type{}, position()->first);
+        to_visit_.push(edge);
         next();
     }
 }
@@ -67,7 +67,6 @@ bool PostOrderTraversal<Container, Predicate>::traverseLeft()
         else
         {
             to_visit_.push(left_edge);
-            base_type::edge(left_edge);
             base_type::position(left_child);
             moved = true;
         }
@@ -92,7 +91,6 @@ bool PostOrderTraversal<Container, Predicate>::traverseRight()
             isTraversible(child_edge))
         { // don't move to right child if null
             to_visit_.push(child_edge);
-            base_type::edge(child_edge);
             base_type::position(child_vertex);
             moved = true;
         }
@@ -109,8 +107,8 @@ bool PostOrderTraversal<Container, Predicate>::next()
     {
         if (!moved)
         {
-            base_type::edge(to_visit_.top());
-            base_type::position(vertices().find(edge().second));
+            auto edge = to_visit_.top();
+            base_type::position(vertices().find(edge.second));
             moved = true;
         }
         else if (traverseLeft())
@@ -128,7 +126,6 @@ bool PostOrderTraversal<Container, Predicate>::next()
             break;
         }
     }
-    base_type::vertex(position()->second);
     return moved;
 }
 

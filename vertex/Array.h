@@ -1,8 +1,6 @@
 #include <memory>
 #include <toolbox/Value.h>
-#include <vertex/Iterator.h>
 #include <vertex/LinkIterator.h>
-#include <vertex/VertexIterator.h>
 
 namespace objex
 {

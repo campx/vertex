@@ -5,11 +5,6 @@
 namespace vertex
 {
 
-/** @TODO Implement traversal routine in this class in terms of Impl methods,
- * implement SkipIterator which evaluates a predicate on increment and skips
- * over elements which do not pass
- * @TODO Reverse iterators, prev method
- */
 template <typename Container,
           typename Impl,
           typename Predicate = NullaryPredicate<Container, true>>
@@ -24,10 +19,12 @@ public:
     using edge_type = std::pair<key_type, key_type>;
     using predicate_type = Predicate;
 
-    using value_type = Impl;
+    using value_type = typename Container::value_type;
     using self_type = Traversal<Container, Impl, Predicate>;
-    using reference = Impl&;
-    using pointer = Impl*;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
 
     Traversal() = default;
 
@@ -38,9 +35,6 @@ public:
     const Container& vertices() const;
     const vertex_iterator& root() const;
     const vertex_iterator& position() const;
-    const child_iterator& child() const;
-    const vertex_type& vertex() const;
-    const edge_type& edge() const;
     const predicate_type& predicate() const;
     bool isTraversible(const edge_type& value);
 
@@ -48,15 +42,14 @@ public:
     Impl end() const;
     Impl& operator++();
     Impl operator++(int dummy);
-    reference operator*();
-    pointer operator->();
+    const_reference operator*() const;
+    const_pointer operator->() const;
 
     bool operator!=(const self_type& rhs) const;
     bool operator==(const self_type& rhs) const;
 
 protected:
     void position(const vertex_iterator& value);
-    void child(const child_iterator& value);
     void vertex(const vertex_type& value);
     void edge(const edge_type& value);
 
@@ -64,9 +57,6 @@ private:
     const Container* vertices_;
     vertex_iterator root_;
     vertex_iterator position_;
-    child_iterator child_;
-    vertex_type vertex_;
-    edge_type edge_;
     Predicate predicate_;
 };
 
@@ -76,11 +66,6 @@ Traversal<Container, Impl, Predicate>::Traversal(
     typename Container::const_iterator root,
     Predicate predicate)
     : vertices_(&vertices), root_(std::move(root)), position_(root_),
-      vertex_(position_ == vertices_->end() ? vertex_type{} :
-                                              position_->second),
-      edge_(std::make_pair(key_type{},
-                           position_ == vertices_->end() ? key_type{} :
-                                                           position_->first)),
       predicate_(std::move(predicate))
 {
 }
@@ -106,31 +91,10 @@ Traversal<Container, Impl, Predicate>::position() const
 }
 
 template <typename Container, typename Impl, typename Predicate>
-const typename Traversal<Container, Impl, Predicate>::vertex_type&
-Traversal<Container, Impl, Predicate>::vertex() const
-{
-    return vertex_;
-}
-
-template <typename Container, typename Impl, typename Predicate>
-const typename Traversal<Container, Impl, Predicate>::edge_type&
-Traversal<Container, Impl, Predicate>::edge() const
-{
-    return edge_;
-}
-
-template <typename Container, typename Impl, typename Predicate>
 const typename Traversal<Container, Impl, Predicate>::predicate_type&
 Traversal<Container, Impl, Predicate>::predicate() const
 {
     return predicate_;
-}
-
-template <typename Container, typename Impl, typename Predicate>
-void Traversal<Container, Impl, Predicate>::vertex(
-    const typename Traversal<Container, Impl, Predicate>::vertex_type& value)
-{
-    vertex_ = value;
 }
 
 template <typename Container, typename Impl, typename Predicate>
@@ -139,13 +103,6 @@ void Traversal<Container, Impl, Predicate>::position(
         value)
 {
     position_ = value;
-}
-
-template <typename Container, typename Impl, typename Predicate>
-void Traversal<Container, Impl, Predicate>::edge(
-    const typename Traversal<Container, Impl, Predicate>::edge_type& value)
-{
-    edge_ = value;
 }
 
 template <typename Container, typename Impl, typename Predicate>
@@ -191,17 +148,17 @@ Impl Traversal<Container, Impl, Predicate>::operator++(int dummy)
 }
 
 template <typename Container, typename Impl, typename Predicate>
-Impl& Traversal<Container, Impl, Predicate>::operator*()
+typename Traversal<Container, Impl, Predicate>::const_reference
+    Traversal<Container, Impl, Predicate>::operator*() const
 {
-    auto pImpl = static_cast<Impl*>(this);
-    return *pImpl;
+    return position().operator*();
 }
 
 template <typename Container, typename Impl, typename Predicate>
-Impl* Traversal<Container, Impl, Predicate>::operator->()
+typename Traversal<Container, Impl, Predicate>::const_pointer
+    Traversal<Container, Impl, Predicate>::operator->() const
 {
-    auto pImpl = static_cast<Impl*>(this);
-    return pImpl;
+    return position().operator->();
 }
 
 template <typename Container, typename Impl, typename Predicate>

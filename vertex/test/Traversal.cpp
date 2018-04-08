@@ -1,12 +1,10 @@
 #include "gtest/gtest.h"
 #include <vertex/BreadthFirstTraversal.h>
-#include <vertex/EdgeIterator.h>
 #include <vertex/InOrderTraversal.h>
 #include <vertex/Node.h>
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
 #include <vertex/Predicate.h>
-#include <vertex/VertexIterator.h>
 
 namespace
 {
@@ -17,13 +15,6 @@ using Container = std::map<std::string, TestNode>;
 std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
 {
     output << vertex.data();
-    return output;
-}
-
-std::ostream& operator<<(std::ostream& output,
-                         const std::pair<std::string, std::string>& edge)
-{
-    output << edge.first << edge.second;
     return output;
 }
 
@@ -82,7 +73,7 @@ TEST_F(Tree, InOrderIterator)
     auto count = 0;
     for (const auto& i : traversal)
     {
-        output << i.vertex().data();
+        output << i.second.data();
         if (++count > 10)
         {
             break;
@@ -95,11 +86,11 @@ TEST_F(Tree, PreOrderTraversal)
 {
     using Pot = PreOrderTraversal<Container>;
     {
-        auto vertex_it = VertexIterator<Pot>(vertices, vertices.find("F"));
+        auto traversal = Pot(vertices, vertices.find("F"));
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("FBADCEGIH", vertex_order.str());
     }
@@ -109,29 +100,29 @@ TEST_F(Tree, InOrderTraversal)
 {
     using Iot = InOrderTraversal<Container>;
     {
-        auto vertex_it = VertexIterator<Iot>(vertices, vertices.find("F"));
+        auto traversal = Iot(vertices, vertices.find("F"));
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("ABCDEFGHI", vertex_order.str());
     }
     { // traverse sub tree rooted at B
-        auto vertex_it = VertexIterator<Iot>(vertices, vertices.find("B"));
+        auto traversal = Iot(vertices, vertices.find("B"));
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("ABCDE", vertex_order.str());
     }
     { // traverse sub tree rooted at G
-        auto vertex_it = VertexIterator<Iot>(vertices, vertices.find("G"));
+        auto traversal = Iot(vertices, vertices.find("G"));
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("GHI", vertex_order.str());
     }
@@ -147,12 +138,11 @@ TEST_F(Tree, PredicatedInOrderTraversal)
 
     using Iot = InOrderTraversal<Container, Predicate>;
     {
-        auto vertex_it =
-            VertexIterator<Iot>(vertices, vertices.find("F"), predicate);
+        auto traversal = Iot(vertices, vertices.find("F"), predicate);
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("FGI", vertex_order.str());
     }
@@ -167,12 +157,11 @@ TEST_F(Tree, PredicatedBreadthFirstTraversal)
 
     using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
-        auto vertex_it =
-            VertexIterator<Bft>(vertices, vertices.find("F"), predicate);
+        auto traversal = Bft(vertices, vertices.find("F"), predicate);
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("FBG", vertex_order.str());
     }
@@ -185,12 +174,11 @@ TEST_F(Tree, MaxDepthBreadthFirstTraversal)
 
     using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
-        auto vertex_it =
-            VertexIterator<Bft>(vertices, vertices.find("F"), predicate);
+        auto traversal = Bft(vertices, vertices.find("F"), predicate);
         auto vertex_order = std::ostringstream();
-        for (const auto& v : vertex_it)
+        for (const auto& v : traversal)
         {
-            vertex_order << v;
+            vertex_order << v.second;
         }
         EXPECT_EQ("FBGADI", vertex_order.str());
     }
@@ -198,12 +186,12 @@ TEST_F(Tree, MaxDepthBreadthFirstTraversal)
 TEST_F(Tree, PostOrderTraversal)
 {
     using Pot = PostOrderTraversal<Container>;
-    auto vertex_it = VertexIterator<Pot>(vertices, vertices.find("F"));
+    auto traversal = Pot(vertices, vertices.find("F"));
     auto vertex_order = std::ostringstream();
     auto i = 0;
-    for (const auto& v : vertex_it)
+    for (const auto& v : traversal)
     {
-        vertex_order << v;
+        vertex_order << v.second;
         if (++i > 10)
         {
             break;
@@ -214,42 +202,8 @@ TEST_F(Tree, PostOrderTraversal)
 
 TEST_F(Tree, BredthFirstTraversal)
 {
-    EXPECT_FALSE(vertices.empty());
-    { // extract edges and vertices during a single traversal of the tree
-        using Bfs = BreadthFirstTraversal<Container>;
-        auto edge_it = EdgeIterator<Bfs>(vertices, vertices.find("F"));
-        auto vertex_it = VertexIterator<Bfs>(edge_it.traversal());
-        EXPECT_EQ(edge_it.traversal(), vertex_it.traversal());
-        EXPECT_NE(begin(edge_it), end(edge_it));
-        auto edge_csv = std::ostringstream();
-        auto vertex_csv = std::ostringstream();
-        for (auto end_it = std::end(edge_it); edge_it != end_it; ++edge_it)
-        {
-            edge_csv << *edge_it << ", ";
-            vertex_csv << *vertex_it;
-        }
-        EXPECT_EQ("F, FB, FG, BA, BD, GI, DC, DE, IH, ", edge_csv.str());
-        EXPECT_EQ("FBGADICEH", vertex_csv.str());
-    }
     vertices.clear();
-    { // traverse empty graph
-        using Bfs = BreadthFirstTraversal<Container>;
-        auto traversal = std::make_shared<Bfs>(vertices, vertices.begin());
-
-        // Create an accessor which pulls out edges from a traversal
-        using EdgeAccess = std::function<const Bfs::edge_type&(const Bfs&)>;
-        auto accessor =
-            EdgeAccess([](const auto& t) -> auto { return t.edge(); });
-
-        auto it = make_iterator(traversal, accessor);
-        EXPECT_EQ(begin(it), end(it));
-        auto os = std::ostringstream();
-        for (const auto& edge : it)
-        {
-            os << edge << ", ";
-        }
-        EXPECT_EQ("", os.str());
-    }
+    EXPECT_TRUE(vertices.empty());
     vertices.insert(std::make_pair("B", TestNode("B")));
     vertices.insert(std::make_pair("C", TestNode("C")));
     vertices.insert(std::make_pair("D", TestNode("D")));
@@ -260,11 +214,11 @@ TEST_F(Tree, BredthFirstTraversal)
     vertices.insert(std::make_pair("A", root));
     { // traverse graph of depth 1
         using Bfs = BreadthFirstTraversal<Container>;
-        auto it = VertexIterator<Bfs>(vertices, vertices.find("A"));
+        auto traversal = Bfs(vertices, vertices.find("A"));
         auto os = std::ostringstream();
-        for (const auto& vertex : it)
+        for (const auto& vertex : traversal)
         {
-            os << vertex;
+            os << vertex.second;
         }
         EXPECT_EQ("ABCD", os.str());
     }

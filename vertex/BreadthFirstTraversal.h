@@ -58,12 +58,11 @@ bool BreadthFirstTraversal<Container, Predicate>::next()
     }
     while (!to_visit_.empty())
     {
-        base_type::edge(to_visit_.front());
+        auto edge = to_visit_.front();
         to_visit_.pop();
-        base_type::position(vertices().find(edge().second));
+        base_type::position(vertices().find(edge.second));
         if (position() != vertices().end())
         {
-            base_type::vertex(position()->second);
             result = true;
             break;
         }

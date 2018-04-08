@@ -8,19 +8,16 @@ link_directories(${CMAKE_BINARY_DIR}/lib)
 add_library(libvertex
             vertex/Link.cpp                  vertex/Link.h
             vertex/LinkIterator.cpp          vertex/LinkIterator.h
+            vertex/Edge.cpp                  vertex/Edge.h
             vertex/Node.cpp                  vertex/Node.h
             vertex/Array.cpp                 vertex/Array.h
             vertex/ManagedContainer.cpp      vertex/ManagedContainer.h
-            vertex/EdgeIterator.cpp          vertex/EdgeIterator.h
             vertex/BreadthFirstTraversal.cpp vertex/BreadthFirstTraversal.h
             vertex/PreOrderTraversal.cpp     vertex/PreOrderTraversal.h
             vertex/InOrderTraversal.cpp      vertex/InOrderTraversal.h
             vertex/Predicate.cpp             vertex/Predicate.h
             vertex/Traversal.cpp             vertex/Traversal.h
-            vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h
-            vertex/VertexIterator.cpp        vertex/VertexIterator.h
-            vertex/Iterator.cpp              vertex/Iterator.h
-            vertex/Edge.cpp                  vertex/Edge.h)
+            vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h)
 
 add_dependencies(libvertex toolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
@@ -53,7 +50,6 @@ add_executable(TestVertex
                vertex/test/LinkIterator.cpp
                vertex/test/Traversal.cpp
                vertex/test/Array.cpp
-               vertex/test/Iterator.cpp
                vertex/test/main.cpp)
 
 add_dependencies(TestVertex googletest toolbox)

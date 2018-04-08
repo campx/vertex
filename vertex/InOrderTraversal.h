@@ -16,10 +16,8 @@ public:
                                 InOrderTraversal<Container, Predicate>,
                                 Predicate>;
     using base_type::vertices;
-    using base_type::vertex;
     using base_type::position;
     using base_type::root;
-    using base_type::edge;
     using base_type::isTraversible;
 
     InOrderTraversal(const Container& vertices,
@@ -29,6 +27,7 @@ public:
 
 private:
     std::stack<typename base_type::edge_type> to_visit_;
+    typename base_type::vertex_iterator next_position_;
 };
 
 template <typename Container, typename Predicate>
@@ -36,11 +35,13 @@ InOrderTraversal<Container, Predicate>::InOrderTraversal(
     const Container& vertices,
     typename Container::const_iterator root,
     Predicate predicate)
-    : base_type(vertices, root, predicate)
+    : base_type(vertices, root, predicate), next_position_(position())
 {
     if (position() != base_type::vertices().end())
     {
-        to_visit_.push(edge());
+        using key_type = typename Container::key_type;
+        auto edge = std::make_pair(key_type{}, position()->first);
+        to_visit_.push(edge);
         next();
     }
 }
@@ -52,7 +53,7 @@ bool InOrderTraversal<Container, Predicate>::next()
     {
         return false;
     }
-    auto child = position();
+    auto child = next_position_;
     while (child != vertices().end() && child->second.length() == 2)
     { // traversal to bottom of left branch
         auto next_child = vertices().find(*child->second.begin());
@@ -63,23 +64,23 @@ bool InOrderTraversal<Container, Predicate>::next()
         }
         child = next_child;
     }
-    base_type::edge(to_visit_.top());
+    auto edge = to_visit_.top();
     to_visit_.pop();
-    child = vertices().find(edge().second);
+    child = vertices().find(edge.second);
     if (child != vertices().end())
     { // next child on stack is not null
-        base_type::position(child);
+        next_position_ = child;
     }
-    base_type::vertex(position()->second);
-    if (position()->second.length() == 2)
+    base_type::position(next_position_);
+    if (next_position_->second.length() == 2)
     { // traverse right branch
-        auto link = *(++position()->second.begin());
+        auto link = *(++next_position_->second.begin());
         child = vertices().find(link);
-        auto e = std::make_pair(position()->first, link);
+        auto e = std::make_pair(next_position_->first, link);
         if (child != vertices().end() && isTraversible(e))
         { // don't move to right child if null
             to_visit_.push(e);
-            base_type::position(child);
+            next_position_ = child;
         }
     }
     return true;
