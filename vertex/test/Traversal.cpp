@@ -224,4 +224,20 @@ TEST_F(Tree, BredthFirstTraversal)
     }
 }
 
+TEST_F(Tree, EmptyTraversal)
+{
+    vertices.clear();
+    { // traverse graph of depth 1
+        using Bfs = BreadthFirstTraversal<Container>;
+        EXPECT_EQ(vertices.end(), vertices.find("A"));
+        auto traversal = Bfs(vertices, vertices.end());
+        EXPECT_EQ(traversal.end(), traversal);
+        auto os = std::ostringstream();
+        for (const auto& vertex : traversal)
+        {
+            os << vertex.second;
+        }
+        EXPECT_EQ("", os.str());
+    }
+}
 } // namespace vertex
