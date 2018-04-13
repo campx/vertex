@@ -11,6 +11,7 @@ add_library(libvertex
             vertex/Edge.cpp                  vertex/Edge.h
             vertex/Node.cpp                  vertex/Node.h
             vertex/Array.cpp                 vertex/Array.h
+            vertex/LinkedList.cpp            vertex/LinkedList.h
             vertex/ManagedContainer.cpp      vertex/ManagedContainer.h
             vertex/BreadthFirstTraversal.cpp vertex/BreadthFirstTraversal.h
             vertex/PreOrderTraversal.cpp     vertex/PreOrderTraversal.h

@@ -1,6 +1,7 @@
 #pragma once
+#include <vertex/PreOrderTraversal.h>
 
-namespace objex
+namespace vertex
 {
 
 /** LinkedList is a singly-linked list.
@@ -21,7 +22,7 @@ public:
     using difference_type = std::size_t;
     using reference = value_type&;
     using const_reference = const value_type&;
-    // using iterator = PreOrderTraversal - not yet implemented in libobjex
+    using iterator = PreOrderTraversal<Container>;
 };
 
-} // namespace objex
+} // namespace vertex
