@@ -114,8 +114,8 @@ typename ManagedContainer<V, E>::iterator ManagedContainer<V, E>::find(
 }
 
 template <typename V, typename E>
-typename ManagedContainer<V, E>::iterator ManagedContainer<V, E>::erase(
-    typename ManagedContainer<V, E>::iterator pos)
+typename ManagedContainer<V, E>::iterator
+ManagedContainer<V, E>::erase(typename ManagedContainer<V, E>::iterator pos)
 {
     auto result = pos;
     const auto& edge = pos->first;
@@ -134,9 +134,9 @@ typename ManagedContainer<V, E>::iterator ManagedContainer<V, E>::erase(
     return result;
 }
 
+/** TODO rewrite using traversal */
 template <typename V, typename E>
-typename ManagedContainer<V, E>::edge_iterator
-ManagedContainer<V, E>::erase(
+typename ManagedContainer<V, E>::edge_iterator ManagedContainer<V, E>::erase(
     typename ManagedContainer<V, E>::edge_iterator pos)
 {
     auto result = pos;

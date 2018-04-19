@@ -18,7 +18,9 @@ add_library(libvertex
             vertex/InOrderTraversal.cpp      vertex/InOrderTraversal.h
             vertex/Predicate.cpp             vertex/Predicate.h
             vertex/Traversal.cpp             vertex/Traversal.h
-            vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h)
+            vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h
+            vertex/PathPredicate.cpp         vertex/PathPredicate.h
+            vertex/PathResolver.cpp          vertex/PathResolver.h)
 
 add_dependencies(libvertex toolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
@@ -48,6 +50,8 @@ SET(GTEST_LIBRARIES gtest)
 add_executable(TestVertex
                vertex/test/Link.cpp           vertex/test/Link.h
                vertex/test/Node.cpp           vertex/test/Node.h
+               vertex/test/PathPredicate.cpp
+               vertex/test/PathResolver.cpp
                vertex/test/LinkIterator.cpp
                vertex/test/Traversal.cpp
                vertex/test/Array.cpp

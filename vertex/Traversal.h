@@ -8,7 +8,8 @@ namespace vertex
 template <typename Container,
           typename Impl,
           typename Predicate = NullaryPredicate<Container, true>>
-class Traversal
+class Traversal : public std::iterator<std::forward_iterator_tag,
+                                       typename Container::mapped_type>
 {
 public:
     using container_type = Container;
