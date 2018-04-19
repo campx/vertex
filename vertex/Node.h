@@ -29,7 +29,8 @@ public:
         typename container_type::const_reverse_iterator;
 
     /** Create a Node with the given data value */
-    explicit Node(value_type data = value_type());
+    explicit Node(value_type data = value_type(),
+                  container_type links = container_type());
 
     Node(const Node&) = default;
     Node(Node&&) = default;
@@ -104,7 +105,8 @@ private:
 };
 
 template <typename Link, typename T>
-Node<Link, T>::Node(value_type data) : data_(std::move(data))
+Node<Link, T>::Node(value_type data, container_type links)
+    : data_(std::move(data)), links_(std::move(links))
 {
 }
 
