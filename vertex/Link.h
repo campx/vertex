@@ -4,24 +4,24 @@
 namespace vertex
 {
 
-/** A link contains a id with which an object may be looked up, plus some
+/** A link contains a key with which an object may be looked up, plus some
  * additional metadata */
-template <typename Identifier, typename T = void>
+template <typename Key, typename T = void>
 class Link
 {
 public:
-    using id_type = Identifier;
+    using key_type = Key;
     using value_type = T;
 
-    explicit Link(id_type id = id_type(), value_type data = value_type());
+    explicit Link(key_type key = key_type(), value_type data = value_type());
     Link(const Link&) = default;
     Link(Link&&) = default;
     Link& operator=(const Link&) = default;
     Link& operator=(Link&&) = default;
 
-    const id_type& id() const;
+    const key_type& key() const;
     const value_type& data() const;
-    void id(const id_type& data);
+    void key(const key_type& data);
     void data(const value_type& value);
     value_type& data();
 
@@ -31,67 +31,67 @@ public:
     bool operator>(const Link& rhs) const;
 
 private:
-    id_type id_;
+    key_type key_;
     value_type data_;
 };
 
-template <typename Identifier, typename T>
-Link<Identifier, T>::Link(Identifier id, T data)
-    : id_(std::move(id)), data_(std::move(data))
+template <typename Key, typename T>
+Link<Key, T>::Link(Key key, T data)
+    : key_(std::move(key)), data_(std::move(data))
 {
 }
 
-template <typename Identifier, typename T>
-const Identifier& Link<Identifier, T>::id() const
+template <typename Key, typename T>
+const Key& Link<Key, T>::key() const
 {
-    return id_;
+    return key_;
 }
 
-template <typename Identifier, typename T>
-const T& Link<Identifier, T>::data() const
-{
-    return data_;
-}
-
-template <typename Identifier, typename T>
-T& Link<Identifier, T>::data()
+template <typename Key, typename T>
+const T& Link<Key, T>::data() const
 {
     return data_;
 }
 
-template <typename Identifier, typename T>
-void Link<Identifier, T>::id(const Identifier& data)
+template <typename Key, typename T>
+T& Link<Key, T>::data()
 {
-    id_ = data;
+    return data_;
 }
 
-template <typename Identifier, typename T>
-void Link<Identifier, T>::data(const T& value)
+template <typename Key, typename T>
+void Link<Key, T>::key(const Key& data)
+{
+    key_ = data;
+}
+
+template <typename Key, typename T>
+void Link<Key, T>::data(const T& value)
 {
     return data_ = value;
 }
 
-template <typename Identifier, typename T>
-bool Link<Identifier, T>::operator==(const Link<Identifier, T>& rhs) const
+template <typename Key, typename T>
+bool Link<Key, T>::operator==(const Link<Key, T>& rhs) const
 {
-    return id_ == rhs.id_ && data_ == rhs.data_;
+    return key_ == rhs.key_ && data_ == rhs.data_;
 }
 
-template <typename Identifier, typename T>
-bool Link<Identifier, T>::operator!=(const Link<Identifier, T>& rhs) const
+template <typename Key, typename T>
+bool Link<Key, T>::operator!=(const Link<Key, T>& rhs) const
 {
     return !(*this == rhs);
 }
 
-template <typename Identifier, typename T>
-bool Link<Identifier, T>::operator<(const Link<Identifier, T>& rhs) const
+template <typename Key, typename T>
+bool Link<Key, T>::operator<(const Link<Key, T>& rhs) const
 {
     auto result = false;
-    if (id_ < rhs.id_)
+    if (key_ < rhs.key_)
     {
         result = true;
     }
-    else if (id_ > rhs.id_)
+    else if (key_ > rhs.key_)
     {
         result = false;
     }
@@ -102,15 +102,15 @@ bool Link<Identifier, T>::operator<(const Link<Identifier, T>& rhs) const
     return result;
 }
 
-template <typename Identifier, typename T>
-bool Link<Identifier, T>::operator>(const Link<Identifier, T>& rhs) const
+template <typename Key, typename T>
+bool Link<Key, T>::operator>(const Link<Key, T>& rhs) const
 {
     auto result = false;
-    if (id_ > rhs.id_)
+    if (key_ > rhs.key_)
     {
         result = true;
     }
-    else if (id_ < rhs.id_)
+    else if (key_ < rhs.key_)
     {
         result = false;
     }
