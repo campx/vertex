@@ -17,7 +17,8 @@ public:
     using container_type = typename toolbox::Value<Container>::element_type;
     using vertex_iterator = typename container_type::const_iterator;
     using vertex_type = typename container_type::value_type::second_type;
-    using child_iterator = typename vertex_type::const_iterator;
+    using child_iterator =
+        typename vertex_type::container_type::const_iterator;
     using value_type = typename Container::value_type;
     using self_type = LinkIterator<Container>;
     using reference = const value_type&;
@@ -65,14 +66,14 @@ template <typename Container>
 typename LinkIterator<Container>::self_type
 LinkIterator<Container>::begin() const
 {
-    return self_type(*vertices_, parent_, parent_->begin());
+    return self_type(*vertices_, parent_, parent_->links().begin());
 }
 
 template <typename Container>
 typename LinkIterator<Container>::self_type
 LinkIterator<Container>::end() const
 {
-    return self_type(*vertices_, parent_, parent_->end());
+    return self_type(*vertices_, parent_, parent_->links().end());
 }
 
 template <typename Container>

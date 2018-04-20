@@ -27,8 +27,9 @@ public: // typedefs
     using value_type = typename container_type::value_type;
     using node_type = typename value_type::second_type;
     using link_type = typename node_type::link_type;
-    using size_type = typename node_type::size_type;
-    using difference_type = typename node_type::difference_type;
+    using size_type = typename node_type::container_type::size_type;
+    using difference_type =
+        typename node_type::container_type::difference_type;
     using reference = value_type&;
     using const_reference = const value_type&;
     using pointer = value_type*;
@@ -58,7 +59,8 @@ Array<Container>::Array(Container container,
 template <typename Container>
 typename Array<Container>::iterator Array<Container>::begin() const
 {
-    return iterator(*container_, &root_it_->second, root_it_->second.cbegin());
+    return iterator(*container_, &root_it_->second,
+                    root_it_->second.links().cbegin());
 }
 
 template <typename Container>
@@ -70,19 +72,19 @@ typename Array<Container>::iterator Array<Container>::end() const
 template <typename Container>
 bool Array<Container>::empty() const
 {
-    return root_it_->second.empty();
+    return root_it_->second.links().empty();
 }
 
 template <typename Container>
 typename Array<Container>::size_type Array<Container>::length() const
 {
-    return root_it_->second.length();
+    return root_it_->second.links().size();
 }
 
 template <typename Container>
 void Array<Container>::clear()
 {
-    root_it_->second.clear();
+    root_it_->second.links().clear();
 }
 
 template <typename Container>
@@ -98,8 +100,8 @@ Array<Container>::insert(typename Array<Container>::const_iterator pos,
                          const typename Array<Container>::value_type& value)
 {
     (*container_)[value.first] = value.second;
-    auto result = root_it_->second.insert(pos.position(), value.first);
-    return iterator(*container_, &root_it_->second, result.first);
+    auto result = root_it_->second.links().insert(pos.position(), value.first);
+    return iterator(*container_, &root_it_->second, result);
 }
 
 } // namespace objex

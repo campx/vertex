@@ -68,7 +68,7 @@ void Link<Key, T>::key(const Key& data)
 template <typename Key, typename T>
 void Link<Key, T>::data(const T& value)
 {
-    return data_ = value;
+    data_ = value;
 }
 
 template <typename Key, typename T>

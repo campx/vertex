@@ -15,7 +15,7 @@ public:
     using container_type = Container;
     using vertex_iterator = typename Container::const_iterator;
     using vertex_type = typename Container::mapped_type;
-    using child_iterator = typename vertex_type::iterator;
+    using child_iterator = typename vertex_type::container_type::iterator;
     using key_type = typename Container::key_type;
     using edge_type = std::pair<key_type, key_type>;
     using predicate_type = Predicate;

@@ -44,24 +44,24 @@ struct Tree : public ::testing::Test
         vertices.insert(std::make_pair("E", TestNode("E")));
         vertices.insert(std::make_pair("H", TestNode("H")));
         auto d = TestNode("D");
-        d.insert(d.end(), "C");
-        d.insert(d.end(), "E");
+        d.links().insert(d.links().end(), "C");
+        d.links().insert(d.links().end(), "E");
         vertices.insert(std::make_pair("D", d));
         auto b = TestNode("B");
-        b.insert(b.end(), "A");
-        b.insert(b.end(), "D");
+        b.links().insert(b.links().end(), "A");
+        b.links().insert(b.links().end(), "D");
         vertices.insert(std::make_pair("B", b));
         auto f = TestNode("F");
-        f.insert(f.end(), "B");
-        f.insert(f.end(), "G");
+        f.links().insert(f.links().end(), "B");
+        f.links().insert(f.links().end(), "G");
         vertices.insert(std::make_pair("F", f));
         auto g = TestNode("G");
-        g.insert(g.end(), "");
-        g.insert(g.end(), "I");
+        g.links().insert(g.links().end(), "");
+        g.links().insert(g.links().end(), "I");
         vertices.insert(std::make_pair("G", g));
         auto i = TestNode("I");
-        i.insert(i.end(), "H");
-        i.insert(i.end(), "");
+        i.links().insert(i.links().end(), "H");
+        i.links().insert(i.links().end(), "");
         vertices.insert(std::make_pair("I", i));
     }
 };
@@ -208,9 +208,9 @@ TEST_F(Tree, BredthFirstTraversal)
     vertices.insert(std::make_pair("C", TestNode("C")));
     vertices.insert(std::make_pair("D", TestNode("D")));
     auto root = TestNode("A");
-    root.insert(root.end(), "B");
-    root.insert(root.end(), "C");
-    root.insert(root.end(), "D");
+    root.links().insert(root.links().end(), "B");
+    root.links().insert(root.links().end(), "C");
+    root.links().insert(root.links().end(), "D");
     vertices.insert(std::make_pair("A", root));
     { // traverse graph of depth 1
         using Bfs = BreadthFirstTraversal<Container>;

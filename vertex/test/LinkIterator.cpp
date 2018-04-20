@@ -22,16 +22,17 @@ TEST(Node, LinkIterator)
         vertices.insert(std::make_pair(TestLink(2), TestNode("B")));
         vertices.insert(std::make_pair(TestLink(3), TestNode("C")));
         vertices.insert(std::make_pair(TestLink(4), TestNode("D")));
-        vertex.insert(vertex.end(), TestLink(1));
-        vertex.insert(vertex.end(), TestLink(2));
-        vertex.insert(vertex.end(), TestLink(3));
-        vertex.insert(vertex.end(), TestLink(4));
+        vertex.links().push_back(TestLink(1));
+        vertex.links().push_back(TestLink(2));
+        vertex.links().push_back(TestLink(3));
+        vertex.links().push_back(TestLink(4));
 
         auto inserted = false;
         auto vit = Container::iterator();
         std::tie(vit, inserted) =
             vertices.insert(std::make_pair(TestLink(0), vertex));
-        auto it = LinkIterator<Container>(vertices, &vertex, vertex.begin());
+        auto it =
+            LinkIterator<Container>(vertices, &vertex, vertex.links().begin());
         auto begin = std::begin(it);
         auto end = std::end(it);
         EXPECT_EQ(Container::value_type(TestLink(1u), TestNode("A")), *begin);

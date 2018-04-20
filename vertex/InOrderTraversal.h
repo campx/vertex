@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <stack>
 #include <vertex/Traversal.h>
 
@@ -54,10 +55,10 @@ bool InOrderTraversal<Container, Predicate>::next()
         return false;
     }
     auto child = next_position_;
-    while (child != vertices().end() && child->second.length() == 2)
+    while (child != vertices().end() && child->second.links().size() == 2)
     { // traversal to bottom of left branch
-        auto next_child = vertices().find(*child->second.begin());
-        auto e = std::make_pair(child->first, *child->second.begin());
+        auto next_child = vertices().find(*child->second.links().begin());
+        auto e = std::make_pair(child->first, *child->second.links().begin());
         if (next_child != vertices().end() && isTraversible(e))
         {
             to_visit_.push(e);
@@ -72,9 +73,9 @@ bool InOrderTraversal<Container, Predicate>::next()
         next_position_ = child;
     }
     base_type::position(next_position_);
-    if (next_position_->second.length() == 2)
+    if (next_position_->second.links().size() == 2)
     { // traverse right branch
-        auto link = *(++next_position_->second.begin());
+        auto link = *(++next_position_->second.links().begin());
         child = vertices().find(link);
         auto e = std::make_pair(next_position_->first, link);
         if (child != vertices().end() && isTraversible(e))

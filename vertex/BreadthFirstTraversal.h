@@ -43,7 +43,7 @@ bool BreadthFirstTraversal<Container, Predicate>::next()
     auto result = false;
     if (position() != vertices().end())
     {
-        for (const auto& child : position()->second)
+        for (const auto& child : position()->second.links())
         {
             auto e = std::make_pair(position()->first, child);
             if (isTraversible(e))

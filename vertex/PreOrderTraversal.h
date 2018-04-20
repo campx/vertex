@@ -51,10 +51,11 @@ template <typename Container, typename Predicate>
 bool PreOrderTraversal<Container, Predicate>::traverseLeft()
 {
     auto moved = false;
-    if (position()->second.length() == 2)
+    if (position()->second.links().size() == 2)
     { // traversal to bottom of left branch
-        auto left_key = *position()->second.begin();
-        auto right_child = vertices().find(*(++position()->second.begin()));
+        auto left_key = *position()->second.links().begin();
+        auto right_child =
+            vertices().find(*(++position()->second.links().begin()));
         auto left_child = vertices().find(left_key);
         auto left_edge = std::make_pair(position()->first, left_key);
         if (left_child == prev_pos_ || right_child == prev_pos_ ||
@@ -75,9 +76,9 @@ template <typename Container, typename Predicate>
 bool PreOrderTraversal<Container, Predicate>::traverseRight()
 {
     auto moved = false;
-    if (position()->second.length() == 2)
+    if (position()->second.links().size() == 2)
     { // traverse right branch
-        auto child_key = *(++position()->second.begin());
+        auto child_key = *(++position()->second.links().begin());
         auto child_vertex = vertices().find(child_key);
         auto child_edge = std::make_pair(position()->first, child_key);
         if (child_vertex != prev_pos_ && child_vertex != vertices().end() &&
