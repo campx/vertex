@@ -8,18 +8,18 @@
 namespace vertex
 {
 
-/** PathResolver traverses a graph, matching a Link sequence using a given
+/** PathMap traverses a graph, matching a Link sequence using a given
  * Compare function, returning an array of matching Link,Node pairs */
 template <typename Container,
           typename Iterator,
           typename Compare = std::equal_to<typename Container::key_type>>
-class PathResolver
+class PathMap
 {
 public:
     using const_iterator = typename Container::const_iterator;
     using value_type = typename Container::value_type;
     using result_type = std::vector<value_type>;
-    PathResolver(const Container& nodes, const_iterator root);
+    PathMap(const Container& nodes, const_iterator root);
 
     result_type operator()(const Iterator& begin, const Iterator& end) const;
 
@@ -29,15 +29,15 @@ private:
 };
 
 template <typename Container, typename Iterator, typename Compare>
-PathResolver<Container, Iterator, Compare>::PathResolver(
+PathMap<Container, Iterator, Compare>::PathMap(
     const Container& nodes, typename Container::const_iterator root)
     : nodes_(&nodes), root_(std::move(root))
 {
 }
 
 template <typename Container, typename Iterator, typename Compare>
-typename PathResolver<Container, Iterator, Compare>::result_type
-PathResolver<Container, Iterator, Compare>::
+typename PathMap<Container, Iterator, Compare>::result_type
+PathMap<Container, Iterator, Compare>::
 operator()(const Iterator& begin, const Iterator& end) const
 {
     using Predicate = PathPredicate<Iterator, Compare>;

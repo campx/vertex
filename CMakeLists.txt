@@ -20,7 +20,7 @@ add_library(libvertex
             vertex/Traversal.cpp             vertex/Traversal.h
             vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h
             vertex/PathPredicate.cpp         vertex/PathPredicate.h
-            vertex/PathResolver.cpp          vertex/PathResolver.h)
+            vertex/PathMap.cpp               vertex/PathMap.h)
 
 add_dependencies(libvertex toolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
@@ -51,7 +51,7 @@ add_executable(TestVertex
                vertex/test/Link.cpp           vertex/test/Link.h
                vertex/test/Node.cpp           vertex/test/Node.h
                vertex/test/PathPredicate.cpp
-               vertex/test/PathResolver.cpp
+               vertex/test/PathMap.cpp
                vertex/test/LinkIterator.cpp
                vertex/test/Traversal.cpp
                vertex/test/Array.cpp
