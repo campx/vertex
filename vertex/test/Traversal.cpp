@@ -5,6 +5,7 @@
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
 #include <vertex/Predicate.h>
+#include <functional>
 
 namespace
 {
