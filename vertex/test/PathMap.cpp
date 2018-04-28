@@ -6,8 +6,7 @@ using TestNode = vertex::Node<std::string, std::string>;
 using Container = std::map<std::string, TestNode>;
 using LinkArray = std::vector<std::string>;
 using NodeArray = std::vector<std::pair<const std::string, TestNode>>;
-using Iterator = LinkArray::const_iterator;
-using PathMap = vertex::PathMap<Container, Iterator>;
+using PathMap = vertex::PathMap<Container>;
 
 TEST(vertex, PathMap)
 { // Create a graph of paths
@@ -20,7 +19,8 @@ TEST(vertex, PathMap)
     auto search_path = LinkArray{"/", "home", "bob", "documents"};
     auto root_it = vertices.find("/");
     ASSERT_NE(vertices.end(), root_it);
-    auto resolver = PathMap(vertices, root_it);
+    auto path_map = PathMap(vertices, root_it);
     auto expected = NodeArray{home, bob, documents};
-    EXPECT_EQ(expected, resolver(search_path.begin(), search_path.end()));
+    auto result = path_map.find(search_path);
+    EXPECT_EQ(search_path, (*result).first);
 }
