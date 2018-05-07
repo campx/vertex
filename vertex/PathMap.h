@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <functional>
-#include <iostream>
 #include <toolbox/Iterator.h>
 #include <toolbox/IteratorRecorder.h>
 #include <toolbox/IteratorTransformer.h>
@@ -45,10 +44,12 @@ public:
     using Transformer = toolbox::IteratorTransformer<Decoder, Traversal>;
     using iterator = toolbox::IteratorRecorder<Transformer>;
 
-    PathMap(const Container& nodes, typename Container::const_iterator root,
+    PathMap(Container& nodes, typename Container::const_iterator root,
             Compare compare = Compare());
 
     const typename Container::const_iterator& root() const;
+
+    Container& nodes() const;
 
     iterator begin() const;
 
@@ -67,13 +68,18 @@ public:
     std::pair<iterator, bool> insert(const value_type& value);
 
 private:
-    const Container* nodes_;
+
+    std::pair<typename Container::iterator, bool>
+    insert_or_assign(const typename Container::key_type& key,
+                     typename Container::mapped_type& value);
+
+    Container* nodes_;
     typename Container::const_iterator root_;
     Compare compare_;
 };
 
 template <typename Container, typename Compare>
-PathMap<Container, Compare>::PathMap(const Container& nodes,
+PathMap<Container, Compare>::PathMap(Container& nodes,
                                      typename Container::const_iterator root,
                                      Compare compare)
     : nodes_(&nodes), root_(std::move(root)), compare_(std::move(compare))
@@ -111,14 +117,19 @@ PathMap<Container, Compare>::root() const
 }
 
 template <typename Container, typename Compare>
+Container& PathMap<Container, Compare>::nodes() const
+{
+    return *nodes_;
+};
+
+template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::begin() const
 {
-    auto first = Traversal(*nodes_, root_);
+    auto first = Traversal(nodes(), root_);
     auto last = first.end();
     first = first == last ? first : ++first; // don't include root in results
-    auto decoder = Decoder(key_type{root()->first});
-    auto transformer = Transformer(first, decoder);
+    auto transformer = Transformer(first);
     return iterator(transformer);
 }
 
@@ -126,9 +137,8 @@ template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::end() const
 {
-    auto traversal = Traversal(*nodes_, root_).end();
-    auto decoder = Decoder(key_type{root()->first});
-    auto transformer = Transformer(traversal, decoder);
+    auto traversal = Traversal(nodes(), root_).end();
+    auto transformer = Transformer(traversal);
     return iterator(transformer);
 }
 
@@ -136,13 +146,14 @@ template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::search(const key_type& p) const
 {
-    auto predicate = Predicate(p.begin(), p.end(), compare_);
-    auto first = Traversal(*nodes_, root_, predicate);
+    key_type path = key_type{root_->first}; // pre-pend root to search path
+    path.insert(path.end(), p.begin(), p.end());
+    auto predicate = Predicate(path.begin(), path.end(), compare_);
+    auto first = Traversal(nodes(), root_, predicate);
     auto last = first.end();
     first = first == last ? first : ++first; // don't include root in results
-    auto decoder = Decoder(key_type{root()->first});
-    auto first_transformer = Transformer(first, decoder);
-    auto last_transformer = Transformer(last, decoder);
+    auto first_transformer = Transformer(first);
+    auto last_transformer = Transformer(last);
     auto begin = iterator(first_transformer);
     auto end = iterator(last_transformer);
     auto result = toolbox::back(begin, end);
@@ -154,7 +165,7 @@ typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::find(const key_type& p) const
 {
     auto match = search(p);
-    if (match->first.size() != p.size())
+    if (match != end() && match->first.size() != p.size())
     {
         match = end();
     }
@@ -166,42 +177,62 @@ std::pair<typename PathMap<Container, Compare>::iterator, bool>
 PathMap<Container, Compare>::insert(const value_type& value)
 {
     auto result = std::make_pair(search(value.first), false);
-    if (result.first != end() || value.first.empty())
-    {
+    if (result.first != end() &&
+        result.first->first.size() == value.first.size())
+    { // already exists
         return result;
     }
-    /*
     result.second = true;
-    // Insert child node
-    auto link = *(value.first.rbegin());
-    auto chit = nodes_->find(link);
-    if (chit == nodes_->end())
+    auto path_it = value.first.rbegin();
+    auto child_it = nodes().end();
+    auto node = value.second;
+    for (auto rend = value.first.rend(); path_it != rend; ++path_it)
     {
-        auto child = std::make_pair(link, value.second);
-        nodes_->insert(child);
+        if (result.first != end())
+        {
+            if (compare_(result.first->first.back(), *path_it))
+            { // Copy existing Node for this Link
+                node = result.first->second;
+                --result.first;
+            }
+        }
+        else
+        {
+            node = mapped_type(); // create empty node
+            if (child_it != nodes().end())
+            { // add link from parent to child
+                node.links().push_back(child_it->first);
+            }
+        }
+        std::tie(child_it, result.second) = insert_or_assign(*path_it, node);
+    }
+    node = root_->second;
+    if (node.links().end() ==
+        std::find(node.links().begin(), node.links().end(), child_it->first))
+    {
+        node.links().push_back(child_it->first);
+    }
+    std::tie(root_, result.second) = insert_or_assign(child_it->first, node);
+    result.first = search(value.first);
+    return result;
+}
+
+template <typename Container, typename Compare>
+std::pair<typename Container::iterator, bool>
+PathMap<Container, Compare>::insert_or_assign(
+    const typename Container::key_type& key,
+    typename Container::mapped_type& value)
+{
+    auto result = std::make_pair(nodes().find(key), false);
+    if (result.first == nodes().end())
+    {
+        result = nodes().emplace(std::make_pair(key, value));
     }
     else
     {
-        *chit = value.second;
+        result.first->second = value;
     }
-    // Walk back through tree to root
-    auto begin = ++(value.first.rbegin()); // OK - already checked path is non-empty
-    auto end = value.first.rend();
-    for (auto it = begin; it != end; ++it)
-    {
-        if (result.first != begin() && result.first->first == *it)
-        {
-            auto& parent = result.first->second;
-            if (parent.links().end() ==
-                std::find(parent.links().begin(), parent.links().end()))
-            {
-                parent.links().push_back(chit->first);
-            }
-        }
-        std::cout << *it << std::endl;
-    }
-     */
     return result;
-}
+};
 
 } // namespace vertex
