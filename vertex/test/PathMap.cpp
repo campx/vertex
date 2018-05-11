@@ -28,10 +28,13 @@ TEST(vertex, PathMap)
     auto bob = std::make_pair("bob", TestNode("Bob", bob_links));
     auto documents = std::make_pair("documents", TestNode("Docs"));
     auto photos = std::make_pair("photos", TestNode("Pictures"));
-    auto vertices = Container{root, home, jim, bob, documents, photos};
+    auto expected_vertices = Container{root, home, jim, bob, documents, photos};
+    auto vertices = expected_vertices;
     auto root_it = vertices.find("/");
     ASSERT_NE(vertices.end(), root_it);
     auto path_map = PathMap(vertices, root_it);
+    auto search_path = LinkArray{"home", "bob", "documents"};
+
     auto expected_paths = PathArray{
         std::make_pair(LinkArray{"home"}, home.second),
         std::make_pair(LinkArray{"home", "jim"}, jim.second),
@@ -42,8 +45,7 @@ TEST(vertex, PathMap)
     std::copy(path_map.begin(), path_map.end(),
               std::back_inserter(actual_paths));
     EXPECT_EQ(expected_paths, actual_paths);
-    auto expected = NodeArray{home, bob, documents};
-    auto search_path = LinkArray{"home", "bob", "documents"};
+
     auto result = path_map.search(search_path);
     ASSERT_NE(result, path_map.end());
     EXPECT_EQ((LinkArray{"home", "bob", "documents"}), result->first);
@@ -53,7 +55,46 @@ TEST(vertex, PathMap)
     search_path.emplace_back("plans.doc");
     EXPECT_EQ(path_map.end(), path_map.find(search_path));
     EXPECT_NE(result, path_map.end());
+    EXPECT_EQ(expected_vertices, vertices);
+    auto var = std::make_pair("var", TestNode("", LinkArray{"log"}));
+    auto log = std::make_pair("log", TestNode("", LinkArray{"messages"}));
+    auto messages = std::make_pair("messages", TestNode());
+    expected_vertices.insert(var);
+    expected_vertices.insert(log);
+    expected_vertices.insert(messages);
     auto path = LinkArray{"var", "log", "messages"};
     path_map.insert(std::make_pair(path, TestNode("Log messages")));
     EXPECT_NE(path_map.search(path), path_map.end());
+
+
+    /** Check full content of map is as expected
+     *
+    0 /
+    |--------------------
+    |                   |
+    1 home                var
+    |-----              |
+    |    |              |
+    jim  bob            log
+    |-----------        |
+    |          |        |
+    documents  photos   messages
+
+    find output is depth first, e.g.:
+    /home
+    /home/bob
+    /home/jim
+    /home/jim/documents
+    /home/jim/documents/my.doc
+    /home/jim/photos
+    /var
+    /var/log
+    /var/log/messages
+
+    */
+    EXPECT_NE(vertices["/"], root.second);
+    EXPECT_NE(expected_vertices, vertices);
+    expected_vertices["/"] = TestNode("Root", LinkArray{"home", "var"});
+    EXPECT_EQ(expected_vertices, vertices);
+
 }

@@ -4,14 +4,13 @@
 #include <vertex/Node.h>
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
-#include <vertex/Predicate.h>
-#include <functional>
 
 namespace
 {
 
 using TestNode = vertex::Node<std::string, std::string>;
 using Container = std::map<std::string, TestNode>;
+using LinkArray = typename TestNode::container_type;
 
 std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
 {
@@ -23,10 +22,62 @@ std::ostream& operator<<(std::ostream& output, const TestNode& vertex)
 
 namespace vertex
 {
+struct Graph : public ::testing::Test
+{
+    Container vertices;
+
+    Graph()
+    {
+        /*******************\
+         *         1        *
+         *        /|\       *
+         *       / | \      *
+         *      2  7  8     *
+         *     / \   / \    *
+         *    3   6 9   12  *
+         *   / \   / \      *
+         *  4   5 10  11    *
+        \*******************/
+
+        /** Create leaf nodes */
+        vertices.insert(
+            std::make_pair("1", TestNode("1", LinkArray{"2", "7", "8"})));
+        vertices.insert(
+            std::make_pair("2", TestNode("2", LinkArray{"3", "6"})));
+        vertices.insert(
+            std::make_pair("3", TestNode("3", LinkArray{"4", "5"})));
+        vertices.insert(std::make_pair("4", TestNode("4")));
+        vertices.insert(std::make_pair("5", TestNode("5")));
+        vertices.insert(std::make_pair("6", TestNode("6")));
+        vertices.insert(std::make_pair("7", TestNode("7")));
+        vertices.insert(
+            std::make_pair("8", TestNode("8", LinkArray{"9", "12"})));
+        vertices.insert(
+            std::make_pair("9", TestNode("9", LinkArray{"10", "11"})));
+        vertices.insert(std::make_pair("10", TestNode("10")));
+        vertices.insert(std::make_pair("11", TestNode("11")));
+        vertices.insert(std::make_pair("12", TestNode("12")));
+    }
+};
+
+TEST_F(Graph, PreOrderTraversal)
+{
+    using Pot = PreOrderTraversal<Container>;
+    {
+        auto traversal = Pot(vertices, vertices.find("1"));
+        auto vertex_order = std::ostringstream();
+        for (const auto& v : traversal)
+        {
+            vertex_order << v.second;
+        }
+        EXPECT_EQ("123456789101112", vertex_order.str());
+    }
+}
 
 struct Tree : public ::testing::Test
 {
     Container vertices;
+
     Tree()
     {
         /*******************\
@@ -153,8 +204,8 @@ TEST_F(Tree, PredicatedBreadthFirstTraversal)
 {
     using Predicate = std::function<bool(
         const std::pair<Container::key_type, Container::key_type>&)>;
-    auto predicate =
-        Predicate([](const auto& e) -> auto { return e.first == "F"; });
+    auto predicate = Predicate(
+        [](const auto& e) -> auto { return e.first == "F"; });
 
     using Bft = BreadthFirstTraversal<Container, Predicate>;
     {
@@ -184,6 +235,7 @@ TEST_F(Tree, MaxDepthBreadthFirstTraversal)
         EXPECT_EQ("FBGADI", vertex_order.str());
     }
 }
+
 TEST_F(Tree, PostOrderTraversal)
 {
     using Pot = PostOrderTraversal<Container>;
@@ -241,4 +293,5 @@ TEST_F(Tree, EmptyTraversal)
         EXPECT_EQ("", os.str());
     }
 }
+
 } // namespace vertex

@@ -6,8 +6,8 @@
 #include <toolbox/IteratorRecorder.h>
 #include <toolbox/IteratorTransformer.h>
 #include <toolbox/SequencePredicate.h>
+#include <vertex/PreOrderTraversal.h>
 #include <vector>
-#include <vertex/BreadthFirstTraversal.h>
 
 namespace vertex
 {
@@ -28,7 +28,7 @@ public:
     public:
         Decoder() = default;
 
-        explicit Decoder(key_type path);
+        explicit Decoder(typename Container::const_iterator root);
 
         value_type operator()(const typename Container::value_type& value);
 
@@ -40,7 +40,7 @@ public:
 
     using Predicate =
     toolbox::SequencePredicate<typename key_type::const_iterator, Compare>;
-    using Traversal = BreadthFirstTraversal<Container, Predicate>;
+    using Traversal = PreOrderTraversal<Container, Predicate>;
     using Transformer = toolbox::IteratorTransformer<Decoder, Traversal>;
     using iterator = toolbox::IteratorRecorder<Transformer>;
 
@@ -87,8 +87,9 @@ PathMap<Container, Compare>::PathMap(Container& nodes,
 }
 
 template <typename Container, typename Compare>
-PathMap<Container, Compare>::Decoder::Decoder(key_type path)
-    : path_(std::move(path))
+PathMap<Container, Compare>::Decoder::Decoder(
+    typename Container::const_iterator root)
+    : prev_links_(root->second.links())
 {
 }
 
@@ -97,9 +98,10 @@ typename PathMap<Container, Compare>::value_type
 PathMap<Container, Compare>::Decoder::operator()(
     const typename Container::value_type& value)
 {
+    // home,bob,documents, var,log,messages,home,var,jim,bob,log,documents,photos,messages
 
     auto prev = std::find(prev_links_.begin(), prev_links_.end(), value.first);
-    if (prev != prev_links_.end())
+    if (prev != prev_links_.end() && !path_.empty())
     {
         path_.erase(--path_.end());
     }
@@ -129,7 +131,8 @@ PathMap<Container, Compare>::begin() const
     auto first = Traversal(nodes(), root_);
     auto last = first.end();
     first = first == last ? first : ++first; // don't include root in results
-    auto transformer = Transformer(first);
+    auto decoder = Decoder(root_);
+    auto transformer = Transformer(first, decoder);
     return iterator(transformer);
 }
 
@@ -138,7 +141,8 @@ typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::end() const
 {
     auto traversal = Traversal(nodes(), root_).end();
-    auto transformer = Transformer(traversal);
+    auto decoder = Decoder(root_);
+    auto transformer = Transformer(traversal, decoder);
     return iterator(transformer);
 }
 
@@ -150,10 +154,11 @@ PathMap<Container, Compare>::search(const key_type& p) const
     path.insert(path.end(), p.begin(), p.end());
     auto predicate = Predicate(path.begin(), path.end(), compare_);
     auto first = Traversal(nodes(), root_, predicate);
+    auto decoder = Decoder(root_);
     auto last = first.end();
     first = first == last ? first : ++first; // don't include root in results
-    auto first_transformer = Transformer(first);
-    auto last_transformer = Transformer(last);
+    auto first_transformer = Transformer(first, decoder);
+    auto last_transformer = Transformer(last, decoder);
     auto begin = iterator(first_transformer);
     auto end = iterator(last_transformer);
     auto result = toolbox::back(begin, end);
@@ -212,7 +217,7 @@ PathMap<Container, Compare>::insert(const value_type& value)
     {
         node.links().push_back(child_it->first);
     }
-    std::tie(root_, result.second) = insert_or_assign(child_it->first, node);
+    std::tie(root_, result.second) = insert_or_assign(root_->first, node);
     result.first = search(value.first);
     return result;
 }
