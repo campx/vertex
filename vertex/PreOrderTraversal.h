@@ -26,10 +26,6 @@ public:
                       typename Container::const_iterator root,
                       Predicate predicate = Predicate{});
 
-    bool traverseRight();
-
-    bool traverseLeft();
-
     bool next();
 
 private:
@@ -73,50 +69,6 @@ bool PreOrderTraversal<Container, Predicate>::traverse(link_type link)
     }
     return moved;
 };
-
-template <typename Container, typename Predicate>
-bool PreOrderTraversal<Container, Predicate>::traverseLeft()
-{
-    auto moved = false;
-    if (position()->second.links().size() == 2)
-    { // traversal to bottom of left branch
-        auto left_key = *position()->second.links().begin();
-        auto right_child = vertices().find(
-            *(++position()->second.links().begin()));
-        auto left_child = vertices().find(left_key);
-        auto left_edge = std::make_pair(position()->first, left_key);
-        if (left_child == prev_pos_ || right_child == prev_pos_ ||
-            left_child == vertices().end() || !isTraversible(left_edge))
-        {
-            moved = false;
-        }
-        else
-        {
-            base_type::position(left_child);
-            moved = true;
-        }
-    }
-    return moved;
-}
-
-template <typename Container, typename Predicate>
-bool PreOrderTraversal<Container, Predicate>::traverseRight()
-{
-    auto moved = false;
-    if (position()->second.links().size() == 2)
-    { // traverse right branch
-        auto child_key = *(++position()->second.links().begin());
-        auto child_vertex = vertices().find(child_key);
-        auto child_edge = std::make_pair(position()->first, child_key);
-        if (child_vertex != prev_pos_ && child_vertex != vertices().end() &&
-            isTraversible(child_edge))
-        {
-            base_type::position(child_vertex);
-            moved = true;
-        }
-    }
-    return moved;
-}
 
 template <typename Container, typename Predicate>
 bool PreOrderTraversal<Container, Predicate>::next()
