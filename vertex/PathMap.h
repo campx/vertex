@@ -199,6 +199,7 @@ PathMap<Container, Compare>::insert(const value_type& value)
     auto path_it = value.first.rbegin();
     auto child_it = nodes().end();
     auto node = value.second;
+    std::tie(child_it, result.second) = insert_or_assign(*path_it++, node);
     for (auto rend = value.first.rend(); path_it != rend; ++path_it)
     {
         if (result.first != end())
