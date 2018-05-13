@@ -28,14 +28,13 @@ public:
     public:
         Decoder() = default;
 
-        explicit Decoder(typename Container::const_iterator root);
+        explicit Decoder(Container& nodes);
 
         value_type operator()(const typename Container::value_type& value);
 
     private:
         key_type path_;
-        key_type prev_links_;
-        key_type links_;
+        Container* nodes_;
     };
 
     using Predicate =
@@ -87,9 +86,8 @@ PathMap<Container, Compare>::PathMap(Container& nodes,
 }
 
 template <typename Container, typename Compare>
-PathMap<Container, Compare>::Decoder::Decoder(
-    typename Container::const_iterator root)
-    : prev_links_(root->second.links())
+PathMap<Container, Compare>::Decoder::Decoder(Container& nodes)
+    : nodes_(&nodes)
 {
 }
 
@@ -98,16 +96,26 @@ typename PathMap<Container, Compare>::value_type
 PathMap<Container, Compare>::Decoder::operator()(
     const typename Container::value_type& value)
 {
-    // home,bob,documents, var,log,messages,home,var,jim,bob,log,documents,photos,messages
-
-    auto prev = std::find(prev_links_.begin(), prev_links_.end(), value.first);
-    if (prev != prev_links_.end() && !path_.empty())
+    if (!path_.empty())
     {
-        path_.erase(--path_.end());
+        auto it = path_.rbegin();
+        for (auto end = path_.rend(); it != end; ++it)
+        {
+            auto node = nodes_->find(*it);
+            if (node != nodes_->end())
+            {
+                auto child_it = std::find(node->second.links().begin(),
+                                          node->second.links().end(),
+                                          value.first);
+                if (child_it != node->second.links().end())
+                {
+                    break; // this node contains the link
+                }
+            }
+        }
+        path_.erase(it.base(), path_.end());
     }
     path_.push_back(value.first);
-    prev_links_ = links_;
-    links_ = value.second.links();
     return std::make_pair(path_, value.second);
 }
 
@@ -131,7 +139,7 @@ PathMap<Container, Compare>::begin() const
     auto first = Traversal(nodes(), root_);
     auto last = first.end();
     first = first == last ? first : ++first; // don't include root in results
-    auto decoder = Decoder(root_);
+    auto decoder = Decoder(nodes());
     auto transformer = Transformer(first, decoder);
     return iterator(transformer);
 }
@@ -141,7 +149,7 @@ typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::end() const
 {
     auto traversal = Traversal(nodes(), root_).end();
-    auto decoder = Decoder(root_);
+    auto decoder = Decoder(nodes());
     auto transformer = Transformer(traversal, decoder);
     return iterator(transformer);
 }
@@ -154,7 +162,7 @@ PathMap<Container, Compare>::search(const key_type& p) const
     path.insert(path.end(), p.begin(), p.end());
     auto predicate = Predicate(path.begin(), path.end(), compare_);
     auto first = Traversal(nodes(), root_, predicate);
-    auto decoder = Decoder(root_);
+    auto decoder = Decoder(nodes());
     auto last = first.end();
     first = first == last ? first : ++first; // don't include root in results
     auto first_transformer = Transformer(first, decoder);

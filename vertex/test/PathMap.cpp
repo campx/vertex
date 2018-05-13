@@ -35,17 +35,6 @@ TEST(vertex, PathMap)
     auto path_map = PathMap(vertices, root_it);
     auto search_path = LinkArray{"home", "bob", "documents"};
 
-    auto expected_paths = PathArray{
-        std::make_pair(LinkArray{"home"}, home.second),
-        std::make_pair(LinkArray{"home", "jim"}, jim.second),
-        std::make_pair(LinkArray{"home", "bob"}, bob.second),
-        std::make_pair(LinkArray{"home", "bob", "documents"}, documents.second),
-        std::make_pair(LinkArray{"home", "bob", "photos"}, photos.second)};
-    auto actual_paths = PathArray{};
-    std::copy(path_map.begin(), path_map.end(),
-              std::back_inserter(actual_paths));
-    EXPECT_EQ(expected_paths, actual_paths);
-
     auto result = path_map.search(search_path);
     ASSERT_NE(result, path_map.end());
     EXPECT_EQ((LinkArray{"home", "bob", "documents"}), result->first);
@@ -66,7 +55,6 @@ TEST(vertex, PathMap)
     path_map.insert(std::make_pair(path, TestNode("Log messages")));
     EXPECT_NE(path_map.search(path), path_map.end());
 
-
     /** Check full content of map is as expected
      *
     0 /
@@ -85,13 +73,24 @@ TEST(vertex, PathMap)
     /home/bob
     /home/jim
     /home/jim/documents
-    /home/jim/documents/my.doc
     /home/jim/photos
     /var
     /var/log
     /var/log/messages
-
     */
+    auto expected_paths = PathArray{
+        std::make_pair(LinkArray{"home"}, home.second),
+        std::make_pair(LinkArray{"home", "jim"}, jim.second),
+        std::make_pair(LinkArray{"home", "bob"}, bob.second),
+        std::make_pair(LinkArray{"home", "bob", "documents"}, documents.second),
+        std::make_pair(LinkArray{"home", "bob", "photos"}, photos.second),
+        std::make_pair(LinkArray{"var"}, var.second),
+        std::make_pair(LinkArray{"var", "log"}, log.second),
+        std::make_pair(LinkArray{"var", "log", "messages"}, messages.second)};
+    auto actual_paths = PathArray{};
+    std::copy(path_map.begin(), path_map.end(),
+              std::back_inserter(actual_paths));
+    EXPECT_EQ(expected_paths, actual_paths);
     EXPECT_NE(vertices["/"], root.second);
     EXPECT_NE(expected_vertices, vertices);
     expected_vertices["/"] = TestNode("Root", LinkArray{"home", "var"});
