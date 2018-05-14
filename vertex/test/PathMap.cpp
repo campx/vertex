@@ -53,8 +53,15 @@ TEST(vertex, PathMap)
     expected_vertices.insert(messages);
     auto path = LinkArray{"var", "log", "messages"};
     path_map.insert(std::make_pair(path, messages.second));
-    EXPECT_NE(path_map.search(path), path_map.end());
+    auto map_iter = path_map.search(path);
+    EXPECT_NE(map_iter, path_map.end());
     EXPECT_EQ(std::make_pair(path, messages.second), *path_map.find(path));
+    auto inserted = false;
+    std::tie(map_iter, inserted) = path_map.insert(
+        std::make_pair(path, TestNode("")));
+    EXPECT_EQ(path_map.find(path), map_iter);
+    EXPECT_FALSE(inserted);
+
     /** Check full content of map is as expected
      *
     0 /
@@ -96,4 +103,9 @@ TEST(vertex, PathMap)
     expected_vertices["/"] = TestNode("Root", LinkArray{"home", "var"});
     EXPECT_EQ(expected_vertices, vertices);
 
+    path = LinkArray{"var", "log", "messages"};
+    EXPECT_EQ(path_map.find(LinkArray{"var", "log"}),
+              path_map.erase(path_map.find(path)));
+    EXPECT_EQ(path_map.end(), path_map.find(path));
+    EXPECT_EQ(vertices.end(), vertices.find("messages"));
 }

@@ -62,7 +62,8 @@ public:
      * @return Value of match or end() if the case of an incomplete match */
     iterator find(const key_type& p) const;
 
-    iterator erase(const iterator& it);
+    /** Erase element pointed to by the given iterator */
+    iterator erase(iterator it);
 
     std::pair<iterator, bool> insert(const value_type& value);
 
@@ -248,5 +249,15 @@ PathMap<Container, Compare>::insert_or_assign(
     }
     return result;
 };
+
+template <typename Container, typename Compare>
+typename PathMap<Container, Compare>::iterator
+PathMap<Container, Compare>::erase(iterator it)
+{
+    const auto& path = it->first;
+    const auto& key = path.back();
+    nodes().erase(key);
+    return search(it->first);
+}
 
 } // namespace vertex
