@@ -6,8 +6,8 @@
 #include <toolbox/IteratorRecorder.h>
 #include <toolbox/IteratorTransformer.h>
 #include <toolbox/SequencePredicate.h>
-#include <vertex/PreOrderTraversal.h>
 #include <vector>
+#include <vertex/PreOrderTraversal.h>
 
 namespace vertex
 {
@@ -22,6 +22,11 @@ public:
     using key_type = std::vector<typename Container::key_type>;
     using mapped_type = typename Container::mapped_type;
     using value_type = std::pair<key_type, mapped_type>;
+    using size_type = typename Container::size_type;
+    using difference_type = typename Container::difference_type;
+    using allocator_type = typename Container::allocator_type;
+    using pointer = typename Container::pointer;
+    using const_pointer = typename Container::const_pointer;
 
     class Decoder
     {
@@ -38,12 +43,13 @@ public:
     };
 
     using Predicate =
-    toolbox::SequencePredicate<typename key_type::const_iterator, Compare>;
+        toolbox::SequencePredicate<typename key_type::const_iterator, Compare>;
     using Traversal = PreOrderTraversal<Container, Predicate>;
     using Transformer = toolbox::IteratorTransformer<Decoder, Traversal>;
     using iterator = toolbox::IteratorRecorder<Transformer>;
 
-    PathMap(Container& nodes, typename Container::const_iterator root,
+    PathMap(Container& nodes,
+            typename Container::const_iterator root,
             Compare compare = Compare());
 
     const typename Container::const_iterator& root() const;
@@ -68,7 +74,6 @@ public:
     std::pair<iterator, bool> insert(const value_type& value);
 
 private:
-
     std::pair<typename Container::iterator, bool>
     insert_or_assign(const typename Container::key_type& key,
                      typename Container::mapped_type& value);
@@ -94,8 +99,8 @@ PathMap<Container, Compare>::Decoder::Decoder(Container& nodes)
 
 template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::value_type
-PathMap<Container, Compare>::Decoder::operator()(
-    const typename Container::value_type& value)
+PathMap<Container, Compare>::Decoder::
+operator()(const typename Container::value_type& value)
 {
     if (!path_.empty())
     {
@@ -105,9 +110,9 @@ PathMap<Container, Compare>::Decoder::operator()(
             auto node = nodes_->find(*it);
             if (node != nodes_->end())
             {
-                auto child_it = std::find(node->second.links().begin(),
-                                          node->second.links().end(),
-                                          value.first);
+                auto child_it =
+                    std::find(node->second.links().begin(),
+                              node->second.links().end(), value.first);
                 if (child_it != node->second.links().end())
                 {
                     break; // this node contains the link
