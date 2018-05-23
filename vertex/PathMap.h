@@ -47,6 +47,7 @@ public:
     using Traversal = PreOrderTraversal<Container, Predicate>;
     using Transformer = toolbox::IteratorTransformer<Decoder, Traversal>;
     using iterator = toolbox::IteratorRecorder<Transformer>;
+    using const_iterator = iterator;
 
     PathMap(Container& nodes,
             typename Container::const_iterator root,
