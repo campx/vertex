@@ -241,7 +241,11 @@ PathMap<Container, Compare>::insert(const value_type& value)
         }
         std::tie(child_it, result.second) = insert_or_assign(*path_it, node);
     }
-    node = root_ == nodes().end() ? mapped_type{} : root_->second;
+    node = mapped_type{};
+    if (root_ != nodes().end())
+    {
+        node = root_->second;
+    }
     if (node.links().end() ==
         std::find(node.links().begin(), node.links().end(), child_it->first))
     {
