@@ -55,6 +55,8 @@ public:
 
     const typename Container::const_iterator& root() const;
 
+    PathMap& root(typename Container::const_iterator value);
+
     Container& nodes() const;
 
     iterator begin() const;
@@ -134,6 +136,14 @@ PathMap<Container, Compare>::root() const
 }
 
 template <typename Container, typename Compare>
+PathMap<Container, Compare>&
+PathMap<Container, Compare>::root(typename Container::const_iterator value)
+{
+    root_ = value;
+    return *this;
+}
+
+template <typename Container, typename Compare>
 Container& PathMap<Container, Compare>::nodes() const
 {
     return *nodes_;
@@ -165,6 +175,10 @@ template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::search(const key_type& p) const
 {
+    if (root_ == nodes().end())
+    {
+        return end();
+    }
     key_type path = key_type{root_->first}; // pre-pend root to search path
     path.insert(path.end(), p.begin(), p.end());
     auto predicate = Predicate(path.begin(), path.end(), compare_);

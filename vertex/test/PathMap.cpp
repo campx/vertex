@@ -28,7 +28,8 @@ TEST(vertex, PathMap)
     auto bob = std::make_pair("bob", TestNode("Bob", bob_links));
     auto documents = std::make_pair("documents", TestNode("Docs"));
     auto photos = std::make_pair("photos", TestNode("Pictures"));
-    auto expected_vertices = Container{root, home, jim, bob, documents, photos};
+    auto expected_vertices =
+        Container{root, home, jim, bob, documents, photos};
     auto vertices = expected_vertices;
     auto root_it = vertices.find("/");
     ASSERT_NE(vertices.end(), root_it);
@@ -57,8 +58,8 @@ TEST(vertex, PathMap)
     EXPECT_NE(map_iter, path_map.end());
     EXPECT_EQ(std::make_pair(path, messages.second), *path_map.find(path));
     auto inserted = false;
-    std::tie(map_iter, inserted) = path_map.insert(
-        std::make_pair(path, TestNode("")));
+    std::tie(map_iter, inserted) =
+        path_map.insert(std::make_pair(path, TestNode("")));
     EXPECT_EQ(path_map.find(path), map_iter);
     EXPECT_FALSE(inserted);
 
@@ -89,7 +90,8 @@ TEST(vertex, PathMap)
         std::make_pair(LinkArray{"home"}, home.second),
         std::make_pair(LinkArray{"home", "jim"}, jim.second),
         std::make_pair(LinkArray{"home", "bob"}, bob.second),
-        std::make_pair(LinkArray{"home", "bob", "documents"}, documents.second),
+        std::make_pair(LinkArray{"home", "bob", "documents"},
+                       documents.second),
         std::make_pair(LinkArray{"home", "bob", "photos"}, photos.second),
         std::make_pair(LinkArray{"var"}, var.second),
         std::make_pair(LinkArray{"var", "log"}, log.second),
@@ -108,4 +110,8 @@ TEST(vertex, PathMap)
               path_map.erase(path_map.find(path)));
     EXPECT_EQ(path_map.end(), path_map.find(path));
     EXPECT_EQ(vertices.end(), vertices.find("messages"));
+
+    vertices.clear();
+    path_map.root(path_map.nodes().end());
+    EXPECT_EQ(path_map.end(), path_map.find(LinkArray{"var", "log"}));
 }
