@@ -264,7 +264,7 @@ PathMap<Container, Compare>::insert_or_assign(
     const typename Container::key_type& key,
     typename Container::mapped_type& value)
 {
-    auto result = std::make_pair(nodes().find(key), false);
+    auto result = std::make_pair(nodes().find(key), true);
     if (result.first == nodes().end())
     {
         result = nodes().emplace(std::make_pair(key, value));
@@ -272,6 +272,7 @@ PathMap<Container, Compare>::insert_or_assign(
     else
     {
         result.first->second = value;
+        result.second = false;
     }
     return result;
 };
