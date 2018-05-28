@@ -111,6 +111,13 @@ TEST(vertex, PathMap)
     EXPECT_EQ(path_map.end(), path_map.find(path));
     EXPECT_EQ(vertices.end(), vertices.find("messages"));
 
+    path = LinkArray{"var", "log", "secure"};
+    EXPECT_EQ(path_map.end(), path_map.find(path));
+    std::tie(map_iter, inserted) = path_map.insert(
+        std::make_pair(path, TestNode("")));
+    EXPECT_EQ(path_map.find(path), map_iter);
+    EXPECT_TRUE(inserted);
+
     vertices.clear();
     path_map.root(path_map.nodes().end());
     EXPECT_EQ(path_map.end(), path_map.find(LinkArray{"var", "log"}));

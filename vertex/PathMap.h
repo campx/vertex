@@ -15,7 +15,7 @@ namespace vertex
 /** PathMap traverses a graph, matching a Link sequence using a given
  * Compare function, returning an array of matching Link,Node pairs */
 template <typename Container,
-          typename Compare = std::equal_to<typename Container::key_type>>
+          typename Compare = std::less<typename Container::key_type>>
 class PathMap
 {
 public:
@@ -43,14 +43,13 @@ public:
     };
 
     using Predicate =
-        toolbox::SequencePredicate<typename key_type::const_iterator, Compare>;
+    toolbox::SequencePredicate<typename key_type::const_iterator, Compare>;
     using Traversal = PreOrderTraversal<Container, Predicate>;
     using Transformer = toolbox::IteratorTransformer<Decoder, Traversal>;
     using iterator = toolbox::IteratorRecorder<Transformer>;
     using const_iterator = iterator;
 
-    PathMap(Container& nodes,
-            typename Container::const_iterator root,
+    PathMap(Container& nodes, typename Container::const_iterator root,
             Compare compare = Compare());
 
     const typename Container::const_iterator& root() const;
@@ -102,8 +101,8 @@ PathMap<Container, Compare>::Decoder::Decoder(Container& nodes)
 
 template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::value_type
-PathMap<Container, Compare>::Decoder::
-operator()(const typename Container::value_type& value)
+PathMap<Container, Compare>::Decoder::operator()(
+    const typename Container::value_type& value)
 {
     if (!path_.empty())
     {
@@ -113,9 +112,9 @@ operator()(const typename Container::value_type& value)
             auto node = nodes_->find(*it);
             if (node != nodes_->end())
             {
-                auto child_it =
-                    std::find(node->second.links().begin(),
-                              node->second.links().end(), value.first);
+                auto child_it = std::find(node->second.links().begin(),
+                                          node->second.links().end(),
+                                          value.first);
                 if (child_it != node->second.links().end())
                 {
                     break; // this node contains the link
@@ -220,14 +219,26 @@ PathMap<Container, Compare>::insert(const value_type& value)
     auto path_it = value.first.rbegin();
     auto child_it = nodes().end();
     auto node = value.second;
-    std::tie(child_it, result.second) = insert_or_assign(*path_it++, node);
+    auto inserted = false;
+    std::tie(child_it, inserted) = insert_or_assign(*path_it++, node);
+    result.second = inserted;
     for (auto rend = value.first.rend(); path_it != rend; ++path_it)
     {
         if (result.first != end())
         {
-            if (compare_(result.first->first.back(), *path_it))
+            if (!(compare_(result.first->first.back(), *path_it)) &&
+                !(compare_(*path_it, result.first->first.back())))
             { // Copy existing Node for this Link
                 node = result.first->second;
+                if (child_it != nodes().end())
+                {
+                    if (node.links().end() ==
+                        std::find(node.links().begin(), node.links().end(),
+                                  child_it->first))
+                    {
+                        node.links().push_back(child_it->first);
+                    }
+                }
                 --result.first;
             }
         }
@@ -239,7 +250,7 @@ PathMap<Container, Compare>::insert(const value_type& value)
                 node.links().push_back(child_it->first);
             }
         }
-        std::tie(child_it, result.second) = insert_or_assign(*path_it, node);
+        std::tie(child_it, inserted) = insert_or_assign(*path_it, node);
     }
     node = mapped_type{};
     if (root_ != nodes().end())
@@ -253,7 +264,7 @@ PathMap<Container, Compare>::insert(const value_type& value)
     }
     using container_key = typename Container::key_type;
     auto link = root_ == nodes().end() ? container_key{} : root_->first;
-    std::tie(root_, result.second) = insert_or_assign(link, node);
+    std::tie(root_, inserted) = insert_or_assign(link, node);
     result.first = search(value.first);
     return result;
 }
