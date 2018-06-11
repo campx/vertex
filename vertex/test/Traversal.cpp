@@ -4,6 +4,7 @@
 #include <vertex/Node.h>
 #include <vertex/PostOrderTraversal.h>
 #include <vertex/PreOrderTraversal.h>
+#include <functional>
 
 namespace
 {
