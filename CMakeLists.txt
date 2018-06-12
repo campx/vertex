@@ -57,7 +57,7 @@ add_executable(TestVertex
 
 add_dependencies(TestVertex googletest toolbox)
 
-if ((${CMAKE_BUILD_TYPE} STREQUAL Debug) AND WIN32)
+if ((${CMAKE_BUILD_TYPE} MATCHES Debug) AND WIN32)
 	target_link_libraries(TestVertex gtestd libvertex)
 else()
 	target_link_libraries(TestVertex gtest libvertex)
