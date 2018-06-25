@@ -1,9 +1,9 @@
 #include "TestForest.h"
-#include <objex/Tree.h>
+#include <vertex/Tree.h>
 
-namespace objex
+namespace vertex
 {
 
 using TestTree = Tree<TestForest>;
 
-} // namespace objex
+} // namespace vertex

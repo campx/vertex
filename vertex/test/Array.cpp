@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <vertex/Array.h>
 #include <vertex/Link.h>
 #include <vertex/Node.h>
@@ -14,7 +14,7 @@ TEST(Merkle, Array)
 
     using Container = std::map<Link, Node>;
     using NodeVector = std::vector<Container::value_type>;
-    using Array = objex::Array<Container>;
+    using Array = vertex::Array<Container>;
     auto container = Container();
     ASSERT_TRUE(container.insert(root).second);
     auto array = Array(container, container.find(root.first));

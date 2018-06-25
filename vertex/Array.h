@@ -2,7 +2,7 @@
 #include <toolbox/Value.h>
 #include <vertex/LinkIterator.h>
 
-namespace objex
+namespace vertex
 {
 /******************
  * A_________     *
@@ -104,4 +104,4 @@ Array<Container>::insert(typename Array<Container>::const_iterator pos,
     return iterator(*container_, &root_it_->second, result);
 }
 
-} // namespace objex
+} // namespace vertex

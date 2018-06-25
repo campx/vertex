@@ -1,7 +1,7 @@
 #include "TestTree.h"
 #include "gtest/gtest.h"
 
-namespace objex
+namespace vertex
 {
 
 TEST(Merkle, Tree)
@@ -287,4 +287,4 @@ TEST(Merkle, Tree)
     }
 }
 
-} // namespace objex
+} // namespace vertex
