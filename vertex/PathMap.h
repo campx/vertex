@@ -60,6 +60,9 @@ public:
 
     iterator begin() const;
 
+    const_iterator cbegin() const;
+
+    const_iterator cend() const;
     iterator end() const;
 
     /** Search for a path with partial matching
@@ -162,12 +165,26 @@ PathMap<Container, Compare>::begin() const
 
 template <typename Container, typename Compare>
 typename PathMap<Container, Compare>::iterator
+PathMap<Container, Compare>::cbegin() const
+{
+    return begin();
+}
+
+template <typename Container, typename Compare>
+typename PathMap<Container, Compare>::iterator
 PathMap<Container, Compare>::end() const
 {
     auto traversal = Traversal(nodes(), root_).end();
     auto decoder = Decoder(nodes());
     auto transformer = Transformer(traversal, decoder);
     return iterator(transformer);
+}
+
+template <typename Container, typename Compare>
+typename PathMap<Container, Compare>::iterator
+PathMap<Container, Compare>::cend() const
+{
+    return end();
 }
 
 template <typename Container, typename Compare>
