@@ -33,7 +33,7 @@ TEST(vertex, PathMap)
     auto vertices = expected_vertices;
     auto root_it = vertices.find("/");
     ASSERT_NE(vertices.end(), root_it);
-    auto path_map = PathMap(vertices, root_it);
+    auto path_map = PathMap(vertices).root(root_it);
     auto search_path = LinkArray{"home", "bob", "documents"};
 
     auto result = path_map.search(search_path);

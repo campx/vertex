@@ -18,16 +18,13 @@ template <typename Container,
           typename Compare = std::less<typename Container::key_type>>
 class PathMap
 {
+
 public:
     using key_type = std::vector<typename Container::key_type>;
     using mapped_type = typename Container::mapped_type;
     using value_type = std::pair<key_type, mapped_type>;
-    using size_type = typename Container::size_type;
-    using difference_type = typename Container::difference_type;
-    using allocator_type = typename Container::allocator_type;
-    using pointer = typename Container::pointer;
-    using const_pointer = typename Container::const_pointer;
 
+private:
     class Decoder
     {
     public:
@@ -42,6 +39,14 @@ public:
         Container* nodes_;
     };
 
+public:
+    using size_type = typename Container::size_type;
+    using difference_type = typename Container::difference_type;
+    using allocator_type = typename Container::allocator_type;
+    using pointer = typename Container::pointer;
+    using const_pointer = typename Container::const_pointer;
+
+
     using Predicate =
     toolbox::SequencePredicate<typename key_type::const_iterator, Compare>;
     using Traversal = PreOrderTraversal<Container, Predicate>;
@@ -49,8 +54,7 @@ public:
     using iterator = toolbox::IteratorRecorder<Transformer>;
     using const_iterator = iterator;
 
-    PathMap(Container& nodes, typename Container::const_iterator root,
-            Compare compare = Compare());
+    explicit PathMap(Container& nodes, Compare compare = Compare());
 
     const typename Container::const_iterator& root() const;
 
@@ -63,6 +67,7 @@ public:
     const_iterator cbegin() const;
 
     const_iterator cend() const;
+
     iterator end() const;
 
     /** Search for a path with partial matching
@@ -79,6 +84,7 @@ public:
     std::pair<iterator, bool> insert(const value_type& value);
 
 private:
+
     std::pair<typename Container::iterator, bool>
     insert_or_assign(const typename Container::key_type& key,
                      typename Container::mapped_type& value);
@@ -89,10 +95,8 @@ private:
 };
 
 template <typename Container, typename Compare>
-PathMap<Container, Compare>::PathMap(Container& nodes,
-                                     typename Container::const_iterator root,
-                                     Compare compare)
-    : nodes_(&nodes), root_(std::move(root)), compare_(std::move(compare))
+PathMap<Container, Compare>::PathMap(Container& nodes, Compare compare)
+    : nodes_(&nodes), root_(nodes_->end()), compare_(std::move(compare))
 {
 }
 
