@@ -19,17 +19,17 @@ class Array
 {
 private: // data
     using node_iterator = typename Container::iterator;
-    toolbox::Value<Container> container_;
+    Container* container_;
     node_iterator root_it_;
 
 public: // typedefs
-    using container_type = typename toolbox::Value<Container>::element_type;
+    using container_type = Container;
     using value_type = typename container_type::value_type;
     using node_type = typename value_type::second_type;
     using link_type = typename node_type::link_type;
     using size_type = typename node_type::container_type::size_type;
     using difference_type =
-        typename node_type::container_type::difference_type;
+    typename node_type::container_type::difference_type;
     using reference = value_type&;
     using const_reference = const value_type&;
     using pointer = value_type*;
@@ -39,20 +39,38 @@ public: // typedefs
     using const_iterator = const iterator;
 
 public: // methods
-    Array(Container container, node_iterator root_it);
+    explicit Array(Container& container);
+
+    Array(Container& container, node_iterator root_it);
+
     iterator begin() const;
+
     iterator end() const;
+
     bool empty() const;
+
     size_type length() const;
+
     void clear();
+
+    void root(node_iterator it);
+
     iterator insert(const_iterator pos, const value_type& value);
+
     void push_back(const value_type& value);
 };
 
 template <typename Container>
-Array<Container>::Array(Container container,
+Array<Container>::Array(Container& container)
+    : container_(&container), root_it_(container_->end())
+{
+
+}
+
+template <typename Container>
+Array<Container>::Array(Container& container,
                         typename Array<Container>::node_iterator root_it)
-    : container_(container), root_it_(std::move(root_it))
+    : container_(&container), root_it_(std::move(root_it))
 {
 }
 
@@ -88,8 +106,14 @@ void Array<Container>::clear()
 }
 
 template <typename Container>
-void Array<Container>::push_back(
-    const typename Array<Container>::value_type& value)
+void Array<Container>::root(node_iterator it)
+{
+    root_it_ = std::move(it);
+}
+
+template <typename Container>
+void
+Array<Container>::push_back(const typename Array<Container>::value_type& value)
 {
     insert(end(), value);
 }
