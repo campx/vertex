@@ -81,6 +81,9 @@ public:
     /** Erase element pointed to by the given iterator */
     iterator erase(iterator it);
 
+    /** Erase element at given path */
+    iterator erase(const key_type& p);
+
     std::pair<iterator, bool> insert(const value_type& value);
 
 private:
@@ -317,6 +320,13 @@ PathMap<Container, Compare>::erase(iterator it)
     const auto& key = path.back();
     nodes().erase(key);
     return search(it->first);
+}
+
+template <typename Container, typename Compare>
+typename PathMap<Container, Compare>::iterator
+PathMap<Container, Compare>::erase(const PathMap::key_type& p)
+{
+    return erase(find(p));
 }
 
 } // namespace vertex
