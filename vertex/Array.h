@@ -53,6 +53,8 @@ public: // methods
 
     void clear();
 
+    node_iterator root() const;
+
     void root(node_iterator it);
 
     iterator insert(const_iterator pos, const value_type& value);
@@ -103,6 +105,12 @@ template <typename Container>
 void Array<Container>::clear()
 {
     root_it_->second.links().clear();
+}
+
+template <typename Container>
+typename Array<Container>::node_iterator Array<Container>::root() const
+{
+    return root_it_;
 }
 
 template <typename Container>
