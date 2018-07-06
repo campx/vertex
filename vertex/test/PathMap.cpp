@@ -118,6 +118,8 @@ TEST(vertex, PathMap)
     EXPECT_EQ(path_map.find(path), map_iter);
     EXPECT_TRUE(inserted);
 
+    EXPECT_EQ(1u, path_map.erase(path));
+
     vertices.clear();
     path_map.root(path_map.nodes().end());
     EXPECT_EQ(path_map.end(), path_map.find(LinkArray{"var", "log"}));
