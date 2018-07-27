@@ -28,6 +28,8 @@ public: // typedefs
     using node_type = typename value_type::second_type;
     using link_type = typename node_type::link_type;
     using size_type = typename node_type::container_type::size_type;
+    using allocator_type = typename node_type::container_type::allocator_type;
+    using key_type = typename node_type::link_type;
     using difference_type =
     typename node_type::container_type::difference_type;
     using reference = value_type&;
