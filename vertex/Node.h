@@ -1,4 +1,5 @@
 #pragma once
+
 #include <algorithm>
 #include <vector>
 
@@ -21,9 +22,9 @@ public:
                   container_type links = container_type());
 
     Node(const Node&) = default;
-    Node(Node&&) = default;
+    Node(Node&&) noexcept;
     Node& operator=(const Node&) = default;
-    Node& operator=(Node&&) = default;
+    Node& operator=(Node&&) noexcept;
 
     /** Exchanges the contents of the Node with those of other */
     void swap(Node& other);
@@ -116,6 +117,20 @@ template <typename Link, typename T>
 bool Node<Link, T>::operator!=(const Node<Link, T>& rhs) const
 {
     return !(*this == rhs);
+}
+
+template <typename Link, typename T>
+Node<Link, T>::Node(Node&& other) noexcept
+    : data_(std::move(other.data_)), links_(std::move(other.links_))
+{
+}
+
+template <typename Link, typename T>
+Node<Link, T>& Node<Link, T>::operator=(Node&& rhs) noexcept
+{
+    data_ = std::move(rhs.data_);
+    links_ = std::move(rhs.links_);
+    return *this;
 }
 
 } // namespace vertex
