@@ -18,6 +18,9 @@ TEST(Merkle, Array)
     auto container = Container();
     ASSERT_TRUE(container.insert(root).second);
     auto array = Array(container, container.find(root.first));
+    auto root_link = array.root();
+    array.root(Link(0));
+    EXPECT_EQ(root_link, array.root());
     EXPECT_NE(container.end(), array.root());
     auto elephant = Array::value_type(Link(1), Node("elephant"));
     auto bear = Array::value_type(Link(2), Node("bear"));

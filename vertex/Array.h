@@ -1,4 +1,5 @@
 #include <memory>
+#include <cassert>
 #include <toolbox/Value.h>
 #include <vertex/LinkIterator.h>
 
@@ -53,6 +54,7 @@ public:
     size_type length() const;
     void clear();
     void root(node_iterator it);
+    void root(const key_type& key);
     iterator insert(const_iterator pos, const value_type& value);
     void push_back(const value_type& value);
 
@@ -149,6 +151,13 @@ Array<Container>::insert(typename Array<Container>::const_iterator pos,
     (*container_)[value.first] = value.second;
     auto result = root_it_->second.links().insert(pos.position(), value.first);
     return iterator(*container_, &root_it_->second, result);
+}
+
+template <typename Container>
+void Array<Container>::root(const key_type& key)
+{
+    assert(container_);
+    root(container_->find(key));
 }
 
 } // namespace vertex
