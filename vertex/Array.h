@@ -38,7 +38,7 @@ public: // typedefs
     using const_pointer = const value_type*;
 
     using iterator = vertex::LinkIterator<Container>;
-    using const_iterator = const iterator;
+    using const_iterator = vertex::LinkIterator<const Container>;
 
 public: // methods
     explicit Array(Container& container);
@@ -46,8 +46,10 @@ public: // methods
     Array(Container& container, node_iterator root_it);
 
     iterator begin() const;
+    const_iterator cbegin() const;
 
     iterator end() const;
+    const_iterator cend() const;
 
     bool empty() const;
 
@@ -82,13 +84,26 @@ template <typename Container>
 typename Array<Container>::iterator Array<Container>::begin() const
 {
     return iterator(*container_, &root_it_->second,
-                    root_it_->second.links().cbegin());
+                    root_it_->second.links().begin());
+}
+
+template <typename Container>
+typename Array<Container>::const_iterator Array<Container>::cbegin() const
+{
+    return const_iterator(*container_, &root_it_->second,
+                          root_it_->second.links().cbegin());
 }
 
 template <typename Container>
 typename Array<Container>::iterator Array<Container>::end() const
 {
     return std::end(begin());
+}
+
+template <typename Container>
+typename Array<Container>::const_iterator Array<Container>::cend() const
+{
+    return std::cend(cbegin());
 }
 
 template <typename Container>
@@ -125,7 +140,7 @@ template <typename Container>
 void
 Array<Container>::push_back(const typename Array<Container>::value_type& value)
 {
-    insert(end(), value);
+    insert(cend(), value);
 }
 
 template <typename Container>
