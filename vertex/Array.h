@@ -11,9 +11,7 @@ namespace vertex
  *    \  \  \  \  *
  *     B  C  D  E *
  *****************/
-/** Array provides a std::vector like interface atop a Hash tree of depth 1
- * Want to insert the value type of the Container, which may be a type which is
- * implicitly convertible to a std::pair */
+/** Array provides a std::vector like interface atop a tree of depth 1 */
 template <typename Container>
 class Array
 {
@@ -22,7 +20,8 @@ private: // data
     Container* container_;
     node_iterator root_it_;
 
-public: // typedefs
+public:
+    // typedefs
     using container_type = Container;
     using value_type = typename container_type::value_type;
     using node_type = typename value_type::second_type;
@@ -40,31 +39,30 @@ public: // typedefs
     using iterator = vertex::LinkIterator<Container>;
     using const_iterator = vertex::LinkIterator<const Container>;
 
-public: // methods
+    // methods
+    Array();
     explicit Array(Container& container);
-
     Array(Container& container, node_iterator root_it);
 
     iterator begin() const;
     const_iterator cbegin() const;
-
     iterator end() const;
     const_iterator cend() const;
 
     bool empty() const;
-
     size_type length() const;
-
     void clear();
+    void root(node_iterator it);
+    iterator insert(const_iterator pos, const value_type& value);
+    void push_back(const value_type& value);
 
     node_iterator root() const;
-
-    void root(node_iterator it);
-
-    iterator insert(const_iterator pos, const value_type& value);
-
-    void push_back(const value_type& value);
 };
+
+template <typename Container>
+Array<Container>::Array()
+{
+}
 
 template <typename Container>
 Array<Container>::Array(Container& container)
