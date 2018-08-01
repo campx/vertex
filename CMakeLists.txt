@@ -28,7 +28,7 @@ if (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	target_compile_options(libvertex PUBLIC -Wall -Werror -Wextra)
 endif()
 
-add_subdirectory(external/gtest)
+add_subdirectory(external/googletest)
 add_subdirectory(external/toolbox)
 
 target_include_directories(libvertex PUBLIC "${vertex_SOURCE_DIR}")
