@@ -16,15 +16,11 @@ namespace vertex
 template <typename Container>
 class Array
 {
-private: // data
-    using node_iterator = typename Container::iterator;
-    Container* container_;
-    node_iterator root_it_;
-
 public:
     // typedefs
     using container_type = Container;
-    using value_type = typename container_type::value_type;
+    using value_type = std::pair<typename container_type::key_type,
+                                 typename container_type::mapped_type>;
     using node_type = typename value_type::second_type;
     using link_type = typename node_type::link_type;
     using size_type = typename node_type::container_type::size_type;
@@ -42,8 +38,7 @@ public:
 
     // methods
     Array();
-    explicit Array(Container& container);
-    Array(Container& container, node_iterator root_it);
+    explicit Array(Container& container, value_type root = value_type());
 
     iterator begin() const;
     const_iterator cbegin() const;
@@ -53,12 +48,15 @@ public:
     bool empty() const;
     size_type length() const;
     void clear();
-    void root(node_iterator it);
-    void root(const key_type& key);
+    void root(const value_type& value);
     iterator insert(const_iterator pos, const value_type& value);
     void push_back(const value_type& value);
 
-    node_iterator root() const;
+    const value_type& root() const;
+
+private: // data
+    Container* container_;
+    value_type root_;
 };
 
 template <typename Container>
@@ -67,31 +65,23 @@ Array<Container>::Array()
 }
 
 template <typename Container>
-Array<Container>::Array(Container& container)
-    : container_(&container), root_it_(container_->end())
+Array<Container>::Array(Container& container, value_type root)
+    : container_(&container), root_(std::move(root))
 {
 
-}
-
-template <typename Container>
-Array<Container>::Array(Container& container,
-                        typename Array<Container>::node_iterator root_it)
-    : container_(&container), root_it_(std::move(root_it))
-{
 }
 
 template <typename Container>
 typename Array<Container>::iterator Array<Container>::begin() const
 {
-    return iterator(*container_, &root_it_->second,
-                    root_it_->second.links().begin());
+    return iterator(*container_, &root_.second, root_.second.links().begin());
 }
 
 template <typename Container>
 typename Array<Container>::const_iterator Array<Container>::cbegin() const
 {
-    return const_iterator(*container_, &root_it_->second,
-                          root_it_->second.links().cbegin());
+    return const_iterator(*container_, &root_.second,
+                          root_.second.links().cbegin());
 }
 
 template <typename Container>
@@ -109,31 +99,25 @@ typename Array<Container>::const_iterator Array<Container>::cend() const
 template <typename Container>
 bool Array<Container>::empty() const
 {
-    return root_it_->second.links().empty();
+    return root_.second.links().empty();
 }
 
 template <typename Container>
 typename Array<Container>::size_type Array<Container>::length() const
 {
-    return root_it_->second.links().size();
+    return root_.second.links().size();
 }
 
 template <typename Container>
 void Array<Container>::clear()
 {
-    root_it_->second.links().clear();
+    root_.second.links().clear();
 }
 
 template <typename Container>
-typename Array<Container>::node_iterator Array<Container>::root() const
+const typename Array<Container>::value_type& Array<Container>::root() const
 {
-    return root_it_;
-}
-
-template <typename Container>
-void Array<Container>::root(node_iterator it)
-{
-    root_it_ = std::move(it);
+    return root_;
 }
 
 template <typename Container>
@@ -149,15 +133,15 @@ Array<Container>::insert(typename Array<Container>::const_iterator pos,
                          const typename Array<Container>::value_type& value)
 {
     (*container_)[value.first] = value.second;
-    auto result = root_it_->second.links().insert(pos.position(), value.first);
-    return iterator(*container_, &root_it_->second, result);
+    auto result = root_.second.links().insert(pos.position(), value.first);
+    return iterator(*container_, &root_.second, result);
 }
 
 template <typename Container>
-void Array<Container>::root(const key_type& key)
+void Array<Container>::root(const value_type& value)
 {
     assert(container_);
-    root(container_->find(key));
+    root_ = value;
 }
 
 } // namespace vertex
