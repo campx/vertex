@@ -4,6 +4,7 @@ project(vertex LANGUAGES CXX)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 link_directories(${CMAKE_BINARY_DIR}/lib)
+add_subdirectory(external)
 
 add_library(libvertex
             vertex/Link.cpp                  vertex/Link.h
@@ -21,15 +22,11 @@ add_library(libvertex
             vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h
             vertex/PathMap.cpp               vertex/PathMap.h)
 
-add_dependencies(libvertex toolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 target_compile_features(libvertex PUBLIC cxx_return_type_deduction)
 if (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 	target_compile_options(libvertex PUBLIC -Wall -Werror -Wextra)
 endif()
-
-add_subdirectory(external/googletest)
-add_subdirectory(external/toolbox)
 
 target_include_directories(libvertex PUBLIC "${vertex_SOURCE_DIR}")
 
@@ -54,8 +51,6 @@ add_executable(TestVertex
                vertex/test/Traversal.cpp
                vertex/test/Array.cpp
                vertex/test/main.cpp)
-
-add_dependencies(TestVertex googletest toolbox)
 
 if (${CMAKE_BUILD_TYPE} MATCHES Debug)
 	target_link_libraries(TestVertex gtestd libvertex)
