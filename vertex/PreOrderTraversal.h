@@ -22,6 +22,8 @@ public:
     using base_type::root;
     using base_type::isTraversible;
 
+    PreOrderTraversal();
+
     PreOrderTraversal(const Container& vertices,
                       typename Container::const_iterator root,
                       Predicate predicate = Predicate{});
@@ -37,6 +39,11 @@ private:
     std::stack<typename base_type::edge_type> to_visit_;
     typename base_type::vertex_iterator prev_pos_;
 };
+
+template <typename Container, typename Predicate>
+PreOrderTraversal<Container, Predicate>::PreOrderTraversal()
+{
+}
 
 template <typename Container, typename Predicate>
 PreOrderTraversal<Container, Predicate>::PreOrderTraversal(
