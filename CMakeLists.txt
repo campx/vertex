@@ -22,6 +22,7 @@ add_library(libvertex
             vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h
             vertex/PathMap.cpp               vertex/PathMap.h)
 
+target_link_libraries(libvertex libtoolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 target_compile_features(libvertex PUBLIC cxx_return_type_deduction)
 if (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
