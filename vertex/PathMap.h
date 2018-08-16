@@ -235,7 +235,9 @@ PathMap<Container, Compare>::insert(const value_type& value)
 {
     auto result = std::make_pair(search(value.first), false);
     if (result.first != end() &&
-        result.first->first.size() == value.first.size())
+        value.first.size() == result.first->first.size() &&
+        std::equal(value.first.cbegin(), value.first.cend(),
+                   result.first->first.cbegin()))
     { // already exists
         return result;
     }
