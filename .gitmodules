@@ -3,4 +3,4 @@
 	url = https://github.com/google/googletest.git
 [submodule "external/toolbox"]
 	path = external/toolbox
-	url = git@bitbucket.org:jabrooker/toolbox.git
+	url = https://github.com/campx/toolbox.git
