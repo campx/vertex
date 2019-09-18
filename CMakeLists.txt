@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
-project(vertex LANGUAGES CXX)
+project(vertex VERSION 1.0 LANGUAGES CXX)
+include(CTest)
 
-include_directories(${CMAKE_BINARY_DIR}/include)
-link_directories(${CMAKE_BINARY_DIR}/lib)
-add_subdirectory(external)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
 
 add_library(libvertex
             vertex/Link.cpp                  vertex/Link.h
@@ -22,16 +23,23 @@ add_library(libvertex
             vertex/PostOrderTraversal.cpp    vertex/PostOrderTraversal.h
             vertex/PathMap.cpp               vertex/PathMap.h)
 
-target_link_libraries(libvertex libtoolbox)
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
-target_compile_features(libvertex PUBLIC cxx_return_type_deduction)
-if (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-	target_compile_options(libvertex PUBLIC -Wall -Werror -Wextra)
+target_include_directories(libvertex PUBLIC
+        $<BUILD_INTERFACE:${vertex_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include>)
+
+if (MSVC)
+    target_compile_options(libvertex PRIVATE /W4 /WX /MP)
+else ()
+    target_compile_options(libvertex PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_link_libraries(libvertex PUBLIC stdc++fs)
 endif()
 
-target_include_directories(libvertex PUBLIC "${vertex_SOURCE_DIR}")
+if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DNDEBUG)
+endif ()
 
-install(TARGETS libvertex 
+install(TARGETS libvertex
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin)
@@ -40,27 +48,21 @@ install(DIRECTORY vertex DESTINATION include
         PATTERN "test/*" EXCLUDE
         PATTERN "test" EXCLUDE)
 
-enable_testing()
-
-SET(GTEST_LIBRARIES gtest)
-
-add_executable(TestVertex
-               vertex/test/Link.cpp           vertex/test/Link.h
-               vertex/test/Node.cpp           vertex/test/Node.h
-               vertex/test/PathMap.cpp
-               vertex/test/LinkIterator.cpp
-               vertex/test/Traversal.cpp
-               vertex/test/Array.cpp
-               vertex/test/main.cpp)
-
-if (${CMAKE_BUILD_TYPE} MATCHES Debug)
-	target_link_libraries(TestVertex gtestd libvertex)
-else()
-	target_link_libraries(TestVertex gtest libvertex)
-endif()
-
-set_target_properties(TestVertex PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                      ${CMAKE_CURRENT_BINARY_DIR}/test)
-add_test(NAME TestVertex
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test
-         COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test/TestVertex)
+if (BUILD_TESTING)
+    find_package(GTest MODULE REQUIRED)
+    add_executable(vertex_test
+            vertex/test/Link.cpp vertex/test/Link.h
+            vertex/test/Node.cpp vertex/test/Node.h
+            vertex/test/PathMap.cpp
+            vertex/test/LinkIterator.cpp
+            vertex/test/Traversal.cpp
+            vertex/test/Array.cpp
+            vertex/test/main.cpp)
+    target_link_libraries(vertex_test PRIVATE libvertex GTest::GTest GTest::Main)
+    gtest_discover_tests(vertex_test)
+    if (MSVC)
+        target_compile_options(vertex_test PRIVATE /W4 /WX /MP)
+    else ()
+        target_compile_options(vertex_test PRIVATE -Wall -Wextra -pedantic -Werror)
+    endif ()
+endif ()
