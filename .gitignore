@@ -1,5 +1,5 @@
 build
-cmake-build-debug
+cmake-*
 /.idea
 /.vs
 *.swp
