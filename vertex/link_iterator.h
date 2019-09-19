@@ -74,15 +74,15 @@ typename link_iterator<Container>::self_type link_iterator<Container>::end()
 }
 
 template <typename Container>
-typename link_iterator<Container>::self_type&
-link_iterator<Container>::operator++() {
+typename link_iterator<Container>::self_type& link_iterator<Container>::
+operator++() {
   ++chit_;
   return *this;
 }
 
 template <typename Container>
-const typename link_iterator<Container>::self_type
-link_iterator<Container>::operator++(int dummy) {
+const typename link_iterator<Container>::self_type link_iterator<Container>::
+operator++(int dummy) {
   (void)dummy;
   auto copy = *this;
   ++*this;
@@ -90,15 +90,15 @@ link_iterator<Container>::operator++(int dummy) {
 }
 
 template <typename Container>
-typename link_iterator<Container>::reference
-    link_iterator<Container>::operator*() {
+typename link_iterator<Container>::reference link_iterator<Container>::
+operator*() {
   child_ = vertices_->find(*chit_);
   return *child_;
 }
 
 template <typename Container>
-typename link_iterator<Container>::pointer
-    link_iterator<Container>::operator->() {
+typename link_iterator<Container>::pointer link_iterator<Container>::
+operator->() {
   return &(*this);
 }
 

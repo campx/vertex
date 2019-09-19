@@ -109,14 +109,14 @@ const iterator_recorder<Iterator> iterator_recorder<Iterator>::operator--(
 }
 
 template <typename Iterator>
-typename iterator_recorder<Iterator>::value_type&
-    iterator_recorder<Iterator>::operator*() {
+typename iterator_recorder<Iterator>::value_type& iterator_recorder<Iterator>::
+operator*() {
   return get();
 }
 
 template <typename Iterator>
-typename iterator_recorder<Iterator>::value_type*
-    iterator_recorder<Iterator>::operator->() {
+typename iterator_recorder<Iterator>::value_type* iterator_recorder<Iterator>::
+operator->() {
   return &get();
 }
 
