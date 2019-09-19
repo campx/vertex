@@ -26,7 +26,7 @@ class sequence_predicate {
   /** Constructors */
   explicit sequence_predicate(Iterator begin = Iterator(),
                               Iterator end = Iterator(),
-                             Compare compare = Compare());
+                              Compare compare = Compare());
 
   /** Operators */
   result_type operator()(const argument_type& input);
@@ -46,12 +46,12 @@ class sequence_predicate {
 template <typename Iterator, typename Compare>
 sequence_predicate<Iterator, Compare> makeSequencePredicate(Iterator begin,
                                                             Iterator end,
-                                                           Compare compare);
+                                                            Compare compare);
 
 template <typename Iterator, typename Compare>
 sequence_predicate<Iterator, Compare>::sequence_predicate(Iterator begin,
                                                           Iterator end,
-                                                        Compare compare)
+                                                          Compare compare)
     : begin_(std::move(begin)),
       end_(std::move(end)),
       compare_(std::move(compare)),
@@ -65,7 +65,7 @@ sequence_predicate<Iterator, Compare>::sequence_predicate(Iterator begin,
 template <typename Iterator, typename Compare>
 sequence_predicate<Iterator, Compare> makeSequencePredicate(Iterator begin,
                                                             Iterator end,
-                                                           Compare compare) {
+                                                            Compare compare) {
   return sequence_predicate<decltype(begin), decltype(compare)>(
       std::forward<Iterator>(begin), std::forward<Iterator>(end),
       std::forward<Compare>(compare));

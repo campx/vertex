@@ -49,7 +49,7 @@ link_iterator<Container>::link_iterator() {}
 template <typename Container>
 link_iterator<Container>::link_iterator(Container& vertices,
                                         const vertex_type* parent,
-                                      child_iterator child)
+                                        child_iterator child)
     : vertices_(&vertices),
       parent_(parent),
       child_(vertices_->cend()),

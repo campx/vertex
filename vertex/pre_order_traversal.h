@@ -23,7 +23,7 @@ class pre_order_traversal
 
   pre_order_traversal(const Container& vertices,
                       typename Container::const_iterator root,
-                    Predicate predicate = Predicate{});
+                      Predicate predicate = Predicate{});
 
   bool next();
 

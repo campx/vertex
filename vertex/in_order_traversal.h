@@ -19,7 +19,7 @@ class in_order_traversal
 
   in_order_traversal(const Container& vertices,
                      typename Container::const_iterator root,
-                   Predicate predicate = Predicate{});
+                     Predicate predicate = Predicate{});
   bool next();
 
  private:

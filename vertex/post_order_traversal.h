@@ -19,7 +19,7 @@ class post_order_traversal
 
   post_order_traversal(const Container& vertices,
                        typename Container::const_iterator root,
-                     Predicate predicate = Predicate{});
+                       Predicate predicate = Predicate{});
   bool traverseRight();
   bool traverseLeft();
   bool next();
