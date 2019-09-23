@@ -57,15 +57,6 @@ if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DNDEBUG)
 endif ()
 
-install(TARGETS libvertex
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
-install(DIRECTORY vertex DESTINATION include
-        FILES_MATCHING PATTERN "*.h"
-        PATTERN "test/*" EXCLUDE
-        PATTERN "test" EXCLUDE)
-
 if (BUILD_TESTING)
     find_package(GTest MODULE REQUIRED)
     add_executable(vertex_test
@@ -86,3 +77,33 @@ if (BUILD_TESTING)
         target_compile_options(vertex_test PRIVATE -Wall -Wextra -pedantic -Werror)
     endif ()
 endif ()
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        "${vertex_BINARY_DIR}/vertexConfigVersion.cmake"
+        VERSION ${PACKAGE_VERSION}
+        COMPATIBILITY AnyNewerVersion)
+
+install(TARGETS libvertex
+        EXPORT vertexTargets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin)
+install(DIRECTORY vertex DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN "test/*" EXCLUDE
+        PATTERN "test" EXCLUDE)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+        "${vertex_SOURCE_DIR}/cmake/vertexConfig.cmake"
+        "${vertex_BINARY_DIR}/vertexConfig.cmake"
+        INSTALL_DESTINATION share/cmake/vertex
+)
+
+install(EXPORT vertexTargets DESTINATION share/cmake/vertex)
+install(FILES "${vertex_BINARY_DIR}/vertexConfigVersion.cmake"
+        "${vertex_BINARY_DIR}/vertexConfig.cmake"
+        DESTINATION share/cmake/vertex)
+
+
