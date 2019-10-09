@@ -39,8 +39,8 @@ TEST(vertex, Node) {
     auto node = TestNode("world");
 
     std::vector<TestNode::link_type> children;
-    children.push_back(TestNode::link_type(std::size_t(2762169579135187400)));
-    children.push_back(TestNode::link_type(std::size_t(8751027807033337960)));
+    children.emplace_back(2762169579135187400u);
+    children.emplace_back(8751027807033337960u);
     node.links().insert<std::vector<TestNode::link_type>::iterator>(
         node.links().end(), children.begin(), children.end());
     EXPECT_FALSE(node.links().empty());
