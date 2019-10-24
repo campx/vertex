@@ -159,15 +159,12 @@ TEST_F(tree, InOrderTraversal) {
 }
 
 TEST_F(tree, PredicatedInOrderTraversal) {
-  using Predicate = std::function<bool(
-      const std::pair<Container::key_type, Container::key_type>&)>;
-  auto predicate = Predicate([](const auto& e) -> auto {
-    return e.second == "G" || e.second == "F" || e.second == "I";
-  });
-
-  using Iot = in_order_traversal<Container, Predicate>;
+  using Iot = in_order_traversal<Container>;
   {
-    auto traversal = Iot(vertices, vertices.find("F"), predicate);
+    auto traversal = Iot(
+        vertices, vertices.find("F"), [](const auto& e) -> auto {
+          return e.target() == "G" || e.target() == "F" || e.target() == "I";
+        });
     auto vertex_order = std::ostringstream();
     for (const auto& v : traversal) {
       vertex_order << v.second;
@@ -177,14 +174,11 @@ TEST_F(tree, PredicatedInOrderTraversal) {
 }
 
 TEST_F(tree, PredicatedBreadthFirstTraversal) {
-  using Predicate = std::function<bool(
-      const std::pair<Container::key_type, Container::key_type>&)>;
-  auto predicate =
-      Predicate([](const auto& e) -> auto { return e.first == "F"; });
-
-  using Bft = breadth_first_traversal<Container, Predicate>;
+  using Bft = breadth_first_traversal<Container>;
   {
-    auto traversal = Bft(vertices, vertices.find("F"), predicate);
+    auto traversal = Bft(
+        vertices, vertices.find("F"),
+        [](const auto& e) -> auto { return e.source() == "F"; });
     auto vertex_order = std::ostringstream();
     for (const auto& v : traversal) {
       vertex_order << v.second;
@@ -197,7 +191,7 @@ TEST_F(tree, MaxDepthBreadthFirstTraversal) {
   using Predicate = MaxDepthPredicate<Container>;
   auto predicate = Predicate(2);
 
-  using Bft = breadth_first_traversal<Container, Predicate>;
+  using Bft = breadth_first_traversal<Container>;
   {
     auto traversal = Bft(vertices, vertices.find("F"), predicate);
     auto vertex_order = std::ostringstream();

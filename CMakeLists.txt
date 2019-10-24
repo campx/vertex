@@ -7,6 +7,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(Boost REQUIRED)
+
 add_library(libvertex
         vertex/link.cpp
         vertex/link.h
@@ -39,10 +41,13 @@ add_library(libvertex
         vertex/iterator.cpp
         vertex/iterator_recorder.cpp
         vertex/iterator_transformer.cpp
-        vertex/sequence_predicate.cpp)
+        vertex/sequence_predicate.cpp
+        vertex/path.cpp
+        vertex/path.h)
 
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 target_include_directories(libvertex PUBLIC
+        $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${vertex_SOURCE_DIR}>
         $<INSTALL_INTERFACE:include>)
 

@@ -1,60 +1,114 @@
 #pragma once
 
-#include <type_traits>
+#include <array>
 
 namespace vertex {
 
 template <typename Container>
 class edge {
  public:
-  using vertex_type = typename Container::mapped_type;
-  using vertex_iterator = typename Container::iterator;
-  using link_type = typename vertex_type::link_type;
-  using link_iterator = typename vertex_type::iterator;
+  using value_type = typename Container::key_type;
+  using underlying_type = std::array<value_type, 2>;
+  using iterator = typename underlying_type::iterator;
+  using const_iterator = typename underlying_type::const_iterator;
 
-  edge();
+  iterator begin();
+  iterator end();
+  const_iterator begin() const;
+  const_iterator end() const;
+  const_iterator cbegin() const;
+  const_iterator cend() const;
 
-  /** Create an Edge from two links */
-  edge(Container* vertices, const link_type& source, const link_type& target);
+  /** Creates an empty edge */
+  edge() = default;
 
-  /** Create an Edge from Node and Link iterators */
-  edge(vertex_iterator v, link_iterator l);
+  /** Creates an edge from two links */
+  edge(value_type source, value_type target);
 
   /** Determine whether the edge links to a root Node
    * A root edge has no source */
-  [[nodiscard]] bool root() const;
+  [[nodiscard]] bool is_root() const;
 
   /** Determine whether the edge links to a leaf Node
    * A leaf edge has no target */
-  [[nodiscard]] bool leaf() const;
+  [[nodiscard]] bool is_leaf() const;
 
   /** Get the source Node */
-  vertex_iterator source() const;
+  const value_type& source() const;
 
   /** Get the target Node */
-  vertex_iterator target() const;
+  const value_type& target() const;
+
+  static edge root(value_type target);
+
+  static edge leaf(value_type source);
 
  private:
-  Container* vertices_;
-  vertex_iterator source_;
-  vertex_iterator target_;
-  link_iterator link_;
+  underlying_type data_;
 };
 
 template <typename Container>
-edge<Container>::edge() : vertices_(nullptr) {}
+edge<Container>::edge(value_type source, value_type target)
+    : data_{std::move(source), std::move(target)} {}
 
 template <typename Container>
-edge<Container>::edge(Container* vertices,
-                      const typename edge<Container>::link_type& source,
-                      const typename edge<Container>::link_type& target)
-    : vertices_(vertices),
-      source_(vertices_ ? vertices_->find(source)
-                        : edge<Container>::link_type()),
-      target_(vertices_ ? vertices_->find(target)
-                        : edge<Container>::link_type()),
-      link_((vertices_ && source_ != vertices_->end())
-                ? source_->find(target)
-                : edge<Container>::link_iterator()) {}
+const typename edge<Container>::value_type& edge<Container>::source() const {
+  return data_[0];
+}
+
+template <typename Container>
+const typename edge<Container>::value_type& edge<Container>::target() const {
+  return data_[1];
+}
+
+template <typename Container>
+typename edge<Container>::iterator edge<Container>::begin() {
+  return data_.begin();
+}
+
+template <typename Container>
+typename edge<Container>::const_iterator edge<Container>::begin() const {
+  return data_.begin();
+}
+
+template <typename Container>
+typename edge<Container>::iterator edge<Container>::end() {
+  return data_.end();
+}
+
+template <typename Container>
+typename edge<Container>::const_iterator edge<Container>::end() const {
+  return data_.end();
+}
+
+template <typename Container>
+typename edge<Container>::const_iterator edge<Container>::cbegin() const {
+  return data_.cbegin();
+}
+
+template <typename Container>
+typename edge<Container>::const_iterator edge<Container>::cend() const {
+  return data_.cend();
+}
+
+template <typename Container>
+bool edge<Container>::is_root() const {
+  return source() == value_type{};
+}
+
+template <typename Container>
+bool edge<Container>::is_leaf() const {
+  return target() == value_type{};
+}
+
+template <typename Container>
+edge<Container> edge<Container>::root(value_type target) {
+  return edge{value_type{}, std::move(target)};
+}
+
+template <typename Container>
+edge<Container> edge<Container>::leaf(value_type source) {
+  return edge{std::move(source), value_type{}};
+}
 
 }  // namespace vertex

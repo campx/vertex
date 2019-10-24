@@ -9,20 +9,17 @@ namespace vertex {
  * Ensure Iterator can be used to construct container of values */
 
 /** Bredth first tree traversal */
-template <typename Container,
-          typename Predicate = NullaryPredicate<Container, true>>
+template <typename Container>
 class breadth_first_traversal
-    : public traversal<Container, breadth_first_traversal<Container, Predicate>,
-                       Predicate> {
+    : public traversal<Container, breadth_first_traversal<Container>> {
  public:
-  using self_type = breadth_first_traversal<Container, Predicate>;
-  using base_type = traversal<Container, self_type, Predicate>;
+  using self_type = breadth_first_traversal<Container>;
+  using base_type = traversal<Container, self_type>;
   using base_type::base_type;
-  using base_type::edge;
-  using base_type::isTraversible;
+  using base_type::is_traversable;
   using base_type::position;
-  using base_type::vertex;
   using base_type::vertices;
+  using typename base_type::predicate_type;
 
   bool next();
 
@@ -30,17 +27,18 @@ class breadth_first_traversal
   std::queue<typename base_type::edge_type> to_visit_;
 };
 
-template <typename Container, typename Predicate>
-breadth_first_traversal<Container, Predicate> makeBreadthFirstTraversal(
-    Container container, Predicate predicate);
+template <typename Container>
+breadth_first_traversal<Container> makeBreadthFirstTraversal(
+    Container container,
+    typename breadth_first_traversal<Container>::predicate_type predicate);
 
-template <typename Container, typename Predicate>
-bool breadth_first_traversal<Container, Predicate>::next() {
+template <typename Container>
+bool breadth_first_traversal<Container>::next() {
   auto result = false;
   if (position() != vertices().end()) {
     for (const auto& child : position()->second.links()) {
-      auto e = std::make_pair(position()->first, child);
-      if (isTraversible(e)) {
+      auto e = edge<Container>(position()->first, child);
+      if (is_traversable(e)) {
         to_visit_.push(e);
       }
     }
@@ -50,7 +48,7 @@ bool breadth_first_traversal<Container, Predicate>::next() {
   while (!to_visit_.empty()) {
     auto edge = to_visit_.front();
     to_visit_.pop();
-    base_type::position(vertices().find(edge.second));
+    base_type::position(vertices().find(edge.target()));
     if (position() != vertices().end()) {
       result = true;
       break;
@@ -59,11 +57,12 @@ bool breadth_first_traversal<Container, Predicate>::next() {
   return result;
 }
 
-template <typename Container, typename Predicate>
-breadth_first_traversal<Container, Predicate> makeBreadthFirstTraversal(
-    Container container, Predicate predicate) {
-  return breadth_first_traversal<decltype(container), decltype(predicate)>(
-      std::forward(container), std::forward(predicate));
+template <typename Container>
+breadth_first_traversal<Container> makeBreadthFirstTraversal(
+    Container container,
+    typename breadth_first_traversal<Container>::predicate_type predicate) {
+  return breadth_first_traversal<decltype(container)>(std::forward(container),
+                                                      std::forward(predicate));
 }
 
 }  // namespace vertex

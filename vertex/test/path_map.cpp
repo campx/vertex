@@ -41,11 +41,13 @@ TEST(vertex, PathMap) {  // Create a graph of paths
   expected_vertices.insert(log);
   expected_vertices.insert(messages);
   auto path = LinkArray{"var", "log", "messages"};
-  path_map.insert(std::make_pair(path, messages.second));
-  auto map_iter = path_map.search(path);
+  EXPECT_EQ(path_map.search(path), path_map.end());
+  auto [map_iter, inserted] =
+      path_map.insert(std::make_pair(path, messages.second));
   EXPECT_NE(map_iter, path_map.end());
+  auto search_result = path_map.search(path);
+  EXPECT_EQ(search_result, map_iter);
   EXPECT_EQ(std::make_pair(path, messages.second), *path_map.find(path));
-  auto inserted = false;
   std::tie(map_iter, inserted) =
       path_map.insert(std::make_pair(path, TestNode("")));
   EXPECT_EQ(path_map.find(path), map_iter);

@@ -7,7 +7,8 @@ namespace vertex {
 
 /** A node in a tree, which has data of type T, and a collection of Link
  * pointers to child nodes.
- * Provides a set-like interface for adding and removing children */
+ * Provides a set-like interface for adding and removing children
+ * TODO make this CRTP, don't assume vector */
 template <typename Link, typename T>
 class node {
  public:
