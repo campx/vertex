@@ -41,7 +41,6 @@ add_library(libvertex
         vertex/iterator.cpp
         vertex/iterator_recorder.cpp
         vertex/iterator_transformer.cpp
-        vertex/sequence_predicate.cpp
         vertex/path.cpp
         vertex/path.h)
 
