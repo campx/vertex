@@ -1,11 +1,10 @@
 #pragma once
 
-#include <vertex/iterator.h>
 #include <vertex/iterator_recorder.h>
-#include <vertex/iterator_transformer.h>
 #include <vertex/path.h>
 #include <vertex/pre_order_traversal.h>
 #include <algorithm>
+#include <boost/iterator/transform_iterator.hpp>
 #include <functional>
 #include <vector>
 
@@ -33,12 +32,12 @@ class path_map {
   class decoder {
    public:
     decoder() = default;
-    explicit decoder(Container& nodes);
-    value_type operator()(const typename Container::value_type& value);
+    explicit decoder(const Container& nodes);
+    value_type operator()(const typename Container::value_type& value) const;
 
    private:
-    key_type path_;
-    Container* nodes_;
+    mutable key_type path_;
+    const Container* nodes_;
   };
 
  public:
@@ -49,7 +48,10 @@ class path_map {
   using const_pointer = typename Container::const_pointer;
 
   using traversal_type = pre_order_traversal<Container>;
-  using transform_type = toolbox::iterator_transformer<decoder, traversal_type>;
+
+  using transform_type = boost::transform_iterator<decoder, traversal_type,
+                                                   value_type, value_type>;
+
   using iterator = toolbox::iterator_recorder<transform_type>;
   using const_iterator = iterator;
 
@@ -99,12 +101,13 @@ path_map<Container>::path_map(Container& nodes)
     : nodes_(&nodes), root_(nodes_->end()) {}
 
 template <typename Container>
-path_map<Container>::decoder::decoder(Container& nodes) : nodes_(&nodes) {}
+path_map<Container>::decoder::decoder(const Container& nodes)
+    : nodes_(&nodes) {}
 
 template <typename Container>
 typename path_map<Container>::value_type
 path_map<Container>::decoder::operator()(
-    const typename Container::value_type& value) {
+    const typename Container::value_type& value) const {
   if (!path_.empty()) {
     auto it = path_.rbegin();
     for (auto end = path_.rend(); it != end; ++it) {
@@ -185,7 +188,10 @@ typename path_map<Container>::iterator path_map<Container>::search(
   auto last_transformer = transform_type(last, decoder{nodes()});
   auto begin = iterator(first_transformer);
   auto end = iterator(last_transformer);
-  auto result = toolbox::back(begin, end);
+  auto result = begin;
+  for (auto it = begin; it != end; ++it) {
+    result = it;
+  }
   return result;
 }
 

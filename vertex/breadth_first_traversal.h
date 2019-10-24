@@ -28,11 +28,6 @@ class breadth_first_traversal
 };
 
 template <typename Container>
-breadth_first_traversal<Container> makeBreadthFirstTraversal(
-    Container container,
-    typename breadth_first_traversal<Container>::predicate_type predicate);
-
-template <typename Container>
 bool breadth_first_traversal<Container>::next() {
   auto result = false;
   if (position() != vertices().end()) {
@@ -55,14 +50,6 @@ bool breadth_first_traversal<Container>::next() {
     }
   }
   return result;
-}
-
-template <typename Container>
-breadth_first_traversal<Container> makeBreadthFirstTraversal(
-    Container container,
-    typename breadth_first_traversal<Container>::predicate_type predicate) {
-  return breadth_first_traversal<decltype(container)>(std::forward(container),
-                                                      std::forward(predicate));
 }
 
 }  // namespace vertex

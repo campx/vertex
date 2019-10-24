@@ -8,9 +8,10 @@
 namespace vertex {
 
 template <typename Container, typename Impl>
-class traversal : public std::iterator<std::forward_iterator_tag,
-                                       typename Container::mapped_type> {
+class traversal {
  public:
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = std::ptrdiff_t;
   using container_type = Container;
   using vertex_iterator = typename Container::const_iterator;
   using vertex_type = typename Container::mapped_type;

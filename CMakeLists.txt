@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(vertex VERSION 1.0 LANGUAGES CXX)
-include(CTest)
+
+option(BUILD_TESTING "Build unit tests" ON)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -38,9 +39,7 @@ add_library(libvertex
         vertex/post_order_traversal.h
         vertex/path_map.cpp
         vertex/path_map.h
-        vertex/iterator.cpp
         vertex/iterator_recorder.cpp
-        vertex/iterator_transformer.cpp
         vertex/path.cpp
         vertex/path.h)
 
