@@ -61,6 +61,7 @@ if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
 endif ()
 
 if (BUILD_TESTING)
+    enable_testing()
     find_package(GTest MODULE REQUIRED)
     add_executable(vertex_test
             vertex/test/link.cpp
