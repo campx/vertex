@@ -47,9 +47,11 @@ bool in_order_traversal<Container>::next() {
          child->second.links().size() >
              0) {  // traversal to bottom of left branch
     auto next_child = vertices().find(*child->second.links().begin());
-    auto e = edge<Container>(child->first, next_child->first);
-    if (next_child != vertices().end() && is_traversable(e)) {
-      to_visit_.push(e);
+    if (next_child != vertices().end()) {
+      auto e = edge<Container>(child->first, next_child->first);
+      if (is_traversable(e)) {
+        to_visit_.push(e);
+      }
     }
     child = next_child;
   }
