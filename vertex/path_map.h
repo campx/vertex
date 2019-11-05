@@ -10,15 +10,6 @@
 
 namespace vertex {
 
-template <typename Container>
-std::pair<typename Container::iterator, bool> unique_insert(
-    Container& container, typename Container::value_type&& value) {
-  using result_type = std::pair<typename Container::iterator, bool>;
-  auto it = std::find(container.begin(), container.end());
-  return it == container.end() ? result_type{container.emplace(it, value), true}
-                               : result_type{it, false};
-}
-
 /** PathMap traverses a graph, matching a Link sequence using a given
  * Compare function, returning an array of matching Link,Node pairs */
 template <typename Container>
@@ -113,9 +104,8 @@ path_map<Container>::decoder::operator()(
     for (auto end = path_.rend(); it != end; ++it) {
       auto node = nodes_->find(*it);
       if (node != nodes_->end()) {
-        auto child_it = std::find(node->second.links().begin(),
-                                  node->second.links().end(), value.first);
-        if (child_it != node->second.links().end()) {
+        auto child_it = node->second.find(value.first);
+        if (child_it != node->second.end()) {
           break;  // this node contains the link
         }
       }
@@ -222,18 +212,14 @@ path_map<Container>::insert(const value_type& value) {
       if (result.first->first.back() == *prit) {  // match exists at this level
         node = result.first->second;  // Copy existing node for this link
         if (chit != nodes().end()) {  // add child link if missing
-          if (node.links().end() == std::find(node.links().begin(),
-                                              node.links().end(),
-                                              chit->first)) {
-            node.links().push_back(chit->first);
-          }
+          node.insert(chit->first);
         }
         --result.first;  // move up a level in search results
       }
     } else {                        // missing node at current level
       node = mapped_type();         // create empty node
       if (chit != nodes().end()) {  // add link from parent to child
-        node.links().push_back(chit->first);
+        node.insert(chit->first);
       }
     }  // upsert parent node and mark as child for next iteration
     std::tie(chit, inserted) = insert_or_assign(*prit, node);
@@ -242,10 +228,7 @@ path_map<Container>::insert(const value_type& value) {
   if (root_ != nodes().end()) {
     node = root_->second;
   }  // create or update root node to point to first element in path
-  if (node.links().end() ==
-      std::find(node.links().begin(), node.links().end(), chit->first)) {
-    node.links().push_back(chit->first);
-  }
+  node.insert(chit->first);
   using container_key = typename Container::key_type;
   auto link = root_ == nodes().end() ? container_key{} : root_->first;
   std::tie(root_, inserted) = insert_or_assign(link, node);

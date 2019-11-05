@@ -64,13 +64,13 @@ link_iterator<Container>::position() const {
 template <typename Container>
 typename link_iterator<Container>::self_type link_iterator<Container>::begin()
     const {
-  return self_type(*vertices_, parent_, parent_->links().begin());
+  return self_type(*vertices_, parent_, parent_->begin());
 }
 
 template <typename Container>
 typename link_iterator<Container>::self_type link_iterator<Container>::end()
     const {
-  return self_type(*vertices_, parent_, parent_->links().end());
+  return self_type(*vertices_, parent_, parent_->end());
 }
 
 template <typename Container>

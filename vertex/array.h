@@ -42,7 +42,7 @@ class array {
   size_type length() const;
   void clear();
   void root(const value_type& value);
-  iterator insert(iterator pos, const value_type& value);
+  iterator insert(const value_type& value);
   void push_back(const value_type& value);
 
   const value_type& root() const;
@@ -61,7 +61,7 @@ array<Container>::array(Container& container, value_type root)
 
 template <typename Container>
 typename array<Container>::iterator array<Container>::begin() const {
-  return iterator(*container_, &root_.second, root_.second.links().begin());
+  return iterator(*container_, &root_.second, root_.second.begin());
 }
 
 template <typename Container>
@@ -71,17 +71,17 @@ typename array<Container>::iterator array<Container>::end() const {
 
 template <typename Container>
 bool array<Container>::empty() const {
-  return root_.second.links().empty();
+  return root_.second.empty();
 }
 
 template <typename Container>
 typename array<Container>::size_type array<Container>::length() const {
-  return root_.second.links().size();
+  return root_.second.size();
 }
 
 template <typename Container>
 void array<Container>::clear() {
-  root_.second.links().clear();
+  root_.second.clear();
 }
 
 template <typename Container>
@@ -92,16 +92,15 @@ const typename array<Container>::value_type& array<Container>::root() const {
 template <typename Container>
 void array<Container>::push_back(
     const typename array<Container>::value_type& value) {
-  insert(end(), value);
+  insert(value);
 }
 
 template <typename Container>
 typename array<Container>::iterator array<Container>::insert(
-    typename array<Container>::iterator pos,
     const typename array<Container>::value_type& value) {
   (*container_)[value.first] = value.second;
-  auto result = root_.second.links().insert(pos.position(), value.first);
-  return iterator(*container_, &root_.second, result);
+  auto result = root_.second.insert(value.first);
+  return iterator(*container_, &root_.second, result.first);
 }
 
 template <typename Container>

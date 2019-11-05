@@ -50,13 +50,13 @@ pre_order_traversal<Container>::pre_order_traversal(
 
 template <typename Container>
 bool pre_order_traversal<Container>::traverse(link_type link) {
-  auto& links = position()->second.links();
+  auto& node = position()->second;
   auto moved = false;
   auto child = vertices().find(link);
   auto e = edge<Container>(position()->first, link);
-  auto child_it = std::find(links.begin(), links.end(), prev_pos_->first);
-  auto link_it = std::find(links.begin(), links.end(), link);
-  if ((child_it == links.end() || link_it > child_it) &&
+  auto child_it = node.find(prev_pos_->first);
+  auto link_it = node.find(link);
+  if ((child_it == node.end() || link_it > child_it) &&
       child != vertices().end() && is_traversable(e)) {
     base_type::position(child);
     moved = true;
@@ -70,7 +70,7 @@ bool pre_order_traversal<Container>::next() {
   prev_pos_ = position();
   while (!to_visit_.empty()) {
     auto source = position();
-    for (const auto& link : position()->second.links()) {
+    for (const auto& link : position()->second) {
       if (traverse(link)) {
         moved = true;
         break;

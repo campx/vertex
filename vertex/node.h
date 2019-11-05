@@ -8,43 +8,73 @@ namespace vertex {
 /** A node in a tree, which has data of type T, and a collection of Link
  * pointers to child nodes.
  * Provides a set-like interface for adding and removing children
- * TODO make this CRTP, don't assume vector */
-template <typename Link, typename T>
+ *
+ * Impl is required to implement get_links() and get_element(), from which
+ * we offer comparison operators, swap, and a std::set-like interface
+ * */
+template <typename Impl, typename Link, typename T,
+          typename Container = std::vector<Link>>
 class node {
  public:
-  using link_type = Link;
-  using container_type = std::vector<Link>;
-  using value_type = T;
+  using container_type = Container;
+  using value_type = typename Container::value_type;
+  using iterator = typename Container::iterator;
+  using const_iterator = typename Container::const_iterator;
+  using element_type = std::remove_reference_t<T>;
+  using key_type = std::remove_reference_t<Link>;
+  using size_type = std::size_t;
+  using link_type = value_type;
+  using pointer = T*;
 
-  /** Create a Node with the given data value */
-  explicit node(value_type data = value_type(),
-                container_type links = container_type());
-
-  node(const node&) = default;
-  node(node&&) noexcept;
-  node& operator=(const node&) = default;
-  node& operator=(node&&) noexcept;
+  static_assert(std::is_same<key_type, value_type>::value);
 
   /** Exchanges the contents of the Node with those of other */
   void swap(node& other);
 
-  /** Get the out-bound links from this node */
-  [[nodiscard]] const container_type& links() const;
+  /** Returns a pointer to the node data */
+  pointer get() const;
 
-  /** Set the out-bound links for this node */
-  void links(const container_type& value);
+  /** Returns the node data object */
+  typename std::add_lvalue_reference<T>::type operator*();
 
-  /** Get the data associated with this node */
-  const value_type& data() const;
+  /** Returns the node data object */
+  typename std::add_lvalue_reference<T>::type operator*() const;
 
-  /** Set the data associated with this node */
-  void data(const value_type& value);
+  /** Dereferences pointer to the node data */
+  pointer operator->() const;
 
-  /** Provide read-write access to the data */
-  value_type& data();
+  /** Returns an iterator to the beginning */
+  const_iterator begin() const;
 
-  /** Provide read-write access to the links */
-  container_type& links();
+  /** Returns an iterator to the end */
+  const_iterator end() const;
+
+  /** Returns the number of links equivalent to the argument */
+  template <typename K>
+  size_type count(const K& x);
+
+  /** Returns the number of links */
+  [[nodiscard]] size_type size() const;
+
+  /** Returns true if the node has no links */
+  [[nodiscard]] bool empty() const;
+
+  /** Inserts a link */
+  std::pair<iterator, bool> insert(const value_type& link);
+
+  /** Inserts links from the range [first, last) */
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last);
+
+  /** Erases a link */
+  size_type erase(const key_type& key);
+
+  /** Removes all links from the node */
+  void clear() noexcept;
+
+  /** Finds a link that compares equivalent to the value x */
+  template <typename K>
+  const_iterator find(const K& x) const;
 
   /** Compare the contents and children of a Node against another */
   bool operator==(const node& rhs) const;
@@ -53,69 +83,146 @@ class node {
   bool operator!=(const node& rhs) const;
 
  private:
-  value_type data_;
-  container_type links_;
+  const container_type& links() const;
+  container_type& links();
 };
 
-template <typename Link, typename T>
-node<Link, T>::node(value_type data, container_type links)
-    : data_(std::move(data)), links_(std::move(links)) {}
-
-template <typename Link, typename T>
-void node<Link, T>::swap(node& other) {
-  std::swap(links_, other.links_);
-  std::swap(data_, other.data_);
+template <typename Impl, typename Link, typename T, typename Container>
+void node<Impl, Link, T, Container>::swap(node& other) {
+  std::swap(this->link(), other.link());
+  std::swap(this->value(), other.value());
 }
 
-template <typename Link, typename T>
-const typename node<Link, T>::container_type& node<Link, T>::links() const {
-  return links_;
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::pointer
+node<Impl, Link, T, Container>::get() const {
+  return static_cast<const Impl*>(this)->get_element();
 }
 
-template <typename Link, typename T>
-void node<Link, T>::links(const typename node<Link, T>::container_type& value) {
-  links_ = value;
+template <typename Impl, typename Link, typename T, typename Container>
+typename std::add_lvalue_reference<T>::type
+    node<Impl, Link, T, Container>::operator*() {
+  auto pimpl = static_cast<Impl*>(this);
+  return pimpl->get_element();
 }
 
-template <typename Link, typename T>
-const typename node<Link, T>::value_type& node<Link, T>::data() const {
-  return data_;
+template <typename Impl, typename Link, typename T, typename Container>
+typename std::add_lvalue_reference<T>::type
+    node<Impl, Link, T, Container>::operator*() const {
+  auto pimpl = static_cast<const Impl*>(this);
+  return const_cast<Impl*>(pimpl)->get_element();
 }
 
-template <typename Link, typename T>
-void node<Link, T>::data(const typename node<Link, T>::value_type& value) {
-  data_ = value;
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::pointer
+    node<Impl, Link, T, Container>::operator->() const {
+  return static_cast<const Impl*>(this)->get_element();
 }
 
-template <typename Link, typename T>
-typename node<Link, T>::value_type& node<Link, T>::data() {
-  return data_;
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::const_iterator
+node<Impl, Link, T, Container>::begin() const {
+  return links().begin();
 }
 
-template <typename Link, typename T>
-typename node<Link, T>::container_type& node<Link, T>::links() {
-  return links_;
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::const_iterator
+node<Impl, Link, T, Container>::end() const {
+  return links().end();
 }
 
-template <typename Link, typename T>
-bool node<Link, T>::operator==(const node<Link, T>& rhs) const {
-  return data_ == rhs.data_ && links_ == rhs.links_;
+template <typename Impl, typename Link, typename T, typename Container>
+const typename node<Impl, Link, T, Container>::container_type&
+node<Impl, Link, T, Container>::links() const {
+  auto pimpl = static_cast<const Impl*>(this);
+  const auto& result = const_cast<Impl*>(pimpl)->get_links();
+  return result;
 }
 
-template <typename Link, typename T>
-bool node<Link, T>::operator!=(const node<Link, T>& rhs) const {
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::container_type&
+node<Impl, Link, T, Container>::links() {
+  return static_cast<Impl*>(this)->get_links();
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+template <typename InputIt>
+void node<Impl, Link, T, Container>::insert(InputIt first, InputIt last) {
+  for (auto it = first; it != last; ++it) {
+    insert(*it);
+  }
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+template <typename K>
+typename node<Impl, Link, T, Container>::size_type
+node<Impl, Link, T, Container>::count(const K& x) {
+  return std::count(begin(), end(), x);
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+bool node<Impl, Link, T, Container>::operator==(
+    const node<Impl, Link, T, Container>& rhs) const {
+  return **this == *rhs && this->links() == rhs.links();
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+bool node<Impl, Link, T, Container>::operator!=(
+    const node<Impl, Link, T, Container>& rhs) const {
   return !(*this == rhs);
 }
 
-template <typename Link, typename T>
-node<Link, T>::node(node&& other) noexcept
-    : data_(std::move(other.data_)), links_(std::move(other.links_)) {}
+template <typename Impl, typename Link, typename T, typename Container>
+std::pair<typename node<Impl, Link, T, Container>::iterator, bool>
+node<Impl, Link, T, Container>::insert(const value_type& link) {
+  auto first = links().begin();
+  auto last = links().end();
+  auto result = std::pair(std::find(first, last, link), true);
+  result.second = result.first == last;
+  if (result.second) {
+    result.first = links().insert(result.first, link);
+  }
+  return result;
+}
 
-template <typename Link, typename T>
-node<Link, T>& node<Link, T>::operator=(node&& rhs) noexcept {
-  data_ = std::move(rhs.data_);
-  links_ = std::move(rhs.links_);
-  return *this;
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::size_type
+node<Impl, Link, T, Container>::size() const {
+  return links().size();
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+bool node<Impl, Link, T, Container>::empty() const {
+  return links().empty();
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+void node<Impl, Link, T, Container>::clear() noexcept {
+  links().clear();
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+typename node<Impl, Link, T, Container>::size_type
+node<Impl, Link, T, Container>::erase(
+    const typename node<Impl, Link, T, Container>::key_type& key) {
+  auto it = begin();
+  size_type result = 0;
+  while (it != end()) {
+    it = find(key);
+    if (it != end()) {
+      links().erase(it);
+      ++result;
+    }
+  }
+  return result;
+}
+
+template <typename Impl, typename Link, typename T, typename Container>
+
+template <typename K>
+typename node<Impl, Link, T, Container>::const_iterator
+node<Impl, Link, T, Container>::find(const K& x) const {
+  return std::find(begin(), end(), x);
 }
 
 }  // namespace vertex

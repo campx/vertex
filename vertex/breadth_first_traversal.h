@@ -31,7 +31,7 @@ template <typename Container>
 bool breadth_first_traversal<Container>::next() {
   auto result = false;
   if (position() != vertices().end()) {
-    for (const auto& child : position()->second.links()) {
+    for (const auto& child : position()->second) {
       auto e = edge<Container>(position()->first, child);
       if (is_traversable(e)) {
         to_visit_.push(e);

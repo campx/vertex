@@ -2,9 +2,9 @@
 #include <vertex/link.h>
 #include <ostream>
 
-namespace vertex {
+namespace test {
 
-using TestLink = link<uint64_t, std::string>;
+using TestLink = vertex::link<uint64_t, std::string>;
 std::ostream& operator<<(std::ostream& output, const TestLink& link);
 
-}  // namespace vertex
+}  // namespace test

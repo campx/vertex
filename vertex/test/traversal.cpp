@@ -1,19 +1,20 @@
+#include <gtest/gtest.h>
 #include <vertex/breadth_first_traversal.h>
 #include <vertex/in_order_traversal.h>
 #include <vertex/node.h>
+#include <vertex/pod_node.h>
 #include <vertex/post_order_traversal.h>
 #include <vertex/pre_order_traversal.h>
 #include <functional>
-#include "gtest/gtest.h"
 
 namespace {
 
-using TestNode = vertex::node<std::string, std::string>;
+using TestNode = vertex::pod_node<std::string, std::string>;
 using Container = std::map<std::string, TestNode>;
 using LinkArray = typename TestNode::container_type;
 
 std::ostream& operator<<(std::ostream& output, const TestNode& vertex) {
-  output << vertex.data();
+  output << *vertex;
   return output;
 }
 
@@ -83,24 +84,24 @@ struct tree : public ::testing::Test {
     vertices.insert(std::make_pair("E", TestNode("E")));
     vertices.insert(std::make_pair("H", TestNode("H")));
     auto d = TestNode("D");
-    d.links().insert(d.links().end(), "C");
-    d.links().insert(d.links().end(), "E");
+    d.insert("C");
+    d.insert("E");
     vertices.insert(std::make_pair("D", d));
     auto b = TestNode("B");
-    b.links().insert(b.links().end(), "A");
-    b.links().insert(b.links().end(), "D");
+    b.insert("A");
+    b.insert("D");
     vertices.insert(std::make_pair("B", b));
     auto f = TestNode("F");
-    f.links().insert(f.links().end(), "B");
-    f.links().insert(f.links().end(), "G");
+    f.insert("B");
+    f.insert("G");
     vertices.insert(std::make_pair("F", f));
     auto g = TestNode("G");
-    g.links().insert(g.links().end(), "");
-    g.links().insert(g.links().end(), "I");
+    g.insert("");
+    g.insert("I");
     vertices.insert(std::make_pair("G", g));
     auto i = TestNode("I");
-    i.links().insert(i.links().end(), "H");
-    i.links().insert(i.links().end(), "");
+    i.insert("H");
+    i.insert("");
     vertices.insert(std::make_pair("I", i));
   }
 };
@@ -110,7 +111,7 @@ TEST_F(tree, InOrderIterator) {
   auto output = std::ostringstream();
   auto count = 0;
   for (const auto& i : traversal) {
-    output << i.second.data();
+    output << *i.second;
     if (++count > 10) {
       break;
     }
@@ -223,9 +224,9 @@ TEST_F(tree, BredthFirstTraversal) {
   vertices.insert(std::make_pair("C", TestNode("C")));
   vertices.insert(std::make_pair("D", TestNode("D")));
   auto root = TestNode("A");
-  root.links().insert(root.links().end(), "B");
-  root.links().insert(root.links().end(), "C");
-  root.links().insert(root.links().end(), "D");
+  root.insert("B");
+  root.insert("C");
+  root.insert("D");
   vertices.insert(std::make_pair("A", root));
   {  // traverse graph of depth 1
     using Bfs = breadth_first_traversal<Container>;

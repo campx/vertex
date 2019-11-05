@@ -42,10 +42,10 @@ post_order_traversal<Container>::post_order_traversal(
 template <typename Container>
 bool post_order_traversal<Container>::traverseLeft() {
   auto moved = false;
-  while (position()->second.links().size() ==
+  while (position()->second.size() ==
          2) {  // traversal to bottom of left branch
-    auto left_key = *position()->second.links().begin();
-    auto right_child = vertices().find(*(++position()->second.links().begin()));
+    auto left_key = *position()->second.begin();
+    auto right_child = vertices().find(*(++position()->second.begin()));
     auto left_child = vertices().find(left_key);
     auto left_edge = edge<Container>(position()->first, left_key);
     if (right_child == prev_pos_ || left_child == prev_pos_ ||
@@ -67,8 +67,8 @@ bool post_order_traversal<Container>::traverseLeft() {
 template <typename Container>
 bool post_order_traversal<Container>::traverseRight() {
   auto moved = false;
-  if (position()->second.links().size() == 2) {  // traverse right branch
-    auto child_key = *(++position()->second.links().begin());
+  if (position()->second.size() == 2) {  // traverse right branch
+    auto child_key = *(++position()->second.begin());
     auto child_vertex = vertices().find(child_key);
     auto child_edge = edge<Container>(position()->first, child_key);
     if (child_vertex != vertices().end() && child_vertex != prev_pos_ &&

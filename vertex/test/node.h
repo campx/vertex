@@ -1,12 +1,12 @@
 #pragma once
-#include <vertex/node.h>
+#include <vertex/pod_node.h>
 #include <ostream>
 #include <string>
 #include "link.h"
 
-namespace vertex {
+namespace test {
 
-using TestNode = node<TestLink, std::string>;
+using TestNode = vertex::pod_node<TestLink, std::string>;
 std::ostream& operator<<(std::ostream& output, const TestNode& vertex);
 
-}  // namespace vertex
+}  // namespace test

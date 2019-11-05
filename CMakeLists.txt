@@ -41,12 +41,14 @@ add_library(libvertex
         vertex/path_map.h
         vertex/iterator_recorder.cpp
         vertex/path.cpp
-        vertex/path.h)
+        vertex/path.h
+        vertex/pod_node.cpp
+        vertex/pod_node.h)
 
 set_target_properties(libvertex PROPERTIES OUTPUT_NAME vertex)
 target_include_directories(libvertex PUBLIC
-        $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
         $<BUILD_INTERFACE:${vertex_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
         $<INSTALL_INTERFACE:include>)
 
 if (MSVC)

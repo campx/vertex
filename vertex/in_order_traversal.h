@@ -43,10 +43,9 @@ bool in_order_traversal<Container>::next() {
     return false;
   }
   auto child = next_position_;
-  while (child != vertices().end() &&
-         child->second.links().size() >
-             0) {  // traversal to bottom of left branch
-    auto next_child = vertices().find(*child->second.links().begin());
+  while (child != vertices().end() && !child->second.empty()) {
+    // traversal to bottom of left branch
+    auto next_child = vertices().find(*child->second.begin());
     if (next_child != vertices().end()) {
       auto e = edge<Container>(child->first, next_child->first);
       if (is_traversable(e)) {
@@ -62,8 +61,8 @@ bool in_order_traversal<Container>::next() {
     next_position_ = child;
   }
   base_type::position(next_position_);
-  if (next_position_->second.links().size() > 1) {  // traverse right branch
-    auto link = *(++next_position_->second.links().begin());
+  if (next_position_->second.size() > 1) {  // traverse right branch
+    auto link = *(++next_position_->second.begin());
     child = vertices().find(link);
     e = edge<Container>(next_position_->first, link);
     if (child != vertices().end() &&

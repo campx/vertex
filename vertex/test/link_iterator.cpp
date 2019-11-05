@@ -1,8 +1,9 @@
 #include <vertex/link_iterator.h>
 #include "gtest/gtest.h"
+#include "link.h"
 #include "node.h"
 
-namespace vertex {
+namespace test {
 
 TEST(Node, LinkIterator) {
   /**********************
@@ -20,17 +21,17 @@ TEST(Node, LinkIterator) {
     vertices.insert(std::make_pair(TestLink(2), TestNode("B")));
     vertices.insert(std::make_pair(TestLink(3), TestNode("C")));
     vertices.insert(std::make_pair(TestLink(4), TestNode("D")));
-    vertex.links().push_back(TestLink(1));
-    vertex.links().push_back(TestLink(2));
-    vertex.links().push_back(TestLink(3));
-    vertex.links().push_back(TestLink(4));
+    vertex.insert(TestLink(1));
+    vertex.insert(TestLink(2));
+    vertex.insert(TestLink(3));
+    vertex.insert(TestLink(4));
 
     auto inserted = false;
     auto vit = Container::iterator();
     std::tie(vit, inserted) =
         vertices.insert(std::make_pair(TestLink(0), vertex));
     auto it =
-        link_iterator<Container>(vertices, &vertex, vertex.links().begin());
+        vertex::link_iterator<Container>(vertices, &vertex, vertex.begin());
     auto begin = std::begin(it);
     auto end = std::end(it);
     EXPECT_EQ(Container::value_type(TestLink(1u), TestNode("A")), *begin);
@@ -45,4 +46,4 @@ TEST(Node, LinkIterator) {
   }
 }
 
-}  // namespace vertex
+}  // namespace test

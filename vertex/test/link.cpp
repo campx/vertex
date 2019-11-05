@@ -1,7 +1,7 @@
 #include "link.h"
 #include "gtest/gtest.h"
 
-namespace vertex {
+namespace test {
 
 std::ostream& operator<<(std::ostream& output, const TestLink& link) {
   output << link.key();
@@ -18,4 +18,4 @@ TEST(vertex, Link) {
   EXPECT_FALSE(link_a > link_b);
 }
 
-}  // namespace vertex
+}  // namespace test

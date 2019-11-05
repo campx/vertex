@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
 #include <vertex/node.h>
 #include <vertex/path_map.h>
+#include <vertex/pod_node.h>
 
-using TestNode = vertex::node<std::string, std::string>;
+namespace test {
+using TestLink = std::string;
+using TestNode = vertex::pod_node<TestLink, std::string>;
 using Container = std::map<std::string, TestNode>;
-using LinkArray = std::vector<std::string>;
+using LinkArray = std::vector<TestLink>;
 using NodeArray = std::vector<std::pair<const std::string, TestNode>>;
 using PathArray = std::vector<std::pair<LinkArray, TestNode>>;
 using PathMap = vertex::path_map<Container>;
@@ -116,3 +119,5 @@ TEST(vertex, PathMap) {  // Create a graph of paths
   EXPECT_EQ(path_map.find(path), map_iter);
   EXPECT_TRUE(inserted);
 }
+
+}  // namespace test

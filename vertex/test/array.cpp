@@ -2,6 +2,7 @@
 #include <vertex/array.h>
 #include <vertex/link.h>
 #include <vertex/node.h>
+#include <vertex/pod_node.h>
 
 namespace std {
 
@@ -14,7 +15,7 @@ bool operator==(pair<First, Second>& lhs, pair<First, Second>& rhs) {
 
 TEST(Merkle, Array) {
   using Link = vertex::link<unsigned char, std::string>;
-  using Node = vertex::node<Link, std::string>;
+  using Node = vertex::pod_node<Link, std::string>;
   auto root = std::make_pair(Link(0), Node("/"));
   auto other = std::make_pair(Link(1), Node("one"));
   EXPECT_NE(root, other);
